@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.4" type="plugin" group="system" method="upgrade">
-    <name>jd_newjersey</name>
-    <description>JD New-Jersey - Template build by www.joomdev.com</description>
+    <name>jd_miami</name>
+    <description>JD Miami - Template build by www.joomdev.com</description>
     <scriptfile>installer.script.php</scriptfile>
     <files>
 		    <filename plugin="tmp_helix3">installer.script.php</filename>
