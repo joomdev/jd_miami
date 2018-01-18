@@ -1,5 +1,6 @@
 # jdmiami
 JD Miami Template for Joomla
+![JD Miami mockup](https://cdn.joomdev.com/images/jd-miami-mockup.jpg)
 -----------
 JD Miami is a Free Multi-purpose Joomla 3.8.3 Template comes with buckets of customization features. This super modern template builds with a Helix3 framework and designed professionally for small business websites and portfolio website.
 
