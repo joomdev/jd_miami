@@ -1,0 +1,236 @@
+.sc-pretext{
+	padding:10px 0; 
+}
+
+.sc-posttext{
+	padding:0 0 10px 0;
+}
+
+.sj-social-media-counts .sc-wrap .sc-item  {
+    float: left;
+	width: 50%;
+	color: #FFFFFF;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.sj-social-media-counts .sc-wrap .sc-item .sc-item-inner{
+	margin:0 5px;
+	overflow:hidden;
+}
+
+.sj-social-media-counts .sc-wrap .sc-item a,
+.sj-social-media-counts .sc-wrap .sc-item a:hover{
+	text-decoration:none;
+	color:#fff;
+}
+
+.sj-social-media-counts .sc-wrap .fb-like-button .sc-item-inner {
+    background: none repeat scroll 0 0 #4968A9;
+    
+}
+
+.sj-social-media-counts .sc-wrap  .fb-like-button .sc-item-inner:hover {
+    background-color: #5675B6;
+}
+
+.sj-social-media-counts .sc-wrap    .rss-like-button .sc-item-inner {
+    background: none repeat scroll 0 0 #FD9F13;
+}
+
+.sj-social-media-counts .sc-wrap .rss-like-button .sc-item-inner:hover {
+     background-color: #FDA92C;
+}
+
+.sj-social-media-counts .sc-wrap .twitter-like-button .sc-item-inner {
+    background: none repeat scroll 0 0 #11C2EA;
+}
+
+.sj-social-media-counts .sc-wrap .twitter-like-button .sc-item-inner:hover {
+     background-color: #25CAEF;
+}
+
+.sj-social-media-counts .sc-wrap .linkedin-like-button .sc-item-inner {
+    background: none repeat scroll 0 0 #3F93D3;
+}
+
+.sj-social-media-counts .sc-wrap .linkedin-like-button .sc-item-inner:hover{
+    background-color: #549FD8;
+}
+
+.sj-social-media-counts .sc-wrap  .linkedin-like-button .sc-item-inner {
+    background: none repeat scroll 0 0 #3F93D3;
+}
+
+.sj-social-media-counts .sc-wrap  .linkedin-like-button .sc-item-inner:hover{
+    background-color: #549FD8;
+}
+
+.sj-social-media-counts .sc-wrap .vimeo-linke-button .sc-item-inner {
+    background: none repeat scroll 0 0 #1ab7ea;
+}
+
+.sj-social-media-counts .sc-wrap .vimeo-linke-button .sc-item-inner:hover{
+    background-color: #2cb3ea;
+}
+
+.sj-social-media-counts .sc-wrap .soundcloud-like-button .sc-item-inner {
+    background: none repeat scroll 0 0 #faa21e;
+}
+
+.sj-social-media-counts .sc-wrap .soundcloud-like-button .sc-item-inner:hover{
+    background-color: #faa91e;
+}
+
+.sj-social-media-counts .sc-wrap .gplus-like-button .sc-item-inner {
+    background: none repeat scroll 0 0 #ce3633;
+}
+
+.sj-social-media-counts .sc-wrap .gplus-like-button .sc-item-inner:hover{
+    background-color: #e33c39;
+}
+
+.sj-social-media-counts .sc-wrap .dribbble-like-button .sc-item-inner {
+    background: none repeat scroll 0 0 #eb4c89;
+}
+
+.sj-social-media-counts .sc-wrap .dribbble-like-button .sc-item-inner:hover{
+    background-color: #f04d8b;
+}
+
+
+.sj-social-media-counts .sc-wrap .youtube-subscribers-button .sc-item-inner {
+    background: none repeat scroll 0 0 #ce322e;
+}
+
+.sj-social-media-counts .sc-wrap .youtube-subscribers-button .sc-item-inner:hover{
+    background-color: #db3330;
+}
+
+
+.sj-social-media-counts .sc-wrap .instagram-like-button .sc-item-inner {
+    background: none repeat scroll 0 0 #2f689b;
+}
+
+.sj-social-media-counts .sc-wrap .instagram-like-button .sc-item-inner:hover{
+    background-color: #3f689c;
+}
+
+
+.sj-social-media-counts .sc-wrap .like-count {
+    font-size: 18px;
+    line-height: 15px;
+    margin: 9px 0 0;
+    overflow: hidden;
+    padding: 0 15px;
+	display:block;
+}
+
+.sj-social-media-counts .sc-wrap    .like-text {
+    font-size: 14px;
+    margin: 0;
+    overflow: hidden;
+    padding: 0 15px;
+	line-height:22px;
+	display:block;
+}
+
+.sj-social-media-counts .sc-wrap  .sc-item .sc-icon{
+	border-right: 1px solid #3A5285;
+    float: left;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    width: 50px;
+}
+
+
+.sj-social-media-counts .sc-wrap .soundcloud-like-button .sc-icon,
+.sj-social-media-counts .sc-wrap .rss-like-button .sc-icon{
+	border-color:#DB8402
+}
+
+.sj-social-media-counts .sc-wrap .vimeo-linke-button .sc-icon{
+	border-color:#048cb8
+}
+
+.sj-social-media-counts .sc-wrap .twitter-like-button .sc-icon{
+	border-color:#0E9BBA
+}
+
+.sj-social-media-counts .sc-wrap .linkedin-like-button .sc-icon{
+	border-color:#2A79B5
+}
+
+.sj-social-media-counts .sc-wrap .gplus-like-button .sc-icon{
+	border-color:#ad0703
+}
+
+.sj-social-media-counts .sc-wrap .dribbble-like-button .sc-icon{
+	border-color:#b56b6a;
+}
+
+.sj-social-media-counts .sc-wrap .youtube-subscribers-button .sc-icon{
+	border-color:#AC5251
+}
+
+.sj-social-media-counts .sc-wrap .fb-like-button .sc-icon-facebook{
+	background:url('../images/facebook.png') no-repeat center center transparent;
+}
+
+.sj-social-media-counts .sc-wrap .twitter-like-button .sc-icon-twitter {
+	background:url('../images/twitter.png') no-repeat center center transparent;
+}
+
+.sj-social-media-counts .sc-wrap .rss-like-button .sc-icon-rss{
+	background:url('../images/feed.png') no-repeat center center transparent;
+}
+
+.sj-social-media-counts .sc-wrap .linkedin-like-button .sc-icon-linkedin{
+	background:url('../images/linkedin.png') no-repeat center center transparent;
+}
+
+.sj-social-media-counts .sc-wrap .vimeo-linke-button .sc-icon-vimeo{
+	background:url('../images/vimeo.png') no-repeat center center transparent;
+}
+
+.sj-social-media-counts .sc-wrap .soundcloud-like-button .sc-icon-soundcloud{
+	background:url('../images/soundcloud.png') no-repeat center center transparent;
+}
+
+.sj-social-media-counts .sc-wrap .dribbble-like-button .sc-icon-dribbble{
+	background:url('../images/dribbble.png') no-repeat center center transparent;
+}
+
+.sj-social-media-counts .sc-wrap .youtube-subscribers-button .sc-icon-youtube{
+	background:url('../images/youtube.png') no-repeat center center transparent;
+}
+
+.sj-social-media-counts .sc-wrap .gplus-like-button .sc-icon-gplus{
+	background:url('../images/gplus.png') no-repeat center center transparent;
+}
+
+.sj-social-media-counts .sc-wrap .instagram-like-button .sc-icon-instagram{
+	background:url('../images/instagram.png') no-repeat center center transparent;
+}
+
+@media all and (max-width: 479px){
+	.sj-social-media-counts .sc-wrap .sc-item{
+		width:100%;
+	}
+	
+	.sj-social-media-counts .sc-wrap .sc-item .sc-item-inner{
+		margin:0;
+	}
+	
+}
+
+.cf:before,
+.cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.cf:after {
+    clear: both;
+}

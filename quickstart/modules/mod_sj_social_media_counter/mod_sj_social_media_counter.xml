@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0.0" client="site" method="upgrade">
+	<name>SJ Social Media Counter</name>
+	<creationDate>Desc 2013</creationDate>
+	<author>YouTech Company</author>
+	<copyright>Copyright (c) 2013 YouTech Company</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<authorEmail>contact@ytcvn.com</authorEmail>
+	<authorUrl>http://www.smartaddons.com</authorUrl>
+	<version>1.0.0</version>
+	<description>TPL_YTFRAMEWORK_XML_DESCRIPTION</description>
+	<files>
+		<filename module="mod_sj_social_media_counter">mod_sj_social_media_counter.php</filename>
+		<filename>index.html</filename>
+		<folder>assets</folder>
+		<folder>core</folder>
+		<folder>language</folder>
+		<folder>tmpl</folder>
+	</files>
+	<languages/>
+	<config>
+		<fields name="params" addfieldpath="/modules/mod_sj_social_media_counter/core/fields">
+			<fieldset name="basic">
+				<field type="sjheading" label="Facebook Options" />
+				<field name="display_sfacebook" type="radio" class="btn-group" default="1"
+					label="Show/Hide" description="Allow Show/Hide social Facebook" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>	
+				<field name="facebook_url" type="text" default="https://www.facebook.com/SmartAddons.page"
+					label="Url" description="Facebook Url" />
+				
+				<field type="sjheading" label="LinkedIn Options" />
+				<field name="display_slinkedin" type="radio" class="btn-group" default="1"
+					label="Show/Hide" description="Allow Show/Hide social LinkedIn" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="linkedin_url" type="text" default="http://www.linkedin.com/in/smartaddons"
+					label="Url" description="LinkedIn Url" />
+				
+				<field type="sjheading" label="Twitter Options" />
+				<field name="display_stwitter" type="radio" class="btn-group" default="1"
+					label="Show/Hide" description="Allow Show/Hide social Twitter" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="twitter_url" type="text" default="https://twitter.com/smartaddons"
+					label="Url" description="Twitter Url" />
+				<field name="screenname" type="text" default="smartaddons"
+					label="Screen Name" description="Screen Name" />	
+				<field name="consumekey" type="text" default="kGeoSxX3i60oXODNAlOCw"
+					label="Consume Key" description="Consume Key" />	
+				<field name="consumersecret" type="text" default="EqvsqEwoeYMMITJ3fSYaVjSuv7w6ORwt5sADuuNYcs"
+					label="Consume Secret" description="Consume Secret" />
+				
+				<field type="sjheading" label="Rss Options" />
+				<field name="display_rss" type="radio" class="btn-group" default="1"
+					label="Show/Hide" description="Allow Show/Hide Rss" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="rss_url" type="text" default="http://feeds.feedburner.com/smartaddons/news-announcements"
+					label="Url" description="Rss Url" />	
+				
+				<field type="sjheading" label="Youtube Options" />
+				<field name="display_syoutube" type="radio" class="btn-group" default="1"
+					label="Show/Hide" description="Allow Show/Hide Youtube Subscribers" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="youtube_url" type="text" default="http://www.youtube.com/Apple"
+					label="Url" description="Youtube Url" />
+				<field name="yt_channel" type="text" default="Apple"
+					label="Channel" description="Youtube Channel" />	
+				
+				<field type="sjheading" label="GooglePlus Options" />
+				<field name="display_sgplus" type="radio" class="btn-group" default="1"
+					label="Show/Hide" description="Allow Show/Hide social GooglePlus" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="gplus_url" type="text" default="https://plus.google.com"
+					label="Url" description="GooglePlus Url" />	
+				<field name="gplus_id" type="text" default=""
+					label="Page ID " description="GooglePlus Page ID" />	
+				<field name="gplus_key" type="text" default=""
+					label="API Key" description="GooglePlus API Key" />			
+				
+				<field type="sjheading" label="Instagram Options" />
+				<field name="display_sinstagram" type="radio" class="btn-group" default="1"
+					label="Show/Hide" description="Allow Show/Hide social Instagram" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="instagram_url" type="text" default="http://instagram.com"
+					label="Url" description="Instagram Url" />
+				<field name="inst_userid" type="text" default=""
+					label="User ID " description="Instagram User ID" />	
+				<field name="inst_access_token" type="text" default=""
+					label="Access Token" description="Instagram Access Token" />	
+
+				<field type="sjheading" label="Dribbble Options" />
+				<field name="display_sdribbble" type="radio" class="btn-group" default="1"
+					label="Show/Hide" description="Allow Show/Hide social Dribbble" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="dribbble_url" type="text" default="http://dribbble.com/facebook"
+					label="Url" description="Dribbble Url" />
+				<field name="drbl_un" type="text" default="Facebook"
+					label="User Name " description="Dribbble User Name " />	
+				
+				<field type="sjheading" label="SoundCloud Options" />
+				<field name="display_ssoundcloud" type="radio" class="btn-group" default="1"
+					label="Show/Hide" description="Allow Show/Hide social SoundCloud" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="soundcloud_url" type="text" default="http://soundcloud.com"
+					label="Url" description="SoundCloud Url" />
+				<field name="soundc_un" type="text" default=""
+					label="User Name " description="SoundCloud User Name" />	
+				<field name="soundc_id" type="text" default=""
+					label="Access Token" description="SoundCloud Client ID" />		
+					
+					
+				<field type="sjheading" label="Vimeo Options" />
+				<field name="display_svimeo" type="radio" class="btn-group" default="1"
+					label="Show/Hide" description="Allow Show/Hide social Vimeo" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="vimeo_url" type="text" default="https://vimeo.com/royalhandmadecustoms"
+					label="Url" description="Vimeo Url" />
+				<field name="vimeo_username" type="text" default="royalhandmadecustoms"
+					label="User Name " description="Vimeo User Name" />			
+				
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="layout" type="modulelayout"
+					label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+				<field name="moduleclass_sfx" type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="pretext" type="textarea" default="" label="Pre-text" description="Intro text of module" cols="40" rows="4" filter="raw" />
+				<field name="posttext" type="textarea" default="" label="Post-text" description="Footer text of module" cols="40" rows="4" filter="raw" />
+				
+				<field name="owncache" type="list" default="1"
+					label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING
+					</option>
+				</field>
+
+				<field name="cache_time" type="text" default="900"
+					label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

@@ -1,0 +1,112 @@
+a {
+  color: #bf434d;
+}
+a:hover {
+  color: #9a353d;
+}
+.sp-megamenu-parent >li.active>a,
+.sp-megamenu-parent >li:hover>a {
+  color: #bf434d;
+}
+.sp-megamenu-parent .sp-dropdown li.sp-menu-item >a:hover {
+  background: #bf434d;
+}
+.sp-megamenu-parent .sp-dropdown li.sp-menu-item.active>a {
+  color: #bf434d;
+}
+#offcanvas-toggler >i {
+  color: #000000;
+}
+#offcanvas-toggler >i:hover {
+  color: #bf434d;
+}
+.btn-primary,
+.sppb-btn-primary {
+  border-color: #aa3a43;
+  background-color: #bf434d;
+}
+.btn-primary:hover,
+.sppb-btn-primary:hover {
+  border-color: #872e35;
+  background-color: #9a353d;
+}
+ul.social-icons >li a:hover {
+  color: #bf434d;
+}
+.sp-page-title {
+  background: #bf434d;
+}
+.layout-boxed .body-innerwrapper {
+  background: #ffffff;
+}
+.sp-module ul >li >a {
+  color: #000000;
+}
+.sp-module ul >li >a:hover {
+  color: #bf434d;
+}
+.sp-module .latestnews >div >a {
+  color: #000000;
+}
+.sp-module .latestnews >div >a:hover {
+  color: #bf434d;
+}
+.sp-module .tagscloud .tag-name:hover {
+  background: #bf434d;
+}
+.sp-simpleportfolio .sp-simpleportfolio-filter > ul > li.active > a,
+.sp-simpleportfolio .sp-simpleportfolio-filter > ul > li > a:hover {
+  background: #bf434d;
+}
+.search .btn-toolbar button {
+  background: #bf434d;
+}
+.post-format {
+  background: #bf434d;
+}
+.voting-symbol span.star.active:before {
+  color: #bf434d;
+}
+.sp-rating span.star:hover:before,
+.sp-rating span.star:hover ~ span.star:before {
+  color: #9a353d;
+}
+.entry-link,
+.entry-quote {
+  background: #bf434d;
+}
+blockquote {
+  border-color: #bf434d;
+}
+.carousel-left:hover,
+.carousel-right:hover {
+  background: #bf434d;
+}
+#sp-footer {
+  background: #bf434d;
+}
+.sp-comingsoon body {
+  background-color: #bf434d;
+}
+.pagination>li>a,
+.pagination>li>span {
+  color: #000000;
+}
+.pagination>li>a:hover,
+.pagination>li>a:focus,
+.pagination>li>span:hover,
+.pagination>li>span:focus {
+  color: #000000;
+}
+.pagination>.active>a,
+.pagination>.active>span {
+  border-color: #bf434d;
+  background-color: #bf434d;
+}
+.pagination>.active>a:hover,
+.pagination>.active>a:focus,
+.pagination>.active>span:hover,
+.pagination>.active>span:focus {
+  border-color: #bf434d;
+  background-color: #bf434d;
+}

@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension
+	type="module"
+	version="3.1.0"
+	client="site"
+	method="upgrade">
+	<name>mod_articles_news_adv</name>
+	<author>Joomla! Project</author>
+	<creationDate>April 2013</creationDate>
+	<copyright>Copyright (c) 2012-20013 by TemplateMonster - www.templatemonster.com</copyright>
+	<license>Licensed under the GNU/GPLv2:  http://www.opensource.org/licenses/mit-license.php</license>
+	<authorEmail></authorEmail>
+	<authorUrl>www.templatemonster.com</authorUrl>
+	<version>1.4.5</version>
+	<description>MOD_ARTICLES_NEWS_ADV_XML_DESCRIPTION</description>
+	<files>
+		<filename module="mod_articles_news_adv">mod_articles_news_adv.php</filename>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>
+		<filename>mod_articles_news_adv.xml</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.mod_articles_news_adv.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.mod_articles_news_adv.sys.ini</language>
+	</languages>
+	<updateservers>
+  	<server type="extension" priority="1" name="Articles Newsflash (Advanced) module Updates"><![CDATA[http://joomlacode.org/gf/project/tm_art_news_adv/scmsvn/?action=browse&path=%2F%2Acheckout%2A%2Ftrunk%2Fextension.xml]]></server>
+	</updateservers>
+	<help key="JHELP_EXTENSIONS_MODULE_MANAGER_ARTICLES_NEWSFLASH" />
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+					name="catid"
+					type="category"
+					extension="com_content"
+					multiple="true"
+					default=""
+					size="10"
+					label="JCATEGORY"
+					description="MOD_ARTICLES_NEWS_FIELD_CATEGORY_DESC" >
+					<option value="">JOPTION_ALL_CATEGORIES</option>
+				</field>
+
+				<!-- <field
+					name="showLastSeparator"
+					type="radio"
+					class="btn-group"
+					default="1"
+					label="MOD_ARTICLES_NEWS_FIELD_SEPARATOR_LABEL"
+					description="MOD_ARTICLES_NEWS_FIELD_SEPARATOR_DESC">
+					<option
+						value="1">JYES</option>
+					<option
+						value="0">JNO</option>
+				</field> -->
+
+				<field
+					name="count"
+					type="text"
+					default="5"
+					label="MOD_ARTICLES_NEWS_FIELD_ITEMS_LABEL"
+					description="MOD_ARTICLES_NEWS_FIELD_ITEMS_DESC" />
+
+				<field
+					name="columns"
+					type="list"
+					default="1"
+					label="MOD_ARTICLES_NEWS_ADV_FIELD_COLUMNS_LABEL"
+					description="MOD_ARTICLES_NEWS_ADV_FIELD_COLUMNS_DESC">
+					<option	value="1">1</option>
+					<option	value="2">2</option>
+					<option	value="3">3</option>
+					<option	value="4">4</option>
+					<option	value="5">5</option>
+					<option	value="6">6</option>
+					<option	value="7">7</option>
+					<option	value="8">8</option>
+					<option	value="9">9</option>
+					<option	value="10">10</option>
+					<option	value="11">11</option>
+					<option	value="12">12</option>
+				</field>					
+
+				<field
+					name="ordering"
+					type="list"
+					default="a.publish_up"
+					label="MOD_ARTICLES_NEWS_FIELD_ORDERING_LABEL"
+					description="MOD_ARTICLES_NEWS_FIELD_ORDERING_DESC">
+					<option
+						value="a.publish_up">MOD_ARTICLES_NEWS_FIELD_ORDERING_PUBLISHED_DATE</option>
+					<option
+						value="a.created">MOD_ARTICLES_NEWS_FIELD_ORDERING_CREATED_DATE</option>
+					<option
+						value="a.ordering">MOD_ARTICLES_NEWS_FIELD_ORDERING_ORDERING</option>
+					<option
+						value="rand()">MOD_ARTICLES_NEWS_FIELD_ORDERING_RANDOM</option>
+				</field>
+
+				<field
+					name="mod_button"
+					type="radio"
+					class="btn-group"
+					default="0"
+					label="MOD_ARTICLES_NEWS_FIELD_CUSTOM_LINK_LABEL"
+					description="MOD_ARTICLES_NEWS_FIELD_CUSTOM_LINK_DESC">
+					<option
+						value="0">JHIDE</option>
+					<option
+						value="1">JSHOW</option>
+				</field>
+
+				<field
+					type="text"
+					name="custom_link_title"
+					default=""
+					label="MOD_ARTICLES_NEWS_FIELD_CUSTOM_LINK_TITLE_LABEL"
+					>				
+				</field>
+
+				<field
+					name="custom_link_route"
+					type="list"
+					class="btn-group"
+					default="0"
+					label="MOD_ARTICLES_NEWS_ADV_FIELD_CUSTOM_LINK_ROUTE_LABEL"
+					description="MOD_ARTICLES_NEWS_ADV_FIELD_CUSTOM_LINK_ROUTE_DESC">
+						<option	value="0">URL</option>
+						<option	value="1">Menu item</option>
+				</field>
+
+				<field
+					type="text"
+					name="custom_link_url"
+					default="http://"
+					label="MOD_ARTICLES_NEWS_FIELD_CUSTOM_LINK_URL_LABEL"
+					>				
+				</field>
+
+				<field
+					type="menuitem"
+					name="custom_link_menu"
+					label="MOD_ARTICLES_NEWS_FIELD_CUSTOM_LINK_MENU_LABEL">
+				</field>
+
+				<field
+					type="textarea"
+					name="pretext"
+					rows="5"
+					cols="5"
+					label="MOD_ARTICLES_NEWS_ADV_FIELD_PRETEXT_LABEL"
+					description="MOD_ARTICLES_NEWS_ADV_FIELD_PRETEXT_DESC">
+				</field>
+
+			</fieldset>
+
+			<fieldset name="ITEM_SETTINGS">
+
+				<field
+					name="item_title"
+					class="btn-group"
+					type="radio"
+					default="0"
+					label="MOD_ARTICLES_NEWS_FIELD_TITLE_LABEL"
+					description="MOD_ARTICLES_NEWS_FIELD_TITLE_DESC">
+					<option
+						value="1">JYES</option>
+					<option
+						value="0">JNO</option>
+				</field>
+
+				<field
+					name="link_titles"
+					type="list"
+					label="MOD_ARTICLES_NEWS_FIELD_LINKTITLE_LABEL"
+					description="MOD_ARTICLES_NEWS_FIELD_LINKTITLE_DESC">
+					<option
+						value="">JGLOBAL_USE_GLOBAL</option>
+					<option
+						value="0">JNO</option>
+					<option
+						value="1">JYES</option>
+				</field>
+
+				<field
+					name="item_heading"
+					type="list"
+					default="h4"
+					label="MOD_ARTICLES_ADV_NEWS_TITLE_HEADING"
+					description="MOD_ARTICLES_NEWS_TITLE_HEADING_DESCRIPTION">
+					<option
+						value="h1">JH1</option>
+					<option
+						value="h2">JH2</option>
+					<option
+						value="h3">JH3</option>
+					<option
+						value="h4">JH4</option>
+					<option
+						value="h5">JH5</option>
+					<option
+						value="h6">JH6</option>
+				</field>
+				
+				<field name="show_tags" type="radio"
+					class="btn-group"
+					default="0"
+					label="MOD_ARTICLES_NEWS_ADV_FIELD_SHOW_TAGS_LABEL"
+					description="MOD_ARTICLES_NEWS_ADV_FIELD_SHOW_TAGS_DESC"
+					labelclass="control-label"
+				>
+					<option value="0">JHIDE</option>
+					<option value="1">JSHOW</option>
+				</field>
+
+				<field
+					name="published"
+					type="radio"
+					class="btn-group"
+					default="0"
+					label="MOD_ARTICLES_NEWS_ADV_FIELD_PUBLISHED_LABEL"
+					description="MOD_ARTICLES_NEWS_ADV_FIELD_PUBLISHED_DESC">
+					<option
+						value="1">JYES</option>
+					<option
+						value="0">JNO</option>
+				</field>
+
+				<field
+					name="createdby"
+					type="radio"
+					class="btn-group"
+					default="0"
+					label="MOD_ARTICLES_NEWS_ADV_FIELD_CREATEDBY_LABEL"
+					description="MOD_ARTICLES_NEWS_ADV_FIELD_CREATEDBY_DESC">
+					<option
+						value="1">JYES</option>
+					<option
+						value="0">JNO</option>
+				</field>
+
+
+				<field
+					name="intro_image"
+					type="radio"
+					class="btn-group"
+					default="0"
+					label="MOD_ARTICLES_NEWS_ADV_FIELD_INTRO_IMAGES_LABEL"
+					description="MOD_ARTICLES_NEWS_ADV_FIELD_INTRO_IMAGES_DESC">
+					<option
+						value="1">JYES</option>
+					<option
+						value="0">JNO</option>
+				</field>
+
+				<field
+					name="intro_image_align"
+					type="radio"
+					class="btn-group"
+					default="none"
+					label="MOD_ARTICLES_NEWS_ADV_FIELD_INTRO_IMAGES_ALIGN_LABEL"
+					description="MOD_ARTICLES_NEWS_ADV_FIELD_INTRO_IMAGES_ALIGN_DESC">
+					<option
+						value="none">None</option>
+					<option
+						value="left">left</option>
+					<option
+						value="right">right</option>
+				</field>
+
+				<field
+					name="image"
+					type="radio"
+					class="btn-group"
+					default="0"
+					label="MOD_ARTICLES_NEWS_ADV_FIELD_IMAGES_LABEL"
+					description="MOD_ARTICLES_NEWS_FIELD_IMAGES_DESC">
+					<option
+						value="1">JYES</option>
+					<option
+						value="0">JNO</option>
+				</field>
+
+				<field
+					name="readmore"
+					type="radio"
+					class="btn-group"
+					default="0"
+					label="MOD_ARTICLES_NEWS_FIELD_READMORE_LABEL"
+					description="MOD_ARTICLES_NEWS_FIELD_READMORE_DESC">
+					<option
+						value="0">JHIDE</option>
+					<option
+						value="1">JSHOW</option>
+				</field>		
+				
+
+			</fieldset>
+
+			<fieldset
+				name="advanced">
+
+				<field
+					name="bootstrap_layout"
+					type="radio"
+					class="btn-group"
+					default="0"
+					label="MOD_ARTICLES_NEWS_ADV_FIELD_BOOTSTRAP_LAYOUT_LABEL"
+					description="MOD_ARTICLES_NEWS_ADV_FIELD_BOOTSTRAP_LAYOUT_DESC">
+					<option
+						value="0">fixed</option>
+					<option
+						value="1">fluid</option>
+				</field>
+
+				<field
+					name="layout"
+					type="modulelayout"
+					label="JFIELD_ALT_LAYOUT_LABEL"
+					description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+
+				<field
+					name="moduleclass_sfx"
+					type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+
+				<field
+					name="cache"
+					type="list"
+					default="1"
+					label="COM_MODULES_FIELD_CACHING_LABEL"
+					description="COM_MODULES_FIELD_CACHING_DESC">
+					<option
+						value="1">JGLOBAL_USE_GLOBAL</option>
+					<option
+						value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+
+				<field
+					name="cache_time"
+					type="text"
+					default="900"
+					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+
+				<field
+					name="cachemode"
+					type="hidden"
+					default="itemid">
+					<option
+						value="itemid"></option>
+				</field>
+
+			</fieldset>
+		</fields>
+	</config>
+</extension>
