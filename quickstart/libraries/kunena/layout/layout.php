@@ -10,10 +10,13 @@
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\HTML\HTMLHelper;
+
 /**
  * Implements Kunena specific functions for all layouts.
  *
- * @see KunenaLayoutBase
+ * @see   KunenaLayoutBase
+ * @since Kunena
  */
 class KunenaLayout extends KunenaLayoutBase
 {
@@ -21,20 +24,25 @@ class KunenaLayout extends KunenaLayoutBase
 	 * Content to be appended after the main output.
 	 *
 	 * @var array
+	 * @since Kunena
 	 */
 	protected $after = array();
 
 	/**
 	 * Object KunenaView
 	 *
-	 * @var unknown
+	 * @var mixed
+	 * @since Kunena
 	 */
 	protected $legacy;
 
 	/**
 	 * Append HTML after the layout content.
 	 *
-	 * @param   string $content
+	 * @param   string $content content
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public function appendAfter($content)
 	{
@@ -42,9 +50,10 @@ class KunenaLayout extends KunenaLayoutBase
 	}
 
 	/**
-	 * @param $key
+	 * @param   mixed $key key
 	 *
 	 * @return string
+	 * @since Kunena
 	 */
 	public function text($key)
 	{
@@ -54,11 +63,12 @@ class KunenaLayout extends KunenaLayoutBase
 	/**
 	 * Method to render the view.
 	 *
-	 * @param   string  Layout.
+	 * @param   string $layout layout
 	 *
 	 * @return  string  The rendered view.
 	 *
 	 * @throws  Exception|RunTimeException
+	 * @since Kunena
 	 */
 	public function render($layout = null)
 	{
@@ -85,13 +95,16 @@ class KunenaLayout extends KunenaLayoutBase
 	}
 
 	/**
-	 * @param        $link
-	 * @param        $name
-	 * @param        $scope
-	 * @param        $type
-	 * @param   null $id
+	 * @param   string $link  link
+	 * @param   string $name  name
+	 * @param   string $scope scope
+	 * @param   string $type  type
+	 * @param   null   $id    id
 	 *
 	 * @return string
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getButton($link, $name, $scope, $type, $id = null)
 	{
@@ -99,10 +112,12 @@ class KunenaLayout extends KunenaLayoutBase
 	}
 
 	/**
-	 * @param          $name
-	 * @param   string $title
+	 * @param   string $name  name
+	 * @param   string $title title
 	 *
 	 * @return string
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getIcon($name, $title = '')
 	{
@@ -120,6 +135,7 @@ class KunenaLayout extends KunenaLayoutBase
 	 * @param   int $precision Significant digits for output
 	 *
 	 * @return string
+	 * @since Kunena
 	 */
 	public function formatLargeNumber($number, $precision = 3)
 	{
@@ -147,15 +163,17 @@ class KunenaLayout extends KunenaLayoutBase
 	}
 
 	/**
-	 * @param   KunenaForumCategory $category
-	 * @param   null                $content
-	 * @param   null                $title
-	 * @param   null                $class
-	 *
-	 * @param bool                  $follow
-	 * @param null                  $canonical
+	 * @param   KunenaForumCategory $category  category
+	 * @param   null                $content   content
+	 * @param   null                $title     title
+	 * @param   null                $class     class
+	 * @param   bool                $follow    follow
+	 * @param   null                $canonical canonical
 	 *
 	 * @return mixed
+	 * @since Kunena
+	 * @throws Exception
+	 * @throws null
 	 */
 	public function getCategoryLink(KunenaForumCategory $category, $content = null, $title = null, $class = null, $follow = true, $canonical = null)
 	{
@@ -200,7 +218,7 @@ class KunenaLayout extends KunenaLayoutBase
 			$class .= ' locked';
 		}
 
-		$link = JHtml::_('kunenaforum.link', $category->getUrl(), $content, $title, $class, $con);
+		$link = HTMLHelper::_('kunenaforum.link', $category->getUrl(), $content, $title, $class, $con);
 
 		KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function ' . __CLASS__ . '::' . __FUNCTION__ . '()') : null;
 
@@ -208,17 +226,19 @@ class KunenaLayout extends KunenaLayoutBase
 	}
 
 	/**
-	 * @param   KunenaForumTopic    $topic
-	 * @param   null                $action
-	 * @param   null                $content
-	 * @param   null                $title
-	 * @param   null                $class
-	 * @param   KunenaForumCategory $category
-	 *
-	 * @param bool                  $follow
-	 * @param bool                  $canonical
+	 * @param   KunenaForumTopic    $topic     topic
+	 * @param   null                $action    action
+	 * @param   null                $content   content
+	 * @param   null                $title     title
+	 * @param   null                $class     class
+	 * @param   KunenaForumCategory $category  category
+	 * @param   bool                $follow    follow
+	 * @param   bool                $canonical canonical
 	 *
 	 * @return mixed
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getTopicLink(KunenaForumTopic $topic, $action = null, $content = null, $title = null, $class = null, KunenaForumCategory $category = null, $follow = true, $canonical = false)
 	{
@@ -285,7 +305,7 @@ class KunenaLayout extends KunenaLayoutBase
 			$class .= ' locked';
 		}
 
-		$link = JHtml::_('kunenaforum.link', $url, $content, $title, $class, $con);
+		$link = HTMLHelper::_('kunenaforum.link', $url, $content, $title, $class, $con);
 
 		KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function ' . __CLASS__ . '::' . __FUNCTION__ . '()') : null;
 
@@ -293,16 +313,17 @@ class KunenaLayout extends KunenaLayoutBase
 	}
 
 	/**
-	 * @param        $category
-	 * @param   null $content
-	 * @param   null $title
-	 * @param   null $class
-	 * @param   int  $length
-	 *
-	 * @param bool   $follow
-	 * @param null   $canonical
+	 * @param   mixed $category  category
+	 * @param   null  $content   content
+	 * @param   null  $title     title
+	 * @param   null  $class     class
+	 * @param   int   $length    length
+	 * @param   bool  $follow    follow
+	 * @param   null  $canonical canonical
 	 *
 	 * @return mixed
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getLastPostLink($category, $content = null, $title = null, $class = null, $length = 30, $follow = true, $canonical = null)
 	{
@@ -356,18 +377,19 @@ class KunenaLayout extends KunenaLayoutBase
 			$class .= ' locked';
 		}
 
-		return JHtml::_('kunenaforum.link', $uri, $content, $title, $class, $con);
+		return HTMLHelper::_('kunenaforum.link', $uri, $content, $title, $class, $con);
 	}
 
 	/**
 	 * Removing it only after removed usage of this method, because without it, it cause issue in discuss plugin
 	 *
-	 * @param KunenaView $view
+	 * @param   KunenaView $view view
 	 *
 	 * @since      4.0
 	 *
 	 * @deprecated 5.0
 	 * @return $this
+	 * @since      Kunena
 	 */
 	public function setLegacy(KunenaView $view = null)
 	{

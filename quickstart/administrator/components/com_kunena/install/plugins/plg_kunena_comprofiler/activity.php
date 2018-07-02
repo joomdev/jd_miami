@@ -2,25 +2,37 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Comprofiler
+ * @package         Kunena.Plugins
+ * @subpackage      Comprofiler
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 require_once dirname(__FILE__) . '/integration.php';
 
+/**
+ * Class KunenaActivityComprofiler
+ * @since Kunena
+ */
 class KunenaActivityComprofiler extends KunenaActivity
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $params = null;
 
 	/**
 	 * KunenaActivityComprofiler constructor.
 	 *
 	 * @param $params
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($params)
 	{
@@ -28,9 +40,10 @@ class KunenaActivityComprofiler extends KunenaActivity
 	}
 
 	/**
-	 * @param int $userid
+	 * @param   int $userid userid
 	 *
 	 * @return null
+	 * @since Kunena
 	 */
 	public function getUserPoints($userid)
 	{
@@ -43,6 +56,8 @@ class KunenaActivityComprofiler extends KunenaActivity
 
 	/**
 	 * @param $message
+	 *
+	 * @since Kunena
 	 */
 	public function onBeforePost($message)
 	{
@@ -52,6 +67,8 @@ class KunenaActivityComprofiler extends KunenaActivity
 
 	/**
 	 * @param $message
+	 *
+	 * @since Kunena
 	 */
 	public function onBeforeReply($message)
 	{
@@ -61,6 +78,8 @@ class KunenaActivityComprofiler extends KunenaActivity
 
 	/**
 	 * @param $message
+	 *
+	 * @since Kunena
 	 */
 	public function onBeforeEdit($message)
 	{
@@ -70,6 +89,8 @@ class KunenaActivityComprofiler extends KunenaActivity
 
 	/**
 	 * @param $message
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterPost($message)
 	{
@@ -79,6 +100,8 @@ class KunenaActivityComprofiler extends KunenaActivity
 
 	/**
 	 * @param $message
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterReply($message)
 	{
@@ -88,6 +111,8 @@ class KunenaActivityComprofiler extends KunenaActivity
 
 	/**
 	 * @param $message
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterEdit($message)
 	{
@@ -97,28 +122,34 @@ class KunenaActivityComprofiler extends KunenaActivity
 
 	/**
 	 * @param $message
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterDelete($message)
 	{
-		$my     = JFactory::getUser();
+		$my     = Factory::getUser();
 		$params = array('actor' => $my->id, 'message' => $message);
 		KunenaIntegrationComprofiler::trigger('onAfterDelete', $params);
 	}
 
 	/**
 	 * @param $message
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterUndelete($message)
 	{
-		$my     = JFactory::getUser();
+		$my     = Factory::getUser();
 		$params = array('actor' => $my->id, 'message' => $message);
 		KunenaIntegrationComprofiler::trigger('onAfterUndelete', $params);
 	}
 
 	/**
-	 * @param int $actor
-	 * @param int $target
-	 * @param int $message
+	 * @param   int $actor   actor
+	 * @param   int $target  target
+	 * @param   int $message message
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterThankyou($actor, $target, $message)
 	{
@@ -127,53 +158,63 @@ class KunenaActivityComprofiler extends KunenaActivity
 	}
 
 	/**
-	 * @param int $topic
-	 * @param int $action
+	 * @param   int $topic  topic
+	 * @param   int $action action
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterSubscribe($topic, $action)
 	{
-		$my     = JFactory::getUser();
+		$my     = Factory::getUser();
 		$params = array('actor' => $my->id, 'topic' => $topic, 'action' => $action);
 		KunenaIntegrationComprofiler::trigger('onAfterSubscribe', $params);
 	}
 
 	/**
-	 * @param int $topic
-	 * @param int $action
+	 * @param   int $topic  topic
+	 * @param   int $action action
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterFavorite($topic, $action)
 	{
-		$my     = JFactory::getUser();
+		$my     = Factory::getUser();
 		$params = array('actor' => $my->id, 'topic' => $topic, 'action' => $action);
 		KunenaIntegrationComprofiler::trigger('onAfterFavorite', $params);
 	}
 
 	/**
-	 * @param int $topic
-	 * @param int $action
+	 * @param   int $topic  topic
+	 * @param   int $action action
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterSticky($topic, $action)
 	{
-		$my     = JFactory::getUser();
+		$my     = Factory::getUser();
 		$params = array('actor' => $my->id, 'topic' => $topic, 'action' => $action);
 		KunenaIntegrationComprofiler::trigger('onAfterSticky', $params);
 	}
 
 	/**
-	 * @param int $topic
-	 * @param int $action
+	 * @param   int $topic  topic
+	 * @param   int $action action
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterLock($topic, $action)
 	{
-		$my     = JFactory::getUser();
+		$my     = Factory::getUser();
 		$params = array('actor' => $my->id, 'topic' => $topic, 'action' => $action);
 		KunenaIntegrationComprofiler::trigger('onAfterLock', $params);
 	}
 
 	/**
-	 * @param int $target
-	 * @param int $actor
-	 * @param int $delta
+	 * @param   int $target target
+	 * @param   int $actor  actor
+	 * @param   int $delta  delta
+	 *
+	 * @since Kunena
 	 */
 	public function onAfterKarma($target, $actor, $delta)
 	{

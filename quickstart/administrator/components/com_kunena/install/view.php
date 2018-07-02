@@ -2,19 +2,26 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Installer
+ * @package        Kunena.Installer
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * The HTML Kunena configuration view.
+ * @since Kunena
  */
-class KunenaViewInstall extends JViewLegacy
+class KunenaViewInstall extends \Joomla\CMS\MVC\View\HtmlView
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $model = null;
 
 	/**
@@ -46,7 +53,7 @@ class KunenaViewInstall extends JViewLegacy
 		$this->model->setAction(strtolower($version->action));
 		$this->model->setStep(0);
 
-		JFactory::getApplication()->input->post->get('hidemainmenu', 1);
+		Factory::getApplication()->input->post->get('hidemainmenu', 1);
 
 		parent::display($tpl);
 	}
@@ -56,20 +63,23 @@ class KunenaViewInstall extends JViewLegacy
 	 *
 	 * @access private
 	 *
-	 * @return null
-	 *
-	 **/
-	function setToolBar()
+	 * @return void
+	 * @since  Kunena
+	 */
+	public function setToolBar()
 	{
 		// Set the titlebar text
-		JToolBarHelper::title('<span>Kunena ' . KunenaForum::version() . '</span> ' . JText::_('COM_KUNENA_INSTALLER'), 'kunena.png');
+		JToolbarHelper::title('<span>Kunena ' . KunenaForum::version() . '</span> ' . JText::_('COM_KUNENA_INSTALLER'), 'kunena.png');
 
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @throws Exception
+	 * @throws KunenaSchemaException
+	 * @return void
 	 */
-	function displaySchema()
+	public function displaySchema()
 	{
 		require_once KPATH_ADMIN . '/install/schema.php';
 		$schema = new KunenaModelSchema;
@@ -92,9 +102,12 @@ class KunenaViewInstall extends JViewLegacy
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @throws Exception
+	 * @throws KunenaSchemaException
+	 * @return void
 	 */
-	function displaySchemaDiff()
+	public function displaySchemaDiff()
 	{
 		require_once KPATH_ADMIN . '/install/schema.php';
 		$schema = new KunenaModelSchema;

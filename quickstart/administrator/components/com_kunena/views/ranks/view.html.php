@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Views
+ * @package         Kunena.Administrator
+ * @subpackage      Views
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * About view for Kunena ranks backend
@@ -19,11 +21,28 @@ defined('_JEXEC') or die();
 class KunenaAdminViewRanks extends KunenaView
 {
 	/**
-	 * @param   null $tpl
+	 * Returns an array of standard published state filter options.
+	 *
+	 * @return    array    The HTML code for the select tag
+	 * @since Kunena
+	 */
+	public static function specialOptions()
+	{
+		// Build the active state filter options.
+		$options   = array();
+		$options[] = HTMLHelper::_('select.option', '1', JText::_('COM_KUNENA_FIELD_LABEL_YES'));
+		$options[] = HTMLHelper::_('select.option', '0', JText::_('COM_KUNENA_FIELD_LABEL_NO'));
+
+		return $options;
+	}
+
+	/**
+	 * @param   null $tpl tpl
 	 *
 	 * @return mixed
+	 * @since Kunena
 	 */
-	function display($tpl = null)
+	public function display($tpl = null)
 	{
 		$this->setToolbar();
 		$this->items      = $this->get('Items');
@@ -45,62 +64,49 @@ class KunenaAdminViewRanks extends KunenaView
 	}
 
 	/**
-	 *
+	 * @since Kunena
 	 */
 	protected function setToolbar()
 	{
 		$this->filterActive = $this->escape($this->state->get('filter.active'));
 		$this->pagination   = $this->get('Pagination');
 
-		JToolBarHelper::title(JText::_('COM_KUNENA') . ': ' . JText::_('COM_KUNENA_RANK_MANAGER'), 'star-2');
+		JToolbarHelper::title(JText::_('COM_KUNENA') . ': ' . JText::_('COM_KUNENA_RANK_MANAGER'), 'star-2');
 
-		JToolBarHelper::spacer();
-		JToolBarHelper::addNew('add', 'COM_KUNENA_NEW_RANK');
-		JToolBarHelper::editList();
-		JToolBarHelper::divider();
-		JToolBarHelper::deleteList();
-		JToolBarHelper::spacer();
-		$help_url  = 'https://docs.kunena.org/en/manual/backend/ranks/add-rank';
-		JToolBarHelper::help('COM_KUNENA', false, $help_url);
-	}
-
-	/**
-	 * Returns an array of standard published state filter options.
-	 *
-	 * @return    string    The HTML code for the select tag
-	 */
-	public static function specialOptions()
-	{
-		// Build the active state filter options.
-		$options   = array();
-		$options[] = JHtml::_('select.option', '1', JText::_('COM_KUNENA_FIELD_LABEL_YES'));
-		$options[] = JHtml::_('select.option', '0', JText::_('COM_KUNENA_FIELD_LABEL_NO'));
-
-		return $options;
+		JToolbarHelper::spacer();
+		JToolbarHelper::addNew('add', 'COM_KUNENA_NEW_RANK');
+		JToolbarHelper::editList();
+		JToolbarHelper::divider();
+		JToolbarHelper::deleteList();
+		JToolbarHelper::spacer();
+		$help_url = 'https://docs.kunena.org/en/manual/backend/ranks/add-rank';
+		JToolbarHelper::help('COM_KUNENA', false, $help_url);
 	}
 
 	/**
 	 * @return array
+	 * @since Kunena
 	 */
 	protected function getSortFields()
 	{
 		$sortFields   = array();
-		$sortFields[] = JHtml::_('select.option', 'title', JText::_('JGLOBAL_TITLE'));
-		$sortFields[] = JHtml::_('select.option', 'special', JText::_('COM_KUNENA_RANKS_SPECIAL'));
-		$sortFields[] = JHtml::_('select.option', 'min', JText::_('COM_KUNENA_RANKSMIN'));
-		$sortFields[] = JHtml::_('select.option', 'id', JText::_('JGRID_HEADING_ID'));
+		$sortFields[] = HTMLHelper::_('select.option', 'title', JText::_('JGLOBAL_TITLE'));
+		$sortFields[] = HTMLHelper::_('select.option', 'special', JText::_('COM_KUNENA_RANKS_SPECIAL'));
+		$sortFields[] = HTMLHelper::_('select.option', 'min', JText::_('COM_KUNENA_RANKSMIN'));
+		$sortFields[] = HTMLHelper::_('select.option', 'id', JText::_('JGRID_HEADING_ID'));
 
 		return $sortFields;
 	}
 
 	/**
 	 * @return array
+	 * @since Kunena
 	 */
 	protected function getSortDirectionFields()
 	{
-		$sortDirection = array();
-		$sortDirection[] = JHtml::_('select.option', 'asc', JText::_('JGLOBAL_ORDER_ASCENDING'));
-		$sortDirection[] = JHtml::_('select.option', 'desc', JText::_('JGLOBAL_ORDER_DESCENDING'));
+		$sortDirection   = array();
+		$sortDirection[] = HTMLHelper::_('select.option', 'asc', JText::_('JGLOBAL_ORDER_ASCENDING'));
+		$sortDirection[] = HTMLHelper::_('select.option', 'desc', JText::_('JGLOBAL_ORDER_DESCENDING'));
 
 		return $sortDirection;
 	}

@@ -2,14 +2,17 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Models
+ * @package         Kunena.Site
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 
 require_once KPATH_ADMIN . '/models/categories.php';
 
@@ -20,18 +23,39 @@ require_once KPATH_ADMIN . '/models/categories.php';
  */
 class KunenaModelCategory extends KunenaAdminModelCategories
 {
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $topics = false;
 
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	protected $pending = array();
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $items = false;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $topicActions = false;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $actionMove = false;
 
 	/**
-	 *
+	 * @since Kunena
+	 * @throws Exception
 	 */
 	protected function populateState()
 	{
@@ -83,6 +107,8 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 	/**
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getLastestCategories()
 	{
@@ -99,6 +125,9 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 	/**
 	 * @return array|boolean|KunenaForumCategory[]
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	public function getCategories()
 	{
@@ -165,7 +194,7 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 					{
 						// Get list of moderators
 						$subcat->moderators = $subcat->getModerators(false, false);
-						$userlist += $subcat->moderators;
+						$userlist           += $subcat->moderators;
 					}
 
 					if ($this->me->isModerator($subcat))
@@ -201,12 +230,13 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 			if ($this->me->userid && count($modcats))
 			{
 				$catlist = implode(',', $modcats);
-				$db      = JFactory::getDBO();
+				$db      = Factory::getDBO();
 				$db->setQuery(
-				"SELECT catid, COUNT(*) AS count
+					"SELECT catid, COUNT(*) AS count
 				FROM #__kunena_messages
 				WHERE catid IN ({$catlist}) AND hold=1
-				GROUP BY catid");
+				GROUP BY catid"
+				);
 
 				try
 				{
@@ -251,6 +281,7 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 	/**
 	 * @return array
+	 * @since Kunena
 	 */
 	public function getUnapprovedCount()
 	{
@@ -259,6 +290,7 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 	/**
 	 * @return KunenaForumCategory
+	 * @since Kunena
 	 */
 	public function getCategory()
 	{
@@ -267,6 +299,9 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 	/**
 	 * @return boolean
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	public function getTopics()
 	{
@@ -284,7 +319,7 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 			$moved  = $format == 'feed' ? 0 : 1;
 			$params = array(
 				'hold'  => $hold,
-				'moved' => $moved);
+				'moved' => $moved,);
 
 			switch ($topic_ordering)
 			{
@@ -341,6 +376,9 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 	/**
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getTotal()
 	{
@@ -354,6 +392,9 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 	/**
 	 * @return array|null
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getTopicActions()
 	{
@@ -366,62 +407,62 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 		foreach ($this->topics as $topic)
 		{
-			if (!$delete && $topic->authorise('delete'))
+			if (!$delete && $topic->isAuthorised('delete'))
 			{
 				$delete = true;
 			}
 
-			if (!$approve && $topic->authorise('approve'))
+			if (!$approve && $topic->isAuthorised('approve'))
 			{
 				$approve = true;
 			}
 
-			if (!$undelete && $topic->authorise('undelete'))
+			if (!$undelete && $topic->isAuthorised('undelete'))
 			{
 				$undelete = true;
 			}
 
-			if (!$move && $topic->authorise('move'))
+			if (!$move && $topic->isAuthorised('move'))
 			{
 				$move = $this->actionMove = true;
 			}
 
-			if (!$permdelete && $topic->authorise('permdelete'))
+			if (!$permdelete && $topic->isAuthorised('permdelete'))
 			{
 				$permdelete = true;
 			}
 		}
 
-		$actionDropdown[] = JHtml::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
+		$actionDropdown[] = HTMLHelper::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
 
 		if ($move)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'move', JText::_('COM_KUNENA_MOVE_SELECTED'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'move', JText::_('COM_KUNENA_MOVE_SELECTED'));
 		}
 
 		if ($approve)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'approve', JText::_('COM_KUNENA_APPROVE_SELECTED'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'approve', JText::_('COM_KUNENA_APPROVE_SELECTED'));
 		}
 
 		if ($delete)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'delete', JText::_('COM_KUNENA_DELETE_SELECTED'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'delete', JText::_('COM_KUNENA_DELETE_SELECTED'));
 		}
 
 		if ($permdelete)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'permdel', JText::_('COM_KUNENA_BUTTON_PERMDELETE_LONG'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'permdel', JText::_('COM_KUNENA_BUTTON_PERMDELETE_LONG'));
 		}
 
 		if ($undelete)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'restore', JText::_('COM_KUNENA_BUTTON_UNDELETE_LONG'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'restore', JText::_('COM_KUNENA_BUTTON_UNDELETE_LONG'));
 		}
 
-		if (count($actionDropdown) == 1)
+		if ($actionDropdown == 1)
 		{
-			return null;
+			return;
 		}
 
 		return $actionDropdown;
@@ -429,6 +470,7 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 	/**
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function getActionMove()
 	{
@@ -437,6 +479,8 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 	/**
 	 * @return array
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getModerators()
 	{
@@ -447,15 +491,16 @@ class KunenaModelCategory extends KunenaAdminModelCategories
 
 	/**
 	 * @return array|null
+	 * @since Kunena
 	 */
 	public function getCategoryActions()
 	{
-		$actionDropdown[] = JHtml::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
-		$actionDropdown[] = JHtml::_('select.option', 'unsubscribe', JText::_('COM_KUNENA_UNSUBSCRIBE_SELECTED'));
+		$actionDropdown[] = HTMLHelper::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
+		$actionDropdown[] = HTMLHelper::_('select.option', 'unsubscribe', JText::_('COM_KUNENA_UNSUBSCRIBE_SELECTED'));
 
-		if (count($actionDropdown) == 1)
+		if ($actionDropdown == 1)
 		{
-			return null;
+			return;
 		}
 
 		return $actionDropdown;

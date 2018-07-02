@@ -1,47 +1,62 @@
-<?php
+w<?php
 /**
  * Kunena Component
  *
- * @package    Kunena.Installer
+ * @package        Kunena.Installer
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 jimport('joomla.filesystem.folder');
 jimport('joomla.filesystem.file');
 
+/**
+ * Class Com_KunenaInstallerScript
+ * @since Kunena
+ */
 class Com_KunenaInstallerScript
 {
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	protected $versions = array(
-		'PHP' => array (
+		'PHP'     => array(
+			'7.2' => '7.2.0',
 			'7.1' => '7.1.0',
 			'7.0' => '7.0.4',
 			'5.6' => '5.6.8',
-			'5.5' => '5.5.9',
-			'5.4' => '5.4.13',
-			'5.3' => '5.3.10',
-			'0'   => '7.0.11' // Preferred version
+			'0'   => '7.1.9', // Preferred version
 		),
-		'MySQL' => array (
+		'MySQL'   => array(
+			'5.5' => '5.5',
 			'5.1' => '5.1',
-			'0' => '5.5' // Preferred version
+			'0'   => '5.5', // Preferred version
 		),
-		'Joomla!' => array (
-			'3.5' => '3.5.1',
-			'0' => '3.6.2' // Preferred version
-		)
+		'Joomla!' => array(
+			'3.8' => '3.8.0',
+			'3.9' => '3.9.0',
+			'4.0' => '4.0.0',
+			'0'   => '3.8.0', // Preferred version
+		),
 	);
 
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	protected $extensions = array('dom', 'gd', 'json', 'pcre', 'SimpleXML');
 
 	/**
 	 * @param $parent
 	 *
 	 * @return boolean
-	 *
+	 * @since Kunena
 	 */
 	public function install($parent)
 	{
@@ -62,6 +77,7 @@ class Com_KunenaInstallerScript
 	 * @param $parent
 	 *
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function discover_install($parent)
 	{
@@ -72,6 +88,7 @@ class Com_KunenaInstallerScript
 	 * @param $parent
 	 *
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function update($parent)
 	{
@@ -82,6 +99,8 @@ class Com_KunenaInstallerScript
 	 * @param $parent
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function uninstall($parent)
 	{
@@ -90,7 +109,7 @@ class Com_KunenaInstallerScript
 
 		if (file_exists($model))
 		{
-			require_once($model);
+			require_once $model;
 			$installer = new KunenaModelInstall;
 			$installer->uninstall();
 		}
@@ -103,6 +122,8 @@ class Com_KunenaInstallerScript
 	 * @param $parent
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function preflight($type, $parent)
 	{
@@ -137,6 +158,7 @@ class Com_KunenaInstallerScript
 
 		// Remove Blue Eagle template on K5.0
 		$oldblue = $sitePath . '/template/blue_eagle';
+
 		if (is_dir($oldblue))
 		{
 			$this->deleteKfolder($sitePath . '/template/blue_eagle');
@@ -159,13 +181,13 @@ class Com_KunenaInstallerScript
 		// Copy files to new dir for Crypsis
 		if (is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/less/custom.less'))
 		{
-			$file = is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/less/custom.less');
+			$file    = is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/less/custom.less');
 			$filenew = is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/assets/less/custom.less');
 
 			if (!empty($file) && !$filenew)
 			{
 				JFolder::create($sitePath . '/template/crypsis/assets/less');
-				$src = $sitePath . '/template/crypsis/less/custom.less';
+				$src  = $sitePath . '/template/crypsis/less/custom.less';
 				$dest = $sitePath . '/template/crypsis/assets/less/custom.less';
 				KunenaFile::copy($src, $dest);
 			}
@@ -175,13 +197,13 @@ class Com_KunenaInstallerScript
 
 		if (is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/css/custom.css'))
 		{
-			$file = is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/css/custom.css');
+			$file    = is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/css/custom.css');
 			$filenew = is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/assets/css/custom.css');
 
 			if (!empty($file) && !$filenew)
 			{
 				JFolder::create($sitePath . '/template/crypsis/assets/css');
-				$src = $sitePath . '/template/crypsis/css/custom.css';
+				$src  = $sitePath . '/template/crypsis/css/custom.css';
 				$dest = $sitePath . '/template/crypsis/assets/css/custom.css';
 				KunenaFile::copy($src, $dest);
 			}
@@ -191,13 +213,13 @@ class Com_KunenaInstallerScript
 
 		if (is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/params.ini'))
 		{
-			$file = is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/params.ini');
+			$file    = is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/params.ini');
 			$filenew = is_file(JPATH_SITE . '/components/com_kunena/template/crypsis/config/params.ini');
 
 			if (!empty($file) && !$filenew)
 			{
 				JFolder::create($sitePath . '/template/crypsis/config');
-				$src = $sitePath . '/template/crypsis/params.ini';
+				$src  = $sitePath . '/template/crypsis/params.ini';
 				$dest = $sitePath . '/template/crypsis/config/params.ini';
 				KunenaFile::copy($src, $dest);
 			}
@@ -208,13 +230,13 @@ class Com_KunenaInstallerScript
 		// Copy files to new dir for Crypsisb3
 		if (is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/less/custom.less'))
 		{
-			$file = is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/less/custom.less');
+			$file    = is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/less/custom.less');
 			$filenew = is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/assets/less/custom.less');
 
 			if (!empty($file) && !$filenew)
 			{
 				JFolder::create($sitePath . '/template/crypsisb3/assets/less');
-				$src = $sitePath . '/template/crypsisb3/less/custom.less';
+				$src  = $sitePath . '/template/crypsisb3/less/custom.less';
 				$dest = $sitePath . '/template/crypsisb3/assets/less/custom.less';
 				KunenaFile::copy($src, $dest);
 			}
@@ -224,13 +246,13 @@ class Com_KunenaInstallerScript
 
 		if (is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/css/custom.css'))
 		{
-			$file = is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/css/custom.css');
+			$file    = is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/css/custom.css');
 			$filenew = is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/assets/css/custom.css');
 
 			if (!empty($file) && !$filenew)
 			{
 				JFolder::create($sitePath . '/template/crypsisb3/assets/css');
-				$src = $sitePath . '/template/crypsisb3/css/custom.css';
+				$src  = $sitePath . '/template/crypsisb3/css/custom.css';
 				$dest = $sitePath . '/template/crypsisb3/assets/css/custom.css';
 				KunenaFile::copy($src, $dest);
 			}
@@ -240,13 +262,13 @@ class Com_KunenaInstallerScript
 
 		if (is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/params.ini'))
 		{
-			$file = is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/params.ini');
+			$file    = is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/params.ini');
 			$filenew = is_file(JPATH_SITE . '/components/com_kunena/template/crypsisb3/config/params.ini');
 
 			if (!empty($file) && !$filenew)
 			{
 				JFolder::create($sitePath . '/template/crypsisb3/config');
-				$src = $sitePath . '/template/crypsisb3/params.ini';
+				$src  = $sitePath . '/template/crypsisb3/params.ini';
 				$dest = $sitePath . '/template/crypsisb3/config/params.ini';
 				KunenaFile::copy($src, $dest);
 			}
@@ -282,7 +304,7 @@ class Com_KunenaInstallerScript
 
 		foreach ($language_folders as $folder)
 		{
-			if ( JFile::exists(JPATH_ROOT . '/language/' . $folder . '/' . $folder . '.com_kunena.tpl_blue_eagle.ini'))
+			if (JFile::exists(JPATH_ROOT . '/language/' . $folder . '/' . $folder . '.com_kunena.tpl_blue_eagle.ini'))
 			{
 				JFile::delete(JPATH_ROOT . '/language/' . $folder . '/' . $folder . '.com_kunena.tpl_blue_eagle.ini');
 			}
@@ -308,10 +330,31 @@ class Com_KunenaInstallerScript
 				JFile::copy($file, $filenew);
 			}
 
-			$db    = JFactory::getDBO();
+			$db    = Factory::getDBO();
 			$query = "UPDATE `#__kunena_categories` SET iconset='default' WHERE iconset='system'";
 			$db->setQuery($query);
 			$db->execute();
+		}
+
+		// K5.1 Remove files
+		if (is_file(JPATH_ROOT . '/administrator/components/com_kunena/template/plugin/edit.php'))
+		{
+			$this->deleteKfolder(JPATH_ROOT . '/administrator/components/com_kunena/template/plugin');
+			$this->deleteKfolder(JPATH_ROOT . '/administrator/components/com_kunena/views/plugin');
+			$this->deleteFile(JPATH_ROOT . '/administrator/components/com_kunena/controllers/plugin.php');
+		}
+
+		if (is_file(JPATH_ROOT . '/media/kunena/js/debug.js'))
+		{
+			$this->deleteFile(JPATH_ROOT . '/media/kunena/js/debug.js');
+		}
+
+		if (is_file(JPATH_ROOT . '/libraries/kunena/compat/joomla/image/image.php'))
+		{
+			$this->deleteFile(JPATH_ROOT . '/libraries/kunena/compat/joomla/image/image.php');
+			$this->deleteKfolder(JPATH_ROOT . '/components/com_kunena/template/crypsis/layouts/topic/edit/editor');
+			$this->deleteKfolder(JPATH_ROOT . '/components/com_kunena/template/crypsisb3/layouts/topic/edit/editor');
+			$this->deleteFile(JPATH_ROOT . '/components/com_kunena/layout/topic/edit/editor.php');
 		}
 
 		// Prepare installation.
@@ -319,7 +362,7 @@ class Com_KunenaInstallerScript
 
 		if (file_exists($model))
 		{
-			require_once($model);
+			require_once $model;
 			$installer = new KunenaModelInstall;
 			$installer->install();
 		}
@@ -332,22 +375,11 @@ class Com_KunenaInstallerScript
 	 * @param $parent
 	 *
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function postflight($type, $parent)
 	{
-		// Add custom.less
-		$customcrypsis = JPATH_ROOT . '/components/com_kunena/template/crypsis/assets/less/custom.less';
-		if (!file_exists($customcrypsis))
-		{
-			$this->createFile($customcrypsis);
-		}
-
-		// Add custom.less
-		$customcrypsisb3 = JPATH_ROOT . '/components/com_kunena/template/crypsisb3/assets/less/custom.less';
-		if (!file_exists($customcrypsisb3))
-		{
-			$this->createFile($customcrypsisb3);
-		}
+		$this->convertTablesToUtf8mb4();
 
 		return true;
 	}
@@ -356,10 +388,12 @@ class Com_KunenaInstallerScript
 	 * @param $version
 	 *
 	 * @return boolean|integer
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function checkRequirements($version)
 	{
-		$db   = JFactory::getDbo();
+		$db   = Factory::getDbo();
 		$pass = $this->checkVersion('PHP', $this->getCleanPhpVersion());
 		$pass &= $this->checkVersion('Joomla!', JVERSION);
 		$pass &= $this->checkVersion('MySQL', $db->getVersion());
@@ -374,10 +408,9 @@ class Com_KunenaInstallerScript
 
 	/**
 	 * On some hosting the PHP version given with the version of the packet in the distribution
-	 *
 	 * @return string
 	 * @internal param string $version The PHP version to clean
-	 *
+	 * @since    Kunena
 	 */
 	protected function getCleanPhpVersion()
 	{
@@ -393,10 +426,11 @@ class Com_KunenaInstallerScript
 	 * @return boolean
 	 *
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function checkVersion($name, $version)
 	{
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 
 		$major = $minor = 0;
 
@@ -433,10 +467,11 @@ class Com_KunenaInstallerScript
 	 * @return boolean
 	 *
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function checkDbo($name, $types)
 	{
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 
 		if (in_array($name, $types))
 		{
@@ -454,10 +489,11 @@ class Com_KunenaInstallerScript
 	 * @return integer
 	 *
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function checkExtensions($extensions)
 	{
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 
 		$pass = 1;
 
@@ -479,10 +515,11 @@ class Com_KunenaInstallerScript
 	 * @return boolean
 	 *
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function checkKunena($version)
 	{
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 
 		// Always load Kunena API if it exists.
 		$api = JPATH_ADMINISTRATOR . '/components/com_kunena/api.php';
@@ -494,14 +531,15 @@ class Com_KunenaInstallerScript
 
 		// Do not install over Git repository (K1.6+).
 		if ((class_exists('Kunena') && method_exists('Kunena', 'isSvn') && Kunena::isSvn())
-			|| (class_exists('KunenaForum') && method_exists('KunenaForum', 'isDev') && KunenaForum::isDev()))
+			|| (class_exists('KunenaForum') && method_exists('KunenaForum', 'isDev') && KunenaForum::isDev())
+		)
 		{
 			$app->enqueueMessage('Oops! You should not install Kunena over your Git reporitory!', 'notice');
 
 			return false;
 		}
 
-		$db = JFactory::getDBO();
+		$db = Factory::getDBO();
 
 		// Check if Kunena can be found from the database
 		$table = $db->getPrefix() . 'kunena_version';
@@ -552,9 +590,10 @@ class Com_KunenaInstallerScript
 	}
 
 	/**
-	 * @param       $path
+	 * @param         $path
 	 *
 	 * @internal param array $ignore
+	 * @since    Kunena
 	 */
 	public function deleteFile($path)
 	{
@@ -565,8 +604,10 @@ class Com_KunenaInstallerScript
 	}
 
 	/**
-	 * @param       $path
-	 * @param   array $ignore
+	 * @param         $path
+	 * @param   array $ignore ignore
+	 *
+	 * @since Kunena
 	 */
 	public function deleteFiles($path, $ignore = array())
 	{
@@ -585,8 +626,10 @@ class Com_KunenaInstallerScript
 	}
 
 	/**
-	 * @param       $path
-	 * @param   array $ignore
+	 * @param         $path
+	 * @param   array $ignore ignore
+	 *
+	 * @since Kunena
 	 */
 	public function deleteFolders($path, $ignore = array())
 	{
@@ -605,8 +648,10 @@ class Com_KunenaInstallerScript
 	}
 
 	/**
-	 * @param       $path
-	 * @param   array $ignore
+	 * @param         $path
+	 * @param   array $ignore ignore
+	 *
+	 * @since Kunena
 	 */
 	public function deleteFolder($path, $ignore = array())
 	{
@@ -615,9 +660,10 @@ class Com_KunenaInstallerScript
 	}
 
 	/**
-	 * @param       $path
+	 * @param         $path
 	 *
 	 * @internal param array $ignore
+	 * @since    Kunena
 	 */
 	public function deleteKfolder($path)
 	{
@@ -625,13 +671,60 @@ class Com_KunenaInstallerScript
 	}
 
 	/**
-	 * @param $path
+	 * Converts the site's database tables to support UTF-8 Multibyte.
+	 *
+	 * @return  void
+	 *
+	 * @since   3.5
 	 */
-	public function createFile($path)
+	public function convertTablesToUtf8mb4()
 	{
-		$ourFileHandle = fopen($path, 'w');
-		$txt = "\n";
-		fwrite($ourFileHandle, $txt);
-		fclose($ourFileHandle);
+		$db = Factory::getDbo();
+
+		// This is only required for MySQL databases
+		$serverType = $db->getServerType();
+
+		if ($serverType != 'mysql')
+		{
+			return;
+		}
+
+		// Set required conversion status
+		if (!$db->hasUTF8mb4Support())
+		{
+			return;
+		}
+
+		$db->setQuery('SELECT default_character_set_name FROM ' . $db->quoteName('#__kunena_version'));
+
+		// Nothing to do, saved conversion status from DB is equal to required
+		if ($db->getCollation() == 'utf8mb4_unicode_ci')
+		{
+			return;
+		}
+
+		// Step 1: Drop indexes later to be added again with column lengths limitations at step 2
+		$fileName1 = JPATH_ROOT . '/administrator/components/com_kunena/install/sql/migrate/mysql/utf8mb4-conversion.sql';
+
+		if (is_file($fileName1))
+		{
+			$fileContents1 = @file_get_contents($fileName1);
+			$queries1      = $db->splitSql($fileContents1);
+
+			if (!empty($queries1))
+			{
+				foreach ($queries1 as $query1)
+				{
+					try
+					{
+						$db->setQuery($query1)->execute();
+					}
+					catch (Exception $e)
+					{
+						// If the query fails we will go on. It just means the index to be dropped does not exist.
+					}
+				}
+			}
+		}
 	}
 }

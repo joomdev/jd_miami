@@ -2,21 +2,23 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Installer
+ * @package        Kunena.Installer
  *
  * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
 // Kunena 5.0.5: Update setting allow guest to see userlist
 /**
- * @param $parent
- *
  * @return array|null
+ * @throws Exception
+ * @internal param $parent
+ *
+ * @since    Kunena
  */
-function kunena_505_2016_12_20_userlist($parent)
+function kunena_505_2016_12_20_userlist()
 {
 	$config = KunenaFactory::getConfig();
 

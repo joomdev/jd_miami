@@ -1,19 +1,22 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Database
+ * @package       Kunena.Framework
+ * @subpackage    Database
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 
-// no direct access
+use Joomla\CMS\Factory;
+
+// No direct access
 defined('_JEXEC') or die;
 
 /**
  * Class KunenaDatabaseObjectFinder
+ * @since Kunena
  */
 abstract class KunenaDatabaseObjectFinder
 {
@@ -21,32 +24,49 @@ abstract class KunenaDatabaseObjectFinder
 	 * Table associated with the model.
 	 *
 	 * @var string
+	 * @since Kunena
 	 */
 	protected $table;
 
 	/**
 	 * @var string
+	 * @since Kunena
 	 */
 	protected $primaryKey = 'id';
 
 	/**
 	 * @var JDatabaseQuery
+	 * @since Kunena
 	 */
 	protected $query;
 
 	/**
 	 * @var JDatabase
+	 * @since Kunena
 	 */
 	protected $db;
 
+	/**
+	 * @var integer
+	 * @since Kunena
+	 */
 	protected $start = 0;
 
+	/**
+	 * @var integer
+	 * @since Kunena
+	 */
 	protected $limit = 20;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $skip = false;
 
 	/**
 	 * Constructor.
+	 * @since Kunena
 	 */
 	public function __construct()
 	{
@@ -55,7 +75,7 @@ abstract class KunenaDatabaseObjectFinder
 			throw new DomainException('Table name missing from ' . get_class($this));
 		}
 
-		$this->db = JFactory::getDbo();
+		$this->db    = Factory::getDbo();
 		$this->query = $this->db->getQuery(true);
 		$this->query->from($this->table . ' AS a');
 	}
@@ -63,9 +83,10 @@ abstract class KunenaDatabaseObjectFinder
 	/**
 	 * Set limitstart for the query.
 	 *
-	 * @param   int $limitstart
+	 * @param   int $limitstart limitstart
 	 *
 	 * @return $this
+	 * @since Kunena
 	 */
 	public function start($limitstart = 0)
 	{
@@ -79,13 +100,14 @@ abstract class KunenaDatabaseObjectFinder
 	 *
 	 * If this function isn't used, RokClub will use threads per page configuration setting.
 	 *
-	 * @param   int $limit
+	 * @param   int $limit limit
 	 *
 	 * @return $this
+	 * @since Kunena
 	 */
 	public function limit($limit = null)
 	{
-		if (!is_null($limit))
+		if ($limit !== null)
 		{
 			$this->limit = $limit;
 		}
@@ -98,16 +120,17 @@ abstract class KunenaDatabaseObjectFinder
 	 *
 	 * This function can be used more than once to chain order by.
 	 *
-	 * @param   string $by
-	 * @param   int $direction
-	 * @param   string $alias
+	 * @param   string $by        by
+	 * @param   int    $direction direction
+	 * @param   string $alias     alias
 	 *
 	 * @return $this
+	 * @since Kunena
 	 */
 	public function order($by, $direction = 1, $alias = 'a')
 	{
 		$direction = $direction > 0 ? 'ASC' : 'DESC';
-		$by = $alias . '.' . $this->db->quoteName($by);
+		$by        = (!empty($alias) ? ($alias . '.') : '') . $this->db->quoteName($by);
 		$this->query->order("{$by} {$direction}");
 
 		return $this;
@@ -116,16 +139,18 @@ abstract class KunenaDatabaseObjectFinder
 	/**
 	 * Filter by field.
 	 *
-	 * @param   string        $field       Field name.
-	 * @param   string        $operation   Operation (>|>=|<|<=|=|IN|NOT IN)
-	 * @param   string|array  $value       Value.
-	 * @param  bool          $escape      Only works for LIKE / NOT LIKE.
+	 * @param   string       $field     Field name.
+	 * @param   string       $operation Operation (>|>=|<|<=|=|IN|NOT IN)
+	 * @param   string|array $value     Value.
+	 * @param   bool         $escape    Only works for LIKE / NOT LIKE.
 	 *
 	 * @return $this
+	 * @since Kunena
 	 */
 	public function where($field, $operation, $value, $escape = true)
 	{
 		$operation = strtoupper($operation);
+
 		switch ($operation)
 		{
 			case '>':
@@ -148,6 +173,7 @@ abstract class KunenaDatabaseObjectFinder
 			case 'IN':
 			case 'NOT IN':
 				$value = (array) $value;
+
 				if (empty($value))
 				{
 					// WHERE field IN (nothing).
@@ -157,9 +183,10 @@ abstract class KunenaDatabaseObjectFinder
 				{
 					$db = $this->db;
 					array_walk(
-      $value, function (&$item) use ($db) {
-	  $item = $db->quote($item);
-	 });
+						$value, function (&$item) use ($db) {
+							$item = $db->quote($item);
+						}
+					);
 					$list = implode(',', $value);
 					$this->query->where("{$this->db->quoteName($field)} {$operation} ({$list})");
 				}
@@ -175,6 +202,8 @@ abstract class KunenaDatabaseObjectFinder
 	 * Derived classes should generally override this function to return correct objects.
 	 *
 	 * @return array
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function find()
 	{
@@ -201,9 +230,23 @@ abstract class KunenaDatabaseObjectFinder
 	}
 
 	/**
+	 * Override to include your own static filters.
+	 *
+	 * @param   JDatabaseQuery $query query
+	 *
+	 * @return void
+	 * @since Kunena
+	 */
+	protected function build(JDatabaseQuery $query)
+	{
+	}
+
+	/**
 	 * Count items.
 	 *
 	 * @return integer
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function count()
 	{
@@ -232,16 +275,5 @@ abstract class KunenaDatabaseObjectFinder
 		}
 
 		return $count;
-	}
-
-	/**
-	 * Override to include your own static filters.
-	 *
-	 * @param   JDatabaseQuery  $query
-	 *
-	 * @return void
-	 */
-	protected function build(JDatabaseQuery $query)
-	{
 	}
 }

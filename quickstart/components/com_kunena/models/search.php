@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Models
+ * @package         Kunena.Site
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Search Model for Kunena
@@ -18,14 +20,27 @@ defined('_JEXEC') or die();
  */
 class KunenaModelSearch extends KunenaModel
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $error = null;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $total = false;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $messages = false;
 
 	/**
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function populateState()
 	{
@@ -44,56 +59,56 @@ class KunenaModelSearch extends KunenaModel
 
 		$this->setState('searchwords', $value);
 
-		$value = JFactory::getApplication()->input->getInt('titleonly', 0);
+		$value = Factory::getApplication()->input->getInt('titleonly', 0);
 		$this->setState('query.titleonly', $value);
 
-		$value = JFactory::getApplication()->input->getString('searchuser', '');
+		$value = Factory::getApplication()->input->getString('searchuser', '');
 		$this->setState('query.searchuser', rtrim($value));
 
-		$value = JFactory::getApplication()->input->getInt('starteronly', 0);
+		$value = Factory::getApplication()->input->getInt('starteronly', 0);
 		$this->setState('query.starteronly', $value);
 
-		if (!$this->config->pubprofile && !JFactory::getUser()->guest || $this->config->pubprofile)
+		if (!$this->config->pubprofile && !Factory::getUser()->guest || $this->config->pubprofile)
 		{
-			$value = JFactory::getApplication()->input->getInt('exactname', 0);
+			$value = Factory::getApplication()->input->getInt('exactname', 0);
 			$this->setState('query.exactname', $value);
 		}
 
-		$value = JFactory::getApplication()->input->getInt('replyless', 0);
+		$value = Factory::getApplication()->input->getInt('replyless', 0);
 		$this->setState('query.replyless', $value);
 
-		$value = JFactory::getApplication()->input->getInt('replylimit', 0);
+		$value = Factory::getApplication()->input->getInt('replylimit', 0);
 		$this->setState('query.replylimit', $value);
 
-		$value = JFactory::getApplication()->input->getString('searchdate', $this->config->searchtime);
+		$value = Factory::getApplication()->input->getString('searchdate', $this->config->searchtime);
 		$this->setState('query.searchdate', $value);
 
-		$value = JFactory::getApplication()->input->getString('searchatdate', null);
+		$value = Factory::getApplication()->input->getString('searchatdate', null);
 		$this->setState('query.searchatdate', $value);
 
-		$value = JFactory::getApplication()->input->getWord('beforeafter', 'after');
+		$value = Factory::getApplication()->input->getWord('beforeafter', 'after');
 		$this->setState('query.beforeafter', $value);
 
-		$value = JFactory::getApplication()->input->getWord('sortby', 'lastpost');
+		$value = Factory::getApplication()->input->getWord('sortby', 'lastpost');
 		$this->setState('query.sortby', $value);
 
-		$value = JFactory::getApplication()->input->getWord('order', 'dec');
+		$value = Factory::getApplication()->input->getWord('order', 'dec');
 		$this->setState('query.order', $value);
 
-		$value = JFactory::getApplication()->input->getInt('childforums', 1);
+		$value = Factory::getApplication()->input->getInt('childforums', 1);
 		$this->setState('query.childforums', $value);
 
-		$value = JFactory::getApplication()->input->getInt('topic_id', 0);
+		$value = Factory::getApplication()->input->getInt('topic_id', 0);
 		$this->setState('query.topic_id', $value);
 
 		if (isset($_POST ['query']) || isset($_POST ['searchword']))
 		{
-			$value = JFactory::getApplication()->input->get('catids', array(0), 'post', 'array');
+			$value = Factory::getApplication()->input->get('catids', array(0), 'post', 'array');
 			Joomla\Utilities\ArrayHelper::toInteger($value);
 		}
 		else
 		{
-			$value = JFactory::getApplication()->input->getString('catids', '0', 'get');
+			$value = Factory::getApplication()->input->getString('catids', '0', 'get');
 			$value = explode(' ', $value);
 			Joomla\Utilities\ArrayHelper::toInteger($value);
 		}
@@ -102,7 +117,7 @@ class KunenaModelSearch extends KunenaModel
 
 		if (isset($_POST ['q']) || isset($_POST ['searchword']))
 		{
-			$value = JFactory::getApplication()->input->get('ids', array(0), 'post', 'array');
+			$value = Factory::getApplication()->input->get('ids', array(0), 'post', 'array');
 			Joomla\Utilities\ArrayHelper::toInteger($value);
 
 			if ($value[0] > 0)
@@ -112,7 +127,7 @@ class KunenaModelSearch extends KunenaModel
 		}
 		else
 		{
-			$value = JFactory::getApplication()->input->getString('ids', '0', 'get');
+			$value = Factory::getApplication()->input->getString('ids', '0', 'get');
 			Joomla\Utilities\ArrayHelper::toInteger($value);
 
 			if ($value[0] > 0)
@@ -121,8 +136,7 @@ class KunenaModelSearch extends KunenaModel
 			}
 		}
 
-
-		$value = JFactory::getApplication()->input->getInt('show', 0);
+		$value = Factory::getApplication()->input->getInt('show', 0);
 		$this->setState('query.show', $value);
 
 		$value = $this->getInt('limitstart', 0);
@@ -146,10 +160,12 @@ class KunenaModelSearch extends KunenaModel
 
 	/**
 	 * @return string
+	 * @since Kunena
+	 * @throws Exception
 	 */
 	protected function buildWhere()
 	{
-		$db           = JFactory::getDBO();
+		$db           = Factory::getDBO();
 		$querystrings = array();
 
 		foreach ($this->getSearchWords() as $searchword)
@@ -181,7 +197,7 @@ class KunenaModelSearch extends KunenaModel
 			}
 		}
 
-		if (!$this->config->pubprofile && !JFactory::getUser()->guest || $this->config->pubprofile)
+		if (!$this->config->pubprofile && !Factory::getUser()->guest || $this->config->pubprofile)
 		{
 			// User searching
 			$username = $this->getState('query.searchuser');
@@ -199,10 +215,10 @@ class KunenaModelSearch extends KunenaModel
 			}
 		}
 
-		$time = 0;
+		$time         = 0;
 		$searchatdate = $this->getState('query.searchatdate');
 
-		if (empty($searchatdate) || $searchatdate==JFactory::getDate()->format('m/d/Y'))
+		if (empty($searchatdate) || $searchatdate == Factory::getDate()->format('m/d/Y'))
 		{
 			switch ($this->getState('query.searchdate'))
 			{
@@ -238,8 +254,8 @@ class KunenaModelSearch extends KunenaModel
 		}
 		else
 		{
-			$time_start_day = JFactory::getDate($this->getState('query.searchatdate'))->toUnix();
-			$time_end_day = new DateTime($this->getState('query.searchatdate'));
+			$time_start_day = Factory::getDate($this->getState('query.searchatdate'))->toUnix();
+			$time_end_day   = new DateTime($this->getState('query.searchatdate'));
 			$time_end_day->add(new DateInterval("PT23H59M59S"));
 
 			$querystrings[] = " m.time > {$time_start_day} AND m.time < {$time_end_day->getTimestamp()}";
@@ -257,6 +273,7 @@ class KunenaModelSearch extends KunenaModel
 
 	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	protected function buildOrderBy()
 	{
@@ -290,13 +307,16 @@ class KunenaModelSearch extends KunenaModel
 
 	/**
 	 * @return boolean|integer
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	public function getTotal()
 	{
 		$text = $this->getState('searchwords');
-		$q = strlen($text);
+		$q    = strlen($text);
 
-		if ($q < 3 && !$this->getState('query.searchuser') && JFactory::getApplication()->input->getString('childforums'))
+		if ($q < 3 && !$this->getState('query.searchuser') && $this->app->input->getString('childforums'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_SEARCH_ERR_SHORTKEYWORD'), 'error');
 
@@ -322,6 +342,7 @@ class KunenaModelSearch extends KunenaModel
 
 	/**
 	 * @return array
+	 * @since Kunena
 	 */
 	public function getSearchWords()
 	{
@@ -344,7 +365,10 @@ class KunenaModelSearch extends KunenaModel
 	}
 
 	/**
-	 * @return boolean
+	 * @return array|boolean
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	public function getResults()
 	{
@@ -354,7 +378,7 @@ class KunenaModelSearch extends KunenaModel
 		}
 
 		$text = $this->getState('searchwords');
-		$q = strlen($text);
+		$q    = strlen($text);
 
 		if (!$this->getState('query.searchuser'))
 		{
@@ -386,7 +410,7 @@ class KunenaModelSearch extends KunenaModel
 			'childforums' => $this->getState('query.childforums'),
 			'where'       => $this->buildWhere(),
 			'orderby'     => $this->buildOrderBy(),
-			'starttime'   => -1
+			'starttime'   => -1,
 		);
 		$limitstart = $this->getState('list.start');
 		$limit      = $this->getState('list.limit');
@@ -429,13 +453,14 @@ class KunenaModelSearch extends KunenaModel
 
 	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getUrlParams()
 	{
 		// Turn internal state into URL, but ignore default values
 		$defaults = array('titleonly' => 0, 'searchuser' => '', 'exactname' => 0, 'childforums' => 0, 'starteronly' => 0,
-							'replyless' => 0, 'replylimit' => 0, 'searchdate' => '365', 'beforeafter' => 'after', 'sortby' => 'lastpost',
-							'order'     => 'dec', 'catids' => '0', 'show' => '0', 'topic_id' => 0, 'ids' => 0, 'searchatdate' => '');
+						  'replyless' => 0, 'replylimit' => 0, 'searchdate' => '365', 'beforeafter' => 'after', 'sortby' => 'lastpost',
+						  'order'     => 'dec', 'catids' => '0', 'show' => '0', 'topic_id' => 0, 'ids' => 0, 'searchatdate' => '',);
 
 		$url_params = '';
 		$state      = $this->getState();
@@ -466,14 +491,17 @@ class KunenaModelSearch extends KunenaModel
 	}
 
 	/**
-	 * @param        $view
-	 * @param   string $searchword
-	 * @param   int    $limitstart
-	 * @param   int    $limit
-	 * @param   string $params
-	 * @param   bool   $xhtml
+	 * @param          $view
+	 * @param   string $searchword searchword
+	 * @param   int    $limitstart limitstart
+	 * @param   int    $limit      limit
+	 * @param   string $params     params
+	 * @param   bool   $xhtml      xhtml
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getSearchURL($view, $searchword = '', $limitstart = 0, $limit = 0, $params = '', $xhtml = true)
 	{

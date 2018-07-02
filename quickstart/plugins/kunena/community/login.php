@@ -2,23 +2,33 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Community
+ * @package         Kunena.Plugins
+ * @subpackage      Community
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+/**
+ * Class KunenaLoginCommunity
+ * @since Kunena
+ */
 class KunenaLoginCommunity
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $params = null;
 
 	/**
 	 * KunenaLoginCommunity constructor.
 	 *
 	 * @param $params
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($params)
 	{
@@ -27,6 +37,7 @@ class KunenaLoginCommunity
 
 	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getLoginURL()
 	{
@@ -35,6 +46,7 @@ class KunenaLoginCommunity
 
 	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getLogoutURL()
 	{
@@ -43,16 +55,17 @@ class KunenaLoginCommunity
 
 	/**
 	 * @return null|string
+	 * @since Kunena
 	 */
 	public function getRegistrationURL()
 	{
-		$usersConfig = JComponentHelper::getParams('com_users');
+		$usersConfig = \Joomla\CMS\Component\ComponentHelper::getParams('com_users');
 
 		if ($usersConfig->get('allowUserRegistration'))
 		{
 			return CRoute::_('index.php?option=com_community&view=register');
 		}
 
-		return null;
+		return;
 	}
 }

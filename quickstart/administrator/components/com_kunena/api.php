@@ -2,13 +2,15 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Framework
+ * @package        Kunena.Framework
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 if (defined('KUNENA_LOADED'))
 {
@@ -31,8 +33,8 @@ define('KPATH_MEDIA', JPATH_ROOT . '/media/' . KUNENA_NAME);
 
 // URLs
 define('KURL_COMPONENT', 'index.php?option=' . KUNENA_COMPONENT_NAME);
-define('KURL_SITE', JUri::Root() . KPATH_COMPONENT_RELATIVE . '/');
-define('KURL_MEDIA', JUri::Root() . 'media/' . KUNENA_NAME . '/');
+define('KURL_SITE', \Joomla\CMS\Uri\Uri::Root() . KPATH_COMPONENT_RELATIVE . '/');
+define('KURL_MEDIA', \Joomla\CMS\Uri\Uri::Root() . 'media/' . KUNENA_NAME . '/');
 
 $libraryFile = JPATH_PLATFORM . '/kunena/bootstrap.php';
 
@@ -41,7 +43,7 @@ if (is_file($libraryFile))
 	require_once $libraryFile;
 }
 
-if (JFactory::getApplication()->isSite())
+if (Factory::getApplication()->isClient('site'))
 {
 	JLoader::registerPrefix('ComponentKunenaController', KPATH_SITE . '/controller');
 }

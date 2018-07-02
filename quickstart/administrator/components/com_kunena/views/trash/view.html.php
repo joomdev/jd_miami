@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Views
+ * @package         Kunena.Administrator
+ * @subpackage      Views
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * Trash view for Kunena backend
@@ -19,9 +21,9 @@ defined('_JEXEC') or die();
 class KunenaAdminViewTrash extends KunenaView
 {
 	/**
-	 *
+	 * @since Kunena
 	 */
-	function displayDefault()
+	public function displayDefault()
 	{
 		$this->setLayout($this->state->get('layout'));
 		$this->trash_items       = $this->get('Trashitems');
@@ -47,9 +49,69 @@ class KunenaAdminViewTrash extends KunenaView
 	}
 
 	/**
-	 *
+	 * @return array
+	 * @since Kunena
 	 */
-	function displayPurge()
+	protected function getSortFields()
+	{
+		$sortFields = array();
+
+		if ($this->state->get('layout') == 'topics')
+		{
+			$sortFields[] = HTMLHelper::_('select.option', 'title', JText::_('COM_KUNENA_TRASH_TITLE'));
+			$sortFields[] = HTMLHelper::_('select.option', 'category', JText::_('COM_KUNENA_TRASH_CATEGORY'));
+			$sortFields[] = HTMLHelper::_('select.option', 'author', JText::_('COM_KUNENA_TRASH_AUTHOR'));
+			$sortFields[] = HTMLHelper::_('select.option', 'time', JText::_('COM_KUNENA_TRASH_DATE'));
+		}
+		else
+		{
+			$sortFields[] = HTMLHelper::_('select.option', 'title', JText::_('COM_KUNENA_TRASH_TITLE'));
+			$sortFields[] = HTMLHelper::_('select.option', 'topic', JText::_('COM_KUNENA_MENU_TOPIC'));
+			$sortFields[] = HTMLHelper::_('select.option', 'category', JText::_('COM_KUNENA_TRASH_CATEGORY'));
+			$sortFields[] = HTMLHelper::_('select.option', 'ip', JText::_('COM_KUNENA_TRASH_IP'));
+			$sortFields[] = HTMLHelper::_('select.option', 'author', JText::_('COM_KUNENA_TRASH_AUTHOR'));
+			$sortFields[] = HTMLHelper::_('select.option', 'time', JText::_('COM_KUNENA_TRASH_DATE'));
+		}
+
+		$sortFields[] = HTMLHelper::_('select.option', 'id', JText::_('JGRID_HEADING_ID'));
+
+		return $sortFields;
+	}
+
+	/**
+	 * @return array
+	 * @since Kunena
+	 */
+	protected function getSortDirectionFields()
+	{
+		$sortDirection   = array();
+		$sortDirection[] = HTMLHelper::_('select.option', 'asc', JText::_('JGLOBAL_ORDER_ASCENDING'));
+		$sortDirection[] = HTMLHelper::_('select.option', 'desc', JText::_('JGLOBAL_ORDER_DESCENDING'));
+
+		return $sortDirection;
+	}
+
+	/**
+	 * @since Kunena
+	 */
+	protected function setToolBarDefault()
+	{
+		// Set the titlebar text
+		JToolbarHelper::title(JText::_('COM_KUNENA') . ': ' . JText::_('COM_KUNENA_TRASH_MANAGER'), 'trash');
+		JToolbarHelper::spacer();
+		JToolbarHelper::custom('restore', 'checkin.png', 'checkin_f2.png', 'COM_KUNENA_TRASH_RESTORE');
+		JToolbarHelper::divider();
+		JToolbarHelper::custom('purge', 'trash.png', 'trash_f2.png', 'COM_KUNENA_TRASH_PURGE');
+		JToolbarHelper::spacer();
+
+		$help_url = 'https://docs.kunena.org/en/manual/backend/trashbin';
+		JToolbarHelper::help('COM_KUNENA', false, $help_url);
+	}
+
+	/**
+	 * @since Kunena
+	 */
+	public function displayPurge()
 	{
 		$this->purgeitems    = $this->get('PurgeItems');
 		$this->md5Calculated = $this->get('Md5');
@@ -59,79 +121,19 @@ class KunenaAdminViewTrash extends KunenaView
 	}
 
 	/**
-	 *
-	 */
-	protected function setToolBarDefault()
-	{
-		// Set the titlebar text
-		JToolBarHelper::title(JText::_('COM_KUNENA') . ': ' . JText::_('COM_KUNENA_TRASH_MANAGER'), 'trash');
-		JToolBarHelper::spacer();
-		JToolBarHelper::custom('restore', 'checkin.png', 'checkin_f2.png', 'COM_KUNENA_TRASH_RESTORE');
-		JToolBarHelper::divider();
-		JToolBarHelper::custom('purge', 'trash.png', 'trash_f2.png', 'COM_KUNENA_TRASH_PURGE');
-		JToolBarHelper::spacer();
-
-		$help_url  = 'https://docs.kunena.org/en/manual/backend/trashbin';
-		JToolBarHelper::help('COM_KUNENA', false, $help_url);
-	}
-
-	/**
-	 *
+	 * @since Kunena
 	 */
 	protected function setToolBarPurge()
 	{
 		// Set the titlebar text
-		JToolBarHelper::title(JText::_('COM_KUNENA'), 'kunena.png');
-		JToolBarHelper::spacer();
-		JToolBarHelper::custom('purge', 'delete.png', 'delete_f2.png', 'COM_KUNENA_DELETE_PERMANENTLY');
-		JToolBarHelper::spacer();
-		JToolBarHelper::cancel();
-		JToolBarHelper::spacer();
+		JToolbarHelper::title(JText::_('COM_KUNENA'), 'kunena.png');
+		JToolbarHelper::spacer();
+		JToolbarHelper::custom('purge', 'delete.png', 'delete_f2.png', 'COM_KUNENA_DELETE_PERMANENTLY');
+		JToolbarHelper::spacer();
+		JToolbarHelper::cancel();
+		JToolbarHelper::spacer();
 
-		$help_url  = 'https://docs.kunena.org/en/manual/backend/trashbin';
-		JToolBarHelper::help('COM_KUNENA', false, $help_url);
-	}
-
-	/**
-	 *
-	 * @return array
-	 */
-	protected function getSortFields()
-	{
-		$sortFields = array();
-
-		if ($this->state->get('layout') == 'topics')
-		{
-			$sortFields[] = JHtml::_('select.option', 'title', JText::_('COM_KUNENA_TRASH_TITLE'));
-			$sortFields[] = JHtml::_('select.option', 'category', JText::_('COM_KUNENA_TRASH_CATEGORY'));
-			$sortFields[] = JHtml::_('select.option', 'author', JText::_('COM_KUNENA_TRASH_AUTHOR'));
-			$sortFields[] = JHtml::_('select.option', 'time', JText::_('COM_KUNENA_TRASH_DATE'));
-		}
-		else
-		{
-			$sortFields[] = JHtml::_('select.option', 'title', JText::_('COM_KUNENA_TRASH_TITLE'));
-			$sortFields[] = JHtml::_('select.option', 'topic', JText::_('COM_KUNENA_MENU_TOPIC'));
-			$sortFields[] = JHtml::_('select.option', 'category', JText::_('COM_KUNENA_TRASH_CATEGORY'));
-			$sortFields[] = JHtml::_('select.option', 'ip', JText::_('COM_KUNENA_TRASH_IP'));
-			$sortFields[] = JHtml::_('select.option', 'author', JText::_('COM_KUNENA_TRASH_AUTHOR'));
-			$sortFields[] = JHtml::_('select.option', 'time', JText::_('COM_KUNENA_TRASH_DATE'));
-		}
-
-		$sortFields[] = JHtml::_('select.option', 'id', JText::_('JGRID_HEADING_ID'));
-
-		return $sortFields;
-	}
-
-	/**
-	 *
-	 * @return array
-	 */
-	protected function getSortDirectionFields()
-	{
-		$sortDirection = array();
-		$sortDirection[] = JHtml::_('select.option', 'asc', JText::_('JGLOBAL_ORDER_ASCENDING'));
-		$sortDirection[] = JHtml::_('select.option', 'desc', JText::_('JGLOBAL_ORDER_DESCENDING'));
-
-		return $sortDirection;
+		$help_url = 'https://docs.kunena.org/en/manual/backend/trashbin';
+		JToolbarHelper::help('COM_KUNENA', false, $help_url);
 	}
 }

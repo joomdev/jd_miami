@@ -2,12 +2,12 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Controllers
+ * @package         Kunena.Administrator
+ * @subpackage      Controllers
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
@@ -19,7 +19,6 @@ defined('_JEXEC') or die();
 class KunenaAdminControllerConfig extends KunenaController
 {
 	/**
-	 *
 	 * @since    2.0.0-BETA2
 	 * @var null|string
 	 */
@@ -28,14 +27,16 @@ class KunenaAdminControllerConfig extends KunenaController
 	/**
 	 * @since    2.0.0-BETA2
 	 * @var string
+	 * @since    Kunena
 	 */
 	protected $kunenabaseurl = null;
 
 	/**
 	 * Construct
 	 *
-	 * @param   array  $config  config
+	 * @param   array $config config
 	 *
+	 * @throws Exception
 	 * @since    2.0.0-BETA2
 	 */
 	public function __construct($config = array())
@@ -50,7 +51,9 @@ class KunenaAdminControllerConfig extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0.0-BETA2
+	 * @throws null
 	 */
 	public function apply()
 	{
@@ -60,15 +63,17 @@ class KunenaAdminControllerConfig extends KunenaController
 	/**
 	 * Save
 	 *
-	 * @param   null  $url  url
+	 * @param   null $url url
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0.0-BETA2
+	 * @throws null
 	 */
 	public function save($url = null)
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -94,11 +99,11 @@ class KunenaAdminControllerConfig extends KunenaController
 
 				$postname = Joomla\String\StringHelper::strtolower(Joomla\String\StringHelper::substr($postsetting, 4));
 
-				if ($postname=='imagewidth' || $postname=='imageheight')
+				if ($postname == 'imagewidth' || $postname == 'imageheight')
 				{
 					if (empty($postvalue))
 					{
-					    $this->app->enqueueMessage(JText::_('COM_KUNENA_IMAGEWIDTH_IMAGEHEIGHT_EMPTY_CONFIG_NOT_SAVED'));
+						$this->app->enqueueMessage(JText::_('COM_KUNENA_IMAGEWIDTH_IMAGEHEIGHT_EMPTY_CONFIG_NOT_SAVED'));
 						$this->setRedirect(KunenaRoute::_($url, false));
 
 						return;
@@ -133,11 +138,13 @@ class KunenaAdminControllerConfig extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0.0-BETA2
+	 * @throws null
 	 */
 	public function setdefault()
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));

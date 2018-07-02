@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Controllers
+ * @package         Kunena.Administrator
+ * @subpackage      Controllers
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Kunena Plugins Controller
@@ -18,12 +20,16 @@ defined('_JEXEC') or die();
  */
 class KunenaAdminControllerPlugins extends KunenaController
 {
+	/**
+	 * @var null|string
+	 * @since Kunena
+	 */
 	protected $baseurl = null;
 
 	/**
 	 * Construct
 	 *
-	 * @param   array  $config  config
+	 * @param   array $config config
 	 *
 	 * @throws Exception
 	 *
@@ -32,7 +38,7 @@ class KunenaAdminControllerPlugins extends KunenaController
 	public function __construct($config = array())
 	{
 		$this->option = 'com_kunena';
-		$this->input  = JFactory::getApplication()->input;
+		$this->input  = Factory::getApplication()->input;
 
 		parent::__construct($config);
 		$this->baseurl     = 'administrator/index.php?option=com_kunena&view=plugins';
@@ -54,28 +60,7 @@ class KunenaAdminControllerPlugins extends KunenaController
 		$this->registerTask('orderup', 'reorder');
 		$this->registerTask('orderdown', 'reorder');
 
-		JFactory::getLanguage()->load('com_plugins', JPATH_ADMINISTRATOR);
-	}
-
-	/**
-	 * Getmodel
-	 *
-	 * @param   string  $name    name
-	 * @param   string  $prefix  prefix
-	 * @param   array   $config  config
-	 *
-	 * @return object
-	 *
-	 * @since    2.0
-	 */
-	public function getModel($name = '', $prefix = '', $config = array())
-	{
-		if (empty($name))
-		{
-			$name = 'plugin';
-		}
-
-		return parent::getModel($name, $prefix, $config);
+		Factory::getLanguage()->load('com_plugins', JPATH_ADMINISTRATOR);
 	}
 
 	/**
@@ -83,22 +68,23 @@ class KunenaAdminControllerPlugins extends KunenaController
 	 *
 	 * @return  void
 	 *
+	 * @throws Exception
 	 * @since   12.2
 	 */
 	public function publish()
 	{
 		// Check for request forgeries
-		JSession::checkToken() or die(JText::_('JINVALID_TOKEN'));
+		\Joomla\CMS\Session\Session::checkToken() or die(JText::_('JINVALID_TOKEN'));
 
 		// Get items to publish from the request.
-		$cid   = JFactory::getApplication()->input->get('cid', array(), 'array');
+		$cid   = Factory::getApplication()->input->get('cid', array(), 'array');
 		$data  = array('publish' => 1, 'unpublish' => 0, 'archive' => 2, 'trash' => -2, 'report' => -3);
 		$task  = $this->getTask();
 		$value = Joomla\Utilities\ArrayHelper::getValue($data, $task, 0, 'int');
 
 		if (empty($cid))
 		{
-			JLog::add(JText::_($this->text_prefix . '_NO_ITEM_SELECTED'), JLog::WARNING, 'jerror');
+			\Joomla\CMS\Log\Log::add(JText::_($this->text_prefix . '_NO_ITEM_SELECTED'), \Joomla\CMS\Log\Log::WARNING, 'jerror');
 		}
 		else
 		{
@@ -111,7 +97,7 @@ class KunenaAdminControllerPlugins extends KunenaController
 			// Publish the items.
 			if (!$model->publish($cid, $value))
 			{
-				JLog::add($model->getError(), JLog::WARNING, 'jerror');
+				\Joomla\CMS\Log\Log::add($model->getError(), \Joomla\CMS\Log\Log::WARNING, 'jerror');
 			}
 			else
 			{
@@ -145,19 +131,41 @@ class KunenaAdminControllerPlugins extends KunenaController
 	}
 
 	/**
+	 * Getmodel
+	 *
+	 * @param   string $name   name
+	 * @param   string $prefix prefix
+	 * @param   array  $config config
+	 *
+	 * @return object
+	 *
+	 * @since    2.0
+	 */
+	public function getModel($name = '', $prefix = '', $config = array())
+	{
+		if (empty($name))
+		{
+			$name = 'plugin';
+		}
+
+		return parent::getModel($name, $prefix, $config);
+	}
+
+	/**
 	 * Changes the order of one or more records.
 	 *
 	 * @return  boolean  True on success
 	 *
+	 * @throws Exception
 	 * @since   12.2
 	 */
 	public function reorder()
 	{
 		// Check for request forgeries.
-		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+		\Joomla\CMS\Session\Session::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
-		$ids = JFactory::getApplication()->input->post->get('cid', array(), 'array');
-		$inc = ($this->getTask() == 'orderup') ? -1 : + 1;
+		$ids = Factory::getApplication()->input->post->get('cid', array(), 'array');
+		$inc = ($this->getTask() == 'orderup') ? -1 : +1;
 
 		$model  = $this->getModel();
 		$return = $model->reorder($ids, $inc);
@@ -190,7 +198,7 @@ class KunenaAdminControllerPlugins extends KunenaController
 	public function saveorder()
 	{
 		// Check for request forgeries.
-		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+		\Joomla\CMS\Session\Session::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
 		// Get the input
 		$pks   = $this->input->post->get('cid', array(), 'array');
@@ -229,14 +237,15 @@ class KunenaAdminControllerPlugins extends KunenaController
 	 *
 	 * @return  boolean  True on success
 	 *
+	 * @throws Exception
 	 * @since   12.2
 	 */
 	public function checkin()
 	{
 		// Check for request forgeries.
-		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+		\Joomla\CMS\Session\Session::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
-		$ids = JFactory::getApplication()->input->post->get('cid', array(), 'array');
+		$ids = Factory::getApplication()->input->post->get('cid', array(), 'array');
 
 		$model  = $this->getModel();
 		$return = $model->checkin($ids);
@@ -266,6 +275,7 @@ class KunenaAdminControllerPlugins extends KunenaController
 	 * Regenerate editor file
 	 *
 	 * @since 5.0.2
+	 * @throws Exception
 	 */
 	public function resync()
 	{

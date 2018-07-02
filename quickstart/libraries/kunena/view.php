@@ -1,61 +1,101 @@
 <?php
 /**
  * Kunena Component
- * @package    Kunena.Framework
+ * @package        Kunena.Framework
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+
 /**
  * Kunena View Class
+ * @since Kunena
  */
-class KunenaView extends JViewLegacy
+class KunenaView extends \Joomla\CMS\MVC\View\HtmlView
 {
-
+	/**
+	 * @var \Joomla\CMS\Document\Document|null
+	 * @since Kunena
+	 */
 	public $document = null;
 
+	/**
+	 * @var \Joomla\CMS\Application\CMSApplication|null
+	 * @since Kunena
+	 */
 	public $app = null;
 
+	/**
+	 * @var KunenaUser|null
+	 * @since Kunena
+	 */
 	public $me = null;
 
+	/**
+	 * @var KunenaConfig|null
+	 * @since Kunena
+	 */
 	public $config = null;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	public $embedded = false;
 
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	public $templatefiles = array();
 
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $teaser = null;
 
+	/**
+	 * @var integer
+	 * @since Kunena
+	 */
 	protected $inLayout = 0;
 
+	/**
+	 * @var integer
+	 * @since Kunena
+	 */
 	protected $_row = 0;
 
 	/**
-	 * @param   array $config
+	 * @param   array $config config
 	 *
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function __construct($config = array())
 	{
-		$name = isset($config['name']) ? $config['name'] : $this->getName();
-		$this->document = JFactory::getDocument();
+		$name           = isset($config['name']) ? $config['name'] : $this->getName();
+		$this->document = Factory::getDocument();
 		$this->document->setBase('');
-		$this->profiler = KunenaProfiler::instance('Kunena');
-		$this->app = JFactory::getApplication();
-		$this->me = KunenaUserHelper::getMyself();
-		$this->config = KunenaFactory::getConfig();
+		$this->profiler  = KunenaProfiler::instance('Kunena');
+		$this->app       = Factory::getApplication();
+		$this->me        = KunenaUserHelper::getMyself();
+		$this->config    = KunenaFactory::getConfig();
 		$this->ktemplate = KunenaFactory::getTemplate();
 
 		// Set the default template search path
-		if ($this->app->isSite() && !isset($config['template_path']))
+		if ($this->app->isClient('site') && !isset($config['template_path']))
 		{
 			$config['template_path'] = $this->ktemplate->getTemplatePaths("html/$name", true);
 		}
 
-		if ($this->app->isAdmin())
+		if ($this->app->isClient('administrator'))
 		{
 			$templateAdmin = KunenaFactory::getAdminTemplate();
 			$templateAdmin->initialize();
@@ -65,7 +105,7 @@ class KunenaView extends JViewLegacy
 
 		parent::__construct($config);
 
-		if ($this->app->isSite())
+		if ($this->app->isClient('site'))
 		{
 			// Add another template file lookup path specific to the current template
 			$fallback = JPATH_THEMES . "/{$this->app->getTemplate()}/html/com_kunena/{$this->ktemplate->name}/{$this->getName()}";
@@ -73,14 +113,16 @@ class KunenaView extends JViewLegacy
 		}
 
 		// Use our own browser side cache settings.
-		JFactory::getApplication()->allowCache(false);
-		JFactory::getApplication()->setHeader('Expires', 'Mon, 1 Jan 2001 00:00:00 GMT', true);
-		JFactory::getApplication()->setHeader('Last-Modified', gmdate("D, d M Y H:i:s") . ' GMT', true);
-		JFactory::getApplication()->setHeader('Cache-Control', 'no-store, must-revalidate, post-check=0, pre-check=0', true);
+		Factory::getApplication()->allowCache(false);
+		Factory::getApplication()->setHeader('Expires', 'Mon, 1 Jan 2001 00:00:00 GMT', true);
+		Factory::getApplication()->setHeader('Last-Modified', gmdate("D, d M Y H:i:s") . ' GMT', true);
+		Factory::getApplication()->setHeader('Cache-Control', 'no-store, must-revalidate, post-check=0, pre-check=0', true);
 	}
 
 	/**
 	 * @throws Exception
+	 * @since Kunena
+	 * @return void
 	 */
 	public function displayAll()
 	{
@@ -93,11 +135,12 @@ class KunenaView extends JViewLegacy
 	}
 
 	/**
-	 * @param   null $layout
-	 * @param   null $tpl
+	 * @param   null $layout layout
+	 * @param   null $tpl    tmpl
 	 *
-	 * @return mixed|void
+	 * @return mixed
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displayLayout($layout = null, $tpl = null)
 	{
@@ -111,10 +154,10 @@ class KunenaView extends JViewLegacy
 			$this->setLayout($layout);
 		}
 
-		$view = $this->getName();
-		$layout = $this->getLayout();
-		$viewName = ucfirst($view);
-		$layoutName = ucfirst($layout);
+		$view           = $this->getName();
+		$layout         = $this->getLayout();
+		$viewName       = ucfirst($view);
+		$layoutName     = ucfirst($layout);
 		$layoutFunction = 'display' . $layoutName;
 
 		KUNENA_PROFILER ? $this->profiler->start("display {$viewName}/{$layoutName}") : null;
@@ -124,21 +167,21 @@ class KunenaView extends JViewLegacy
 			if ($this->config->board_offline && !$this->me->isAdmin())
 			{
 				// Forum is offline
-				JFactory::getApplication()->setHeader('Status', '503 Service Temporarily Unavailable', true);
+				Factory::getApplication()->setHeader('Status', '503 Service Temporarily Unavailable', true);
 				$this->common->header = JText::_('COM_KUNENA_FORUM_IS_OFFLINE');
-				$this->common->body = $this->config->offline_message;
-				$this->common->html = true;
+				$this->common->body   = $this->config->offline_message;
+				$this->common->html   = true;
 				$this->common->display('default');
 				KUNENA_PROFILER ? $this->profiler->stop("display {$viewName}/{$layoutName}") : null;
 
 				return;
 			}
-			elseif ($this->config->regonly && ! $this->me->exists() && ! $this->teaser)
+			elseif ($this->config->regonly && !$this->me->exists() && !$this->teaser)
 			{
 				// Forum is for registered users only
-				JFactory::getApplication()->setHeader('Status', '403 Forbidden', true);
+				Factory::getApplication()->setHeader('Status', '403 Forbidden', true);
 				$this->common->header = JText::_('COM_KUNENA_LOGIN_NOTIFICATION');
-				$this->common->body = JText::_('COM_KUNENA_LOGIN_FORUM');
+				$this->common->body   = JText::_('COM_KUNENA_LOGIN_FORUM');
 				$this->common->display('default');
 				KUNENA_PROFILER ? $this->profiler->stop("display {$viewName}/{$layoutName}") : null;
 
@@ -176,6 +219,14 @@ class KunenaView extends JViewLegacy
 		return $contents;
 	}
 
+	/**
+	 * @param   array $messages messages
+	 * @param   int   $code     code
+	 *
+	 * @throws Exception
+	 * @since Kunena
+	 * @return void
+	 */
 	public function displayError($messages = array(), $code = 404)
 	{
 		if ($this->inLayout)
@@ -184,29 +235,30 @@ class KunenaView extends JViewLegacy
 		}
 
 		$title = JText::_('COM_KUNENA_ACCESS_DENIED');
+		$app   = Factory::getApplication();
 
 		switch ((int) $code)
 		{
 			case 400:
-				JResponse::setHeader('Status', '400 Bad Request', true);
+				$app->sendHeaders();
 				break;
 			case 401:
-				JResponse::setHeader('Status', '401 Unauthorized', true);
+				$app->sendHeaders();
 				break;
 			case 403:
-				JResponse::setHeader('Status', '403 Forbidden', true);
+				$app->sendHeaders();
 				break;
 			case 404:
-				JResponse::setHeader('Status', '404 Not Found', true);
+				$app->sendHeaders();
 				break;
 			case 410:
-				JResponse::setHeader('Status', '410 Gone', true);
+				$app->sendHeaders();
 				break;
 			case 500:
-				JResponse::setHeader('Status', '500 Internal Server Error', true);
+				$app->sendHeaders();
 				break;
 			case 503:
-				JResponse::setHeader('Status', '503 Service Temporarily Unavailable', true);
+				$app->sendHeaders();
 				break;
 			default:
 		}
@@ -220,13 +272,65 @@ class KunenaView extends JViewLegacy
 
 		$this->common->setLayout('default');
 		$this->common->header = $title;
-		$this->common->body = $output;
-		$this->common->html = true;
+		$this->common->body   = $output;
+		$this->common->html   = true;
 		$this->common->display();
 
 		$this->setTitle($title);
 	}
 
+	/**
+	 * Method to display title in page
+	 *
+	 * @param   string $title Show the title on the browser
+	 *
+	 * @throws Exception
+	 * @since Kunena
+	 * @return void
+	 */
+	public function setTitle($title)
+	{
+		if ($this->inLayout)
+		{
+			throw new LogicException(sprintf('HMVC template should not call %s::%s()', __CLASS__, __FUNCTION__));
+		}
+
+		if (!$this->state->get('embedded'))
+		{
+			// Check for empty title and add site name if param is set
+			$title = strip_tags($title);
+
+			if ($this->app->get('sitename_pagetitles', 0) == 1)
+			{
+				$title = JText::sprintf('JPAGETITLE', $this->app->get('sitename'), $title . ' - ' . $this->config->board_title);
+			}
+			elseif ($this->app->get('sitename_pagetitles', 0) == 2)
+			{
+				if ($this->config->board_title == $this->app->get('sitename'))
+				{
+					$title = JText::sprintf('JPAGETITLE', $title . ' - ' . $this->config->board_title);
+				}
+				else
+				{
+					$title = JText::sprintf('JPAGETITLE', $title . ' - ' . $this->config->board_title, $this->app->get('sitename'));
+				}
+			}
+			else
+			{
+				$title = $title . ' - ' . KunenaFactory::getConfig()->board_title;
+			}
+
+			$this->document->setTitle($title);
+		}
+	}
+
+	/**
+	 * @param   array $errors errors
+	 *
+	 * @since Kunena
+	 * @throws Exception
+	 * @return void
+	 */
 	public function displayNoAccess($errors = array())
 	{
 		if ($this->inLayout)
@@ -238,38 +342,65 @@ class KunenaView extends JViewLegacy
 		$this->displayError($errors, 200);
 	}
 
+	/**
+	 * @param   mixed $position position
+	 *
+	 * @since Kunena
+	 * @return void
+	 */
 	public function displayModulePosition($position)
 	{
 		echo $this->getModulePosition($position);
 	}
 
-	public function isModulePosition($position)
-	{
-		$document = JFactory::getDocument();
-
-		return method_exists($document, 'countModules') ? $document->countModules ( $position ) : 0;
-	}
-
+	/**
+	 * @param   mixed $position position
+	 *
+	 * @return string
+	 * @since Kunena
+	 */
 	public function getModulePosition($position)
 	{
-		$html = '';
-		$document = JFactory::getDocument();
+		$html     = '';
+		$document = Factory::getDocument();
 
-		if (method_exists($document, 'countModules') && $document->countModules($position ))
+		if (method_exists($document, 'countModules') && $document->countModules($position))
 		{
-			$renderer = $document->loadRenderer ( 'modules' );
-			$options = array ('style' => 'xhtml' );
-			$html .= '<div class="'.$position.'">';
-			$html .= $renderer->render ( $position, $options, null );
-			$html .= '</div>';
+			$renderer = $document->loadRenderer('modules');
+			$options  = array('style' => 'xhtml');
+			$html     .= '<div class="' . $position . '">';
+			$html     .= $renderer->render($position, $options, null);
+			$html     .= '</div>';
 		}
 
 		return $html;
 	}
 
-	public function parse($text, $len=0, $parent)
+	/**
+	 * @param   mixed $position position
+	 *
+	 * @return integer
+	 * @since Kunena
+	 */
+	public function isModulePosition($position)
 	{
-		if ($this instanceof KunenaViewSearch)
+		$document = Factory::getDocument();
+
+		return method_exists($document, 'countModules') ? $document->countModules($position) : 0;
+	}
+
+	/**
+	 * @param   string $text   text
+	 * @param   int    $len    len
+	 * @param   mixed  $parent parent
+	 *
+	 * @return mixed
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function parse($text, $len = 0, $parent)
+	{
+		if ($this instanceof ComponentKunenaControllerSearchFormDisplay)
 		{
 			$parent_object = $parent;
 		}
@@ -284,10 +415,14 @@ class KunenaView extends JViewLegacy
 	/**
 	 * Render new layout if available, otherwise continue to the old logic.
 	 *
-	 * @param   string $layout
-	 * @param   string $tpl
-	 * @param   array  $hmvcParams
+	 * @param   string $layout     layout
+	 * @param   string $tpl        tmpl
+	 * @param   array  $hmvcParams params
+	 *
 	 * @throws LogicException
+	 * @since Kunena
+	 * @throws Exception
+	 * @return void
 	 */
 	public function render($layout, $tpl, array $hmvcParams = array())
 	{
@@ -342,12 +477,13 @@ class KunenaView extends JViewLegacy
 	}
 
 	/**
-	 * @param        $view
-	 * @param        $layout
-	 * @param   null $template
+	 * @param   string $view     view
+	 * @param   string $layout   layout
+	 * @param   null   $template template
 	 *
-	 * @return $this
+	 * @return KunenaLayout|KunenaView
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displayTemplateFile($view, $layout, $template = null)
 	{
@@ -407,13 +543,14 @@ class KunenaView extends JViewLegacy
 	 *
 	 * @return string The output of the the template script.
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function loadTemplateFile($tpl = null, $hmvcParams = null)
 	{
 		KUNENA_PROFILER ? $this->profiler->start('function ' . __CLASS__ . '::' . __FUNCTION__ . '()') : null;
 
 		// HMVC legacy support.
-		$view = $this->getName();
+		$view   = $this->getName();
 		$layout = $this->getLayout();
 		list($name, $override) = $this->ktemplate->mapLegacyView("{$view}/{$layout}_{$tpl}");
 		$hmvc = KunenaLayout::factory($name)->setLayout($override);
@@ -440,7 +577,7 @@ class KunenaView extends JViewLegacy
 			$tpl  = isset($tpl) ? preg_replace('/[^A-Z0-9_\.-]/i', '', $tpl) : $tpl;
 
 			// Load the template script
-			$filetofind	= $this->_createFileName('template', array('name' => $file));
+			$filetofind                 = $this->_createFileName('template', array('name' => $file));
 			$this->templatefiles[$file] = KunenaPath::find($this->_path['template'], $filetofind);
 		}
 
@@ -462,6 +599,7 @@ class KunenaView extends JViewLegacy
 
 			// Start capturing output into a buffer
 			ob_start();
+
 			// Include the requested template filename in the local scope
 			// (this will execute the view logic).
 			include $this->_template;
@@ -487,11 +625,24 @@ class KunenaView extends JViewLegacy
 		}
 	}
 
+	/**
+	 * @return string
+	 * @since Kunena
+	 */
 	public function getTemplateMD5()
 	{
-		return md5(serialize($this->_path['template']).'-'.$this->ktemplate->name);
+		return md5(serialize($this->_path['template']) . '-' . $this->ktemplate->name);
 	}
 
+	/**
+	 * @param   KunenaForumCategory $category category
+	 * @param   null                $content  content
+	 * @param   null                $title    title
+	 * @param   null                $class    class
+	 *
+	 * @return mixed
+	 * @since Kunena
+	 */
 	public function getCategoryLink(KunenaForumCategory $category, $content = null, $title = null, $class = null)
 	{
 		if (!$content)
@@ -504,10 +655,23 @@ class KunenaView extends JViewLegacy
 			$title = JText::sprintf('COM_KUNENA_VIEW_CATEGORY_LIST_CATEGORY_TITLE', $this->escape($category->name));
 		}
 
-		return JHtml::_('kunenaforum.link', $category->getUri(), $content, $title, $class, '');
+		return HTMLHelper::_('kunenaforum.link', $category->getUri(), $content, $title, $class, '');
 	}
 
-	public function getTopicLink(KunenaForumTopic $topic, $action = null, $content = null, $title = null, $class = null, KunenaForumCategory $category = NULL)
+	/**
+	 * @param   KunenaForumTopic         $topic    topic
+	 * @param   null                     $action   action
+	 * @param   null                     $content  content
+	 * @param   null                     $title    title
+	 * @param   null                     $class    class
+	 * @param   KunenaForumCategory|null $category category
+	 *
+	 * @return mixed
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
+	 */
+	public function getTopicLink(KunenaForumTopic $topic, $action = null, $content = null, $title = null, $class = null, KunenaForumCategory $category = null)
 	{
 		$uri = $topic->getUri($category ? $category : (isset($this->category) ? $this->category : $topic->category_id), $action);
 
@@ -543,48 +707,6 @@ class KunenaView extends JViewLegacy
 			}
 		}
 
-		return JHtml::_('kunenaforum.link', $uri, $content, $title, $class, $rel);
-	}
-
-	/**
-	 * Method to display title in page
-	 *
-	 * @param unknown $title
-	 * @throws LogicException
-	 */
-	public function setTitle($title)
-	{
-		if ($this->inLayout)
-		{
-			throw new LogicException(sprintf('HMVC template should not call %s::%s()', __CLASS__, __FUNCTION__));
-		}
-
-		if (!$this->state->get('embedded'))
-		{
-			// Check for empty title and add site name if param is set
-			$title = strip_tags($title);
-
-			if ($this->app->getCfg('sitename_pagetitles', 0) == 1)
-			{
-				$title = JText::sprintf('JPAGETITLE', $this->app->getCfg('sitename'), $title . ' - ' .$this->config->board_title);
-			}
-			elseif ($this->app->getCfg('sitename_pagetitles', 0) == 2)
-			{
-				if ($this->config->board_title == $this->app->get('sitename'))
-				{
-					$title = JText::sprintf('JPAGETITLE', $title . ' - ' . $this->config->board_title);
-				}
-				else
-				{
-					$title = JText::sprintf('JPAGETITLE', $title . ' - ' . $this->config->board_title, $this->app->get('sitename'));
-				}
-			}
-			else
-			{
-				$title = $title . ' - ' . KunenaFactory::getConfig()->board_title;
-			}
-
-			$this->document->setTitle($title);
-		}
+		return HTMLHelper::_('kunenaforum.link', $uri, $content, $title, $class, $rel);
 	}
 }

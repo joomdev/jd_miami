@@ -1,29 +1,32 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Framework
- * @subpackage  Forum.Message.Attachment
+ * @package         Kunena.Framework
+ * @subpackage      Forum.Message.Attachment
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Class KunenaAttachment
  *
- * @property int $id
- * @property int $userid
- * @property int $mesid
- * @property int $protected
+ * @property int    $id
+ * @property int    $userid
+ * @property int    $mesid
+ * @property int    $protected
  * @property string $hash
- * @property int $size
+ * @property int    $size
  * @property string $folder
  * @property string $filetype
  * @property string $filename
  * @property string $filename_real
  * @property string $caption
+ * @property int    $inline
  *
  * @property int    $width   Image width (0 for non-images).
  * @property int    $height  Image height (0 for non-images).
@@ -33,37 +36,67 @@ defined('_JEXEC') or die();
 class KunenaAttachment extends KunenaDatabaseObject
 {
 	/**
-	 * @var int
+	 * @var string
+	 * @since Kunena
 	 */
-	public $id = null;
-
-	protected $_table = 'KunenaAttachments';
-
-	protected $path;
-
-	protected $width;
-
-	protected $height;
-
-	protected $shortname;
-
-	/**
-	 * @var bool
-	 */
-	public $disabled = false;
-
 	protected static $_directory = 'media/kunena/attachments';
 
-	protected static $actions  = array(
-		'read' => array('Read'),
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
+	protected static $actions = array(
+		'read'        => array('Read'),
 		'createimage' => array(),
-		'createfile' => array(),
-		'delete' => array('Exists', 'Own'),
+		'createfile'  => array(),
+		'delete'      => array('Exists', 'Own'),
 	);
 
 	/**
-	 * @param   mixed $identifier
-	 * @param   bool $reload
+	 * @var integer
+	 * @since Kunena
+	 */
+	public $id = null;
+
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
+	public $disabled = false;
+
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
+	protected $_table = 'KunenaAttachments';
+
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
+	protected $path;
+
+	/**
+	 * @var integer
+	 * @since Kunena
+	 */
+	protected $width;
+
+	/**
+	 * @var integer
+	 * @since Kunena
+	 */
+	protected $height;
+
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
+	protected $shortname;
+
+	/**
+	 * @param   mixed $identifier identifier
+	 * @param   bool  $reload     reload
 	 *
 	 * @return KunenaAttachment
 	 *
@@ -88,13 +121,46 @@ class KunenaAttachment extends KunenaDatabaseObject
 	}
 
 	/**
+	 * @internal
+	 * @since  K4.0
+	 * @return void
+	 */
+	protected function deleteFile()
+	{
+		if (self::$_directory != substr($this->folder, 0, strlen(self::$_directory)))
+		{
+			return;
+		}
+
+		$path     = JPATH_ROOT . "/{$this->folder}";
+		$filename = $path . '/' . $this->filename;
+
+		if (is_file($filename))
+		{
+			KunenaFile::delete($filename);
+		}
+
+		$filename = $path . '/raw/' . $this->filename;
+
+		if (is_file($filename))
+		{
+			KunenaFile::delete($filename);
+		}
+
+		$filename = $path . '/thumb/' . $this->filename;
+
+		if (is_file($filename))
+		{
+			KunenaFile::delete($filename);
+		}
+	}
+
+	/**
 	 * Getter function.
 	 *
-	 * @param   string  $property
+	 * @param   string $property property
 	 *
-	 * @return string
-	 * @throws InvalidArgumentException
-	 *
+	 * @return integer
 	 * @since  K4.0
 	 */
 	public function __get($property)
@@ -116,22 +182,28 @@ class KunenaAttachment extends KunenaDatabaseObject
 	}
 
 	/**
-	 * Check if attachment is image.
-	 *
-	 * @return  bool  True if attachment is image.
-	 *
+	 * @internal
 	 * @since  K4.0
+	 * @return void
 	 */
-	public function isImage()
+	protected function initialize()
 	{
-		return (stripos($this->filetype, 'image/') !== false);
-	}
+		$path = $this->getPath();
 
+		if ($path && $this->isImage())
+		{
+			list($this->width, $this->height) = getimagesize($path);
+		}
+		else
+		{
+			$this->width = $this->height = 0;
+		}
+	}
 
 	/**
 	 * Get path for the file.
 	 *
-	 * @param   bool $thumb
+	 * @param   bool $thumb thumb
 	 *
 	 * @return string|false  Path to the file or false if file doesn't exist.
 	 *
@@ -154,25 +226,57 @@ class KunenaAttachment extends KunenaDatabaseObject
 	}
 
 	/**
-	 * Get filename for output.
+	 * Check if attachment is image.
 	 *
-	 * @param   bool $escape
-	 *
-	 * @return string
+	 * @return  boolean  True if attachment is image.
 	 *
 	 * @since  K4.0
 	 */
-	public function getFilename($escape = true)
+	public function isImage()
 	{
-		$filename = $this->protected ? $this->filename_real : $this->filename;
+		return stripos($this->filetype, 'image/') !== false;
+	}
 
-		return $escape ? htmlspecialchars($filename, ENT_COMPAT, 'UTF-8') : $filename;
+	/**
+	 * Check if attachment is audio.
+	 *
+	 * @return  boolean  True if attachment is image.
+	 *
+	 * @since  K5.1
+	 */
+	public function isAudio()
+	{
+		return stripos($this->filetype, 'audio/') !== false;
+	}
+
+	/**
+	 * Check if attachment is audio.
+	 *
+	 * @return  boolean  True if attachment is image.
+	 *
+	 * @since  K5.1
+	 */
+	public function isVideo()
+	{
+		return stripos($this->filetype, 'video/') !== false;
+	}
+
+	/**
+	 * Check if attachment is pdf.
+	 *
+	 * @return  boolean  True if attachment is pdf.
+	 *
+	 * @since  K5.1
+	 */
+	public function isPdf()
+	{
+		return stripos($this->filetype, 'application/pdf') !== false;
 	}
 
 	/**
 	 * Get extension of file for output.
 	 *
-	 * @param   bool $escape
+	 * @param   bool $escape escape
 	 *
 	 * @return string
 	 *
@@ -191,10 +295,10 @@ class KunenaAttachment extends KunenaDatabaseObject
 	 *
 	 * The first 8 characters of the filename, followed by three dots and the last 5 character of the filename.
 	 *
-	 * @param   int    $front
-	 * @param   int    $back
-	 * @param   string $filler
-	 * @param   bool   $escape
+	 * @param   int    $front  front
+	 * @param   int    $back   back
+	 * @param   string $filler filler
+	 * @param   bool   $escape escape
 	 *
 	 * @return string
 	 *
@@ -211,15 +315,33 @@ class KunenaAttachment extends KunenaDatabaseObject
 	}
 
 	/**
-	 * Get URL pointing to the attachment.
+	 * Get filename for output.
 	 *
-	 * @param   bool $thumb
-	 * @param   bool $inline
-	 * @param   bool $escape
+	 * @param   bool $escape escape
 	 *
 	 * @return string
 	 *
 	 * @since  K4.0
+	 */
+	public function getFilename($escape = true)
+	{
+		$filename = $this->protected ? $this->filename_real : $this->filename;
+
+		return $escape ? htmlspecialchars($filename, ENT_COMPAT, 'UTF-8') : $filename;
+	}
+
+	/**
+	 * Get URL pointing to the attachment.
+	 *
+	 * @param   bool $thumb  thumb
+	 * @param   bool $inline inline
+	 * @param   bool $escape escape
+	 *
+	 * @return string
+	 *
+	 * @throws Exception
+	 * @since  K4.0
+	 * @throws null
 	 */
 	public function getUrl($thumb = false, $inline = true, $escape = true)
 	{
@@ -228,7 +350,7 @@ class KunenaAttachment extends KunenaDatabaseObject
 		// Use direct URLs to the attachments if protection is turned off and file wasn't protected.
 		if (!$protect)
 		{
-			$file = $this->folder . '/' . $this->filename;
+			$file      = $this->folder . '/' . $this->filename;
 			$fileThumb = $this->folder . '/thumb/' . $this->filename;
 
 			if (!is_file(JPATH_ROOT . '/' . $fileThumb))
@@ -238,26 +360,22 @@ class KunenaAttachment extends KunenaDatabaseObject
 
 			$url = ($thumb ? $fileThumb : $file);
 
-			if (JFactory::getApplication()->isAdmin())
+			if (!Factory::getApplication()->isClient('administrator'))
 			{
-				$url = $url;
-			}
-			else
-			{
-				$url = JURI::base() . $url;
+				$url = \Joomla\CMS\Uri\Uri::base() . $url;
 			}
 
 			return $escape ? htmlspecialchars($url, ENT_COMPAT, 'UTF-8') : $url;
 		}
 
 		// Route attachment through Kunena.
-		$thumb = $thumb ? '&thumb=1' : '';
+		$thumb    = $thumb ? '&thumb=1' : '';
 		$download = $inline ? '' : '&download=1';
 		$filename = urlencode($this->getFilename(false));
 
 		$url = KunenaRoute::_("index.php?option=com_kunena&view=attachment&id={$this->id}{$thumb}{$download}&format=raw", $escape);
 
-		if (JApplicationCms::getInstance('site')->get('sef_suffix'))
+		if (\Joomla\CMS\Application\CMSApplication::getInstance('site')->get('sef_suffix'))
 		{
 			$url = preg_replace('/.html/', '', $url);
 		}
@@ -269,6 +387,8 @@ class KunenaAttachment extends KunenaDatabaseObject
 	 * Get attachment layout.
 	 *
 	 * @return KunenaLayout
+	 * @since Kunena
+	 * @throws Exception
 	 */
 	public function getLayout()
 	{
@@ -278,6 +398,7 @@ class KunenaAttachment extends KunenaDatabaseObject
 	/**
 	 * @return string
 	 * @since K4.0
+	 * @throws Exception
 	 */
 	public function getTextLink()
 	{
@@ -287,6 +408,7 @@ class KunenaAttachment extends KunenaDatabaseObject
 	/**
 	 * @return string
 	 * @since K4.0
+	 * @throws Exception
 	 */
 	public function getImageLink()
 	{
@@ -296,6 +418,7 @@ class KunenaAttachment extends KunenaDatabaseObject
 
 	/**
 	 * @return string
+	 * @throws Exception
 	 * @since K4.0
 	 */
 	public function getThumbnailLink()
@@ -304,24 +427,11 @@ class KunenaAttachment extends KunenaDatabaseObject
 	}
 
 	/**
-	 * Get message to which attachment has been attached into.
-	 *
-	 * NOTE: Returns message object even if there isn't one. Please call $message->exists() to check if it exists.
-	 *
-	 * @return KunenaForumMessage
-	 *
-	 * @since  K4.0
-	 */
-	public function getMessage()
-	{
-		return KunenaForumMessageHelper::get($this->mesid);
-	}
-
-	/**
 	 * Get author of the attachment.
 	 *
 	 * @return KunenaUser
 	 *
+	 * @throws Exception
 	 * @since  K4.0
 	 */
 	public function getAuthor()
@@ -332,11 +442,12 @@ class KunenaAttachment extends KunenaDatabaseObject
 	/**
 	 * Returns true if user is authorised to do the action.
 	 *
-	 * @param   string     $action
-	 * @param   KunenaUser $user
+	 * @param   string     $action action
+	 * @param   KunenaUser $user   user
 	 *
 	 * @return boolean
 	 *
+	 * @throws null
 	 * @since  K4.0
 	 */
 	public function isAuthorised($action = 'read', KunenaUser $user = null)
@@ -347,14 +458,12 @@ class KunenaAttachment extends KunenaDatabaseObject
 	/**
 	 * Throws an exception if user isn't authorised to do the action.
 	 *
-	 * @param   string      $action
-	 * @param   KunenaUser  $user
-	 * @param   bool        $throw
+	 * @param   string     $action action
+	 * @param   KunenaUser $user   user
+	 * @param   bool       $throw  throw
 	 *
-	 * @return KunenaExceptionAuthorise|null
-	 * @throws KunenaExceptionAuthorise
-	 * @throws InvalidArgumentException
-	 *
+	 * @return mixed
+	 * @throws null
 	 * @since  K4.0
 	 */
 	public function tryAuthorise($action = 'read', KunenaUser $user = null, $throw = true)
@@ -362,7 +471,7 @@ class KunenaAttachment extends KunenaDatabaseObject
 		// Special case to ignore authorisation.
 		if ($action == 'none')
 		{
-			return null;
+			return;
 		}
 
 		// Load user if not given.
@@ -386,7 +495,7 @@ class KunenaAttachment extends KunenaDatabaseObject
 			foreach (self::$actions[$action] as $function)
 			{
 				$authFunction = 'authorise' . $function;
-				$exception = $this->$authFunction($user);
+				$exception    = $this->$authFunction($user);
 
 				if ($exception)
 				{
@@ -405,14 +514,30 @@ class KunenaAttachment extends KunenaDatabaseObject
 	}
 
 	/**
-	 * @param   string $action
-	 * @param   mixed $user
-	 * @param   bool $silent
+	 * Get message to which attachment has been attached into.
+	 *
+	 * NOTE: Returns message object even if there isn't one. Please call $message->exists() to check if it exists.
+	 *
+	 * @return KunenaForumMessage
+	 *
+	 * @since  K4.0
+	 */
+	public function getMessage()
+	{
+		return KunenaForumMessageHelper::get($this->mesid);
+	}
+
+	/**
+	 * @param   string $action action
+	 * @param   mixed  $user   user
+	 * @param   bool   $silent silent
 	 *
 	 * @return boolean
+	 * @throws null
 	 * @deprecated K4.0
+	 * @since      Kunena
 	 */
-	public function authorise($action='read', $user=null, $silent=false)
+	public function authorise($action = 'read', $user = null, $silent = false)
 	{
 		if ($user === null)
 		{
@@ -439,18 +564,19 @@ class KunenaAttachment extends KunenaDatabaseObject
 	}
 
 	/**
-	 * @param   string $key
-	 * @param   null|int   $catid
+	 * @param   string   $key   key
+	 * @param   null|int $catid catid
 	 *
 	 * @return boolean
 	 *
+	 * @throws Exception
 	 * @since  K4.0
 	 */
-	function upload($key = 'kattachment', $catid = null)
+	public function upload($key = 'kattachment', $catid = null)
 	{
 		jimport('joomla.filesystem.folder');
-		$config = KunenaFactory::getConfig();
-		$input = JFactory::getApplication()->input;
+		$config    = KunenaFactory::getConfig();
+		$input     = Factory::getApplication()->input;
 		$fileInput = $input->files->get($key, null, 'raw');
 
 		$upload = KunenaUpload::getInstance(KunenaAttachmentHelper::getExtensions($catid, $this->userid));
@@ -480,7 +606,7 @@ class KunenaAttachment extends KunenaDatabaseObject
 			for ($i = 2; file_exists($uploadBasePath . $fileNameWithoutExt . '.' . $fileExt); $i++)
 			{
 				$fileNameWithoutExt = $fileNameWithoutExt . "-$i";
-				$fileNameWithExt = $fileNameWithoutExt . '.' . $fileExt;
+				$fileNameWithExt    = $fileNameWithoutExt . '.' . $fileExt;
 			}
 		}
 
@@ -533,7 +659,6 @@ class KunenaAttachment extends KunenaDatabaseObject
 					}
 					catch (Exception $e)
 					{
-						// TODO: better error message.
 						echo $e->getMessage();
 
 						return false;
@@ -543,13 +668,14 @@ class KunenaAttachment extends KunenaDatabaseObject
 				$this->filetype = $imageInfo->mime;
 			}
 
-			$this->protected = (bool) $config->attachment_protection;
-			$this->hash = md5_file($uploadBasePath . $fileNameWithExt);
-			$this->size = $file->size;
-			$this->folder = 'media/kunena/attachments/' . $this->userid;
-			$this->filename = $fileInput['name'];
+			$this->protected     = (bool) $config->attachment_protection;
+			$this->hash          = md5_file($uploadBasePath . $fileNameWithExt);
+			$this->size          = $file->size;
+			$this->folder        = 'media/kunena/attachments/' . $this->userid;
+			$this->filename      = $fileInput['name'];
 			$this->filename_real = $uploadBasePath . $fileNameWithExt;
-			$this->caption = '';
+			$this->caption       = '';
+			$this->inline        = 0;
 
 			return true;
 		}
@@ -560,16 +686,14 @@ class KunenaAttachment extends KunenaDatabaseObject
 	 *
 	 * Copies the attachment into proper location and makes sure that all the unset fields get properly assigned.
 	 *
-	 * @param   string  $source     Absolute path to the upcoming attachment.
-	 * @param   string  $basename   Filename without extension.
-	 * @param   string  $extension  File extension.
-	 * @param   bool    $unlink     Whether to delete the original file or not.
-	 * @param   bool    $overwrite  If not allowed, throw exception if the file exists.
+	 * @param   string $source    Absolute path to the upcoming attachment.
+	 * @param   string $basename  Filename without extension.
+	 * @param   string $extension File extension.
+	 * @param   bool   $unlink    Whether to delete the original file or not.
+	 * @param   bool   $overwrite If not allowed, throw exception if the file exists.
 	 *
 	 * @return boolean
-	 * @throws InvalidArgumentException
-	 * @throws RuntimeException
-	 *
+	 * @throws Exception
 	 * @since  K4.0
 	 */
 	public function saveFile($source, $basename = null, $extension = null, $unlink = false, $overwrite = false)
@@ -580,8 +704,8 @@ class KunenaAttachment extends KunenaDatabaseObject
 		}
 
 		// Hash, size and MIME are set during saving, so let's deal with all other variables.
-		$this->userid = is_null($this->userid) ? KunenaUserHelper::getMyself() : $this->userid;
-		$this->folder = is_null($this->folder) ? "media/kunena/attachments/{$this->userid}" : $this->folder;
+		$this->userid    = is_null($this->userid) ? KunenaUserHelper::getMyself() : $this->userid;
+		$this->folder    = is_null($this->folder) ? "media/kunena/attachments/{$this->userid}" : $this->folder;
 		$this->protected = is_null($this->protected) ? (bool) KunenaConfig::getInstance()->attachment_protection : $this->protected;
 
 		if (!$this->filename_real)
@@ -642,64 +766,10 @@ class KunenaAttachment extends KunenaDatabaseObject
 		return $this->save();
 	}
 
-	// Internal functions
-
 	/**
-	 * @internal
-	 * @since  K4.0
-	 */
-	protected function initialize()
-	{
-		$path = $this->getPath();
-
-		if ($path && $this->isImage())
-		{
-			list($this->width, $this->height) = getimagesize($path);
-		}
-		else
-		{
-			$this->width = $this->height = 0;
-		}
-	}
-
-	/**
-	 * @internal
-	 * @since  K4.0
-	 */
-	protected function deleteFile()
-	{
-		if (self::$_directory != substr($this->folder, 0, strlen(self::$_directory)))
-		{
-			return;
-		}
-
-		$path = JPATH_ROOT . "/{$this->folder}";
-		$filename = $path . '/' . $this->filename;
-
-		if (is_file($filename))
-		{
-			KunenaFile::delete($filename);
-		}
-
-		$filename = $path . '/raw/' . $this->filename;
-
-		if (is_file($filename))
-		{
-			KunenaFile::delete($filename);
-		}
-
-		$filename = $path . '/thumb/' . $this->filename;
-
-		if (is_file($filename))
-		{
-			KunenaFile::delete($filename);
-		}
-	}
-
-	/**
-	 * @param   KunenaUser $user
+	 * @param   KunenaUser $user user
 	 *
-	 * @return KunenaExceptionAuthorise|null
+	 * @return mixed
 	 *
 	 * @since  K4.0
 	 */
@@ -711,14 +781,15 @@ class KunenaAttachment extends KunenaDatabaseObject
 			return new KunenaExceptionAuthorise(JText::_('COM_KUNENA_ATTACHMENT_NO_ACCESS'), 404);
 		}
 
-		return null;
+		return;
 	}
 
 	/**
-	 * @param   KunenaUser $user
+	 * @param   KunenaUser $user user
 	 *
-	 * @return KunenaExceptionAuthorise|null
+	 * @return mixed
 	 *
+	 * @throws Exception
 	 * @since  K4.0
 	 */
 	protected function authoriseRead(KunenaUser $user)
@@ -744,14 +815,15 @@ class KunenaAttachment extends KunenaDatabaseObject
 			}
 		}
 
-		return null;
+		return;
 	}
 
 	/**
-	 * @param   KunenaUser $user
+	 * @param   KunenaUser $user user
 	 *
-	 * @return KunenaExceptionAuthorise|null
+	 * @return mixed
 	 *
+	 * @throws Exception
 	 * @since  K4.0
 	 */
 	protected function authoriseOwn(KunenaUser $user)
@@ -762,6 +834,24 @@ class KunenaAttachment extends KunenaDatabaseObject
 			return new KunenaExceptionAuthorise(JText::_('COM_KUNENA_ATTACHMENT_NO_ACCESS'), 403);
 		}
 
-		return null;
+		return;
+	}
+
+	/**
+	 * Set inline to the attachment object
+	 *
+	 * @param   int $inline inline
+	 *
+	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function setInline($inline)
+	{
+		$this->inline = $inline;
+
+		$success = $this->save();
+
+		return $success;
 	}
 }

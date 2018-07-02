@@ -1,29 +1,41 @@
 <?php
 /**
  * @version   $Id$
- * @author	RocketTheme http://www.rockettheme.com
+ * @author    RocketTheme http://www.rockettheme.com
  * @copyright Copyright (C) 2007 - ${copyright_year} RocketTheme, LLC
- * @license   https://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
 
-// no direct access
+// No direct access
 defined('_JEXEC') or die;
 
 /**
- * Kunena JSON Response, extends JResponseJson.
+ * Kunena JSON Response, extends \Joomla\CMS\Response\JsonResponse.
+ * @since Kunena
  */
 class KunenaResponseJson extends KunenaCompatResponseJson
 {
+	/**
+	 * @var int|mixed
+	 * @since Kunena
+	 */
 	public $code = 200;
+
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	public $location;
 
 	/**
 	 * Constructor
 	 *
-	 * @param   mixed    $response        The Response data
-	 * @param   string   $message         The main response message
-	 * @param   boolean  $error           True, if the success flag shall be set to false, defaults to false
-	 * @param   boolean  $ignoreMessages  True, if the message queue shouldn't be included, defaults to false
+	 * @param   mixed   $response       The Response data
+	 * @param   string  $message        The main response message
+	 * @param   boolean $error          True, if the success flag shall be set to false, defaults to false
+	 * @param   boolean $ignoreMessages True, if the message queue shouldn't be included, defaults to false
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($response = null, $message = null, $error = false, $ignoreMessages = false)
 	{
@@ -35,13 +47,13 @@ class KunenaResponseJson extends KunenaCompatResponseJson
 
 			// Build data from exceptions.
 			$exceptions = array();
-			$e = $response;
+			$e          = $response;
 
 			do
 			{
 				$exception = array(
-					'code' => $e->getCode(),
-					'message' => $e->getMessage()
+					'code'    => $e->getCode(),
+					'message' => $e->getMessage(),
 				);
 
 				if (JDEBUG)
@@ -49,12 +61,12 @@ class KunenaResponseJson extends KunenaCompatResponseJson
 					$exception += array(
 						'type' => get_class($e),
 						'file' => $e->getFile(),
-						'line' => $e->getLine()
+						'line' => $e->getLine(),
 					);
 				}
 
 				$exceptions[] = $exception;
-				$e = $e->getPrevious();
+				$e            = $e->getPrevious();
 			}
 			while (JDEBUG && $e);
 

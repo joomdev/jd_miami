@@ -2,23 +2,27 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Installer
+ * @package        Kunena.Installer
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Class KunenaVersion
+ * @since Kunena
  */
 class KunenaVersion
 {
 	/**
 	 * Get warning for unstable releases
 	 *
-	 * @param   string $msg Message to be shown containing two %s parameters for version (2.0.0RC) and version type (GIT, RC, BETA etc)
+	 * @param   string $msg Message to be shown containing two %s parameters for version (2.0.0RC) and version type
+	 *                      (GIT, RC, BETA etc)
 	 *
 	 * @return    string    Warning message
 	 * @since    1.6
@@ -65,7 +69,7 @@ class KunenaVersion
 
 		if (!empty($kn_version_warning) && !empty($kn_version_type))
 		{
-			return JText::sprintf($msg, KunenaForum::version(), $kn_version_type) . ' ' . $kn_version_warning;
+			return JText::sprintf($msg, '<strong>' . strtoupper(KunenaForum::version()), $kn_version_type . '</strong>') . ' ' . $kn_version_warning;
 		}
 
 		return '';
@@ -73,8 +77,9 @@ class KunenaVersion
 
 	/**
 	 * @return boolean
+	 * @since Kunena
 	 */
-	function checkVersion()
+	public function checkVersion()
 	{
 		$version = $this->getDBVersion();
 
@@ -101,8 +106,8 @@ class KunenaVersion
 	 */
 	public function getDBVersion($prefix = 'kunena_')
 	{
-		$db    = JFactory::getDBO();
-		$query = "SHOW TABLES LIKE {$db->quote($db->getPrefix().$prefix.'version')}";
+		$db    = Factory::getDBO();
+		$query = "SHOW TABLES LIKE {$db->quote($db->getPrefix() . $prefix . 'version')}";
 		$db->setQuery($query);
 
 		if ($db->loadResult())
@@ -131,36 +136,44 @@ class KunenaVersion
 	 * Retrieve installed Kunena version as string.
 	 *
 	 * @return string "Kunena X.Y.Z | YYYY-MM-DD [versionname]"
+	 * @since Kunena
 	 */
-	static function getVersionHTML()
+	public static function getVersionHTML()
 	{
-		return 'Kunena ' . KunenaForum::version() . ' | ' . KunenaForum::versionDate() . ' [ ' . KunenaForum::versionName() . ' ]';
+		return 'Kunena ' . strtoupper(KunenaForum::version()) . ' | ' . KunenaForum::versionDate() . ' [ ' . KunenaForum::versionName() . ' ]';
 	}
 
 	/**
 	 * Retrieve copyright information as string.
 	 *
 	 * @return string "© 2008 - 2018 Copyright: Kunena Team. All rights reserved. | License: GNU General Public License"
+	 * @since Kunena
 	 */
-	static function getCopyrightHTML()
+	public static function getCopyrightHTML()
 	{
 		return ': &copy; 2008 - 2018 ' . JText::_('COM_KUNENA_VERSION_COPYRIGHT') . ': <a href = "https://www.kunena.org" target = "_blank">'
-		. JText::_('COM_KUNENA_VERSION_TEAM') . '</a>  | ' . JText::_('COM_KUNENA_VERSION_LICENSE')
-		. ': <a href = "https://www.gnu.org/copyleft/gpl.html" target = "_blank">'
-		. JText::_('COM_KUNENA_VERSION_GPL') . '</a>';
+			. JText::_('COM_KUNENA_VERSION_TEAM') . '</a>  | ' . JText::_('COM_KUNENA_VERSION_LICENSE')
+			. ': <a href = "https://www.gnu.org/copyleft/gpl.html" target = "_blank">'
+			. JText::_('COM_KUNENA_VERSION_GPL') . '</a>';
 	}
 
 	/**
 	 * Retrieve installed Kunena version, copyright and license as string.
 	 *
-	 * @return string "Kunena X.Y.Z | YYYY-MM-DD | © 2008 - 2018 Copyright: Kunena Team. All rights reserved. | License: GNU General Public License"
+	 * @return string "Kunena X.Y.Z | YYYY-MM-DD | © 2008 - 2018 Copyright: Kunena Team. All rights reserved. |
+	 *                License: GNU General Public License"
+	 * @since Kunena
 	 */
-	static function getLongVersionHTML()
+	public static function getLongVersionHTML()
 	{
 		return self::getVersionHTML() . ' | ' . self::getCopyrightHTML();
 	}
 }
 
+/**
+ * Class KunenaVersionException
+ * @since Kunena
+ */
 class KunenaVersionException extends Exception
 {
 }

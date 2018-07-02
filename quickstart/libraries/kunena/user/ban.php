@@ -1,118 +1,209 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage User
+ * @package       Kunena.Framework
+ * @subpackage    User
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 jimport('joomla.utilities.date');
 
 /**
  * Class KunenaUserBan
+ * @since Kunena
  */
 class KunenaUserBan extends JObject
 {
 	/**
+	 * @since Kunena
+	 */
+	const ANY = 0;
+
+	/**
+	 * @since Kunena
+	 */
+	const ACTIVE = 1;
+
+	/**
 	 * @var array|KunenaUserBan[]
+	 * @since Kunena
 	 */
 	protected static $_instances = array();
+
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	protected static $_instancesByUserid = array();
+
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	protected static $_instancesByIP = array();
+
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	protected static $_useridcache = array();
+
+	/**
+	 * @var \Joomla\CMS\Date\Date|null
+	 * @since Kunena
+	 */
 	protected static $_now = null;
+
+	/**
+	 * @var \Joomla\CMS\User\User|null
+	 * @since Kunena
+	 */
 	protected static $_my = null;
 
+	/**
+	 * @var JDatabaseDriver|null
+	 * @since Kunena
+	 */
 	protected $_db = null;
-	protected $_exists = false;
 
-	const ANY = 0;
-	const ACTIVE = 1;
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
+	protected $_exists = false;
 
 	/**
 	 * Constructor
 	 *
 	 * @access    protected
 	 *
-	 * @param null $identifier
+	 * @param   null $identifier identifier
+	 *
+	 * @since     Kunena
 	 */
 	public function __construct($identifier = null)
 	{
 		if (self::$_now === null)
 		{
-			self::$_now = new JDate();
+			self::$_now = new \Joomla\CMS\Date\Date;
 		}
 
 		if (self::$_my === null)
 		{
-			self::$_my = JFactory::getUser();
+			self::$_my = Factory::getUser();
 		}
 
 		// Always load the data -- if item does not exist: fill empty data
 		$this->load($identifier);
-		$this->_db = JFactory::getDBO();
+		$this->_db = Factory::getDBO();
 	}
 
 	/**
-	 * @return KunenaUser
-	 */
-	public function getUser()
-	{
-		return KunenaUserHelper::get((int) $this->userid);
-	}
-
-	/**
-	 * @return KunenaUser
-	 */
-	public function getCreator()
-	{
-		return KunenaUserHelper::get((int) $this->created_by);
-	}
-
-	/**
-	 * @return KunenaUser
-	 */
-	public function getModifier()
-	{
-		return KunenaUserHelper::get((int) $this->modified_by);
-	}
-
-	/**
-	 * Return ban creation date.
+	 * Method to load a KunenaUserBan object by ban id
 	 *
-	 * @return KunenaDate
-	 */
-	public function getCreationDate()
-	{
-		return KunenaDate::getInstance($this->created_time);
-	}
-
-	/**
-	 * Return ban expiration date.
+	 * @access    public
 	 *
-	 * @return KunenaDate
-	 */
-	public function getExpirationDate()
-	{
-		return KunenaDate::getInstance($this->expiration);
-	}
-
-	/**
-	 * Return ban modification date.
+	 * @param   int $id The ban id of the item to load
 	 *
-	 * @return KunenaDate
+	 * @return    boolean            True on success
+	 * @since     1.6
 	 */
-	public function getModificationDate()
+	public function load($id)
 	{
-		return KunenaDate::getInstance($this->modified_time);
+		// Create the user table object
+		$table = $this->getTable();
+
+		// Load the KunenaTableUser object based on the user id
+		$exists = $table->load($id);
+
+		$this->bind($table->getProperties());
+		$this->_exists = $exists;
+
+		return $exists;
 	}
 
 	/**
-	 * @param   KunenaUserBan $instance
+	 * Method to get the ban table object
+	 *
+	 * This function uses a static variable to store the table name of the user table to
+	 * it instantiates. You can call this function statically to set the table name if
+	 * needed.
+	 *
+	 * @access    public
+	 *
+	 * @param   string $type   The user table name to be used
+	 * @param   string $prefix The user table prefix to be used
+	 *
+	 * @return    object    The user table object
+	 * @since     1.6
+	 */
+	public function getTable($type = 'KunenaUserBans', $prefix = 'Table')
+	{
+		static $tabletype = null;
+
+		// Set a custom table type is defined
+		if ($tabletype === null || $type != $tabletype['name'] || $prefix != $tabletype['prefix'])
+		{
+			$tabletype['name']   = $type;
+			$tabletype['prefix'] = $prefix;
+		}
+
+		// Create the user table object
+		return \Joomla\CMS\Table\Table::getInstance($tabletype['name'], $tabletype['prefix']);
+	}
+
+	/**
+	 * @param   mixed $data data
+	 *
+	 * @since Kunena
+	 * @return void
+	 */
+	protected function bind($data)
+	{
+		$this->setProperties($data);
+		$this->comments = !empty($this->comments) ? json_decode($this->comments) : array();
+		$this->params   = !empty($this->params) ? json_decode($this->params) : array();
+	}
+
+	/**
+	 * Returns the global KunenaUserBan object, only creating it if it doesn't already exist.
+	 *
+	 * @access    public
+	 *
+	 * @param   int $identifier The ban object to be loaded
+	 *
+	 * @return    KunenaUserBan            The ban object.
+	 * @since     1.6
+	 */
+	public static function getInstance($identifier = null)
+	{
+		$c = __CLASS__;
+
+		if (intval($identifier) < 1)
+		{
+			return new $c;
+		}
+
+		if (!isset(self::$_instances[$identifier]))
+		{
+			$instance = new $c($identifier);
+			self::storeInstance($instance);
+		}
+
+		return isset(self::$_instances[$identifier]) ? self::$_instances[$identifier] : null;
+	}
+
+	/**
+	 * @param   KunenaUserBan $instance instance
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	private static function storeInstance($instance)
 	{
@@ -143,7 +234,10 @@ class KunenaUserBan extends JObject
 	}
 
 	/**
-	 * @param $userid
+	 * @param   integer $userid userid
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	private static function cacheUserid($userid)
 	{
@@ -154,39 +248,45 @@ class KunenaUserBan extends JObject
 	}
 
 	/**
-	 * Returns the global KunenaUserBan object, only creating it if it doesn't already exist.
-	 *
-	 * @access	public
-	 * @param   int $identifier	The ban object to be loaded
-	 * @return	KunenaUserBan			The ban object.
-	 * @since	1.6
+	 * @return boolean
+	 * @since Kunena
 	 */
-	public static function getInstance($identifier = null)
+	public function isEnabled()
 	{
-		$c = __CLASS__;
-
-		if (intval($identifier) < 1)
+		if ($this->isLifetime())
 		{
-			return new $c();
+			return true;
 		}
 
-		if (!isset(self::$_instances[$identifier]))
+		$expiration = new \Joomla\CMS\Date\Date($this->expiration);
+
+		if ($expiration->toUnix() > self::$_now->toUnix())
 		{
-			$instance = new $c($identifier);
-			self::storeInstance($instance);
+			return true;
 		}
 
-		return isset(self::$_instances[$identifier]) ? self::$_instances[$identifier] : null;
+		return false;
+	}
+
+	/**
+	 * @return boolean
+	 * @since Kunena
+	 */
+	public function isLifetime()
+	{
+		return $this->expiration == $this->_db->getNullDate();
 	}
 
 	/**
 	 * Returns the global KunenaUserBan object, only creating it if it doesn't already exist.
 	 *
-	 * @access	public
-	 * @param   int $identifier	The ban object to be loaded
-	 * @param   bool	$create
-	 * @return	KunenaUserBan			The ban object.
-	 * @since	1.6
+	 * @access    public
+	 *
+	 * @param   int  $identifier The ban object to be loaded
+	 * @param   bool $create     create
+	 *
+	 * @return    KunenaUserBan            The ban object.
+	 * @since     1.6
 	 */
 	public static function getInstanceByUserid($identifier = null, $create = false)
 	{
@@ -194,12 +294,12 @@ class KunenaUserBan extends JObject
 
 		if (intval($identifier) < 1)
 		{
-			return new $c();
+			return new $c;
 		}
 
 		if (!isset(self::$_instancesByUserid[$identifier]))
 		{
-			$instance = new $c();
+			$instance = new $c;
 			$instance->loadByUserid($identifier);
 			self::storeInstance($instance);
 		}
@@ -207,15 +307,16 @@ class KunenaUserBan extends JObject
 		return $create || !empty(self::$_instancesByUserid[$identifier]->id) ? self::$_instancesByUserid[$identifier] : null;
 	}
 
-
 	/**
 	 * Returns the global KunenaUserBan object, only creating it if it doesn't already exist.
 	 *
-	 * @access	public
-	 * @param   int $identifier	The ban object to be loaded
-	 * @param   bool $create
-	 * @return	KunenaUserBan			The ban object.
-	 * @since	1.6
+	 * @access    public
+	 *
+	 * @param   int  $identifier The ban object to be loaded
+	 * @param   bool $create     create
+	 *
+	 * @return    KunenaUserBan            The ban object.
+	 * @since     1.6
 	 */
 	public static function getInstanceByIP($identifier = null, $create = false)
 	{
@@ -223,12 +324,12 @@ class KunenaUserBan extends JObject
 
 		if (empty($identifier))
 		{
-			return new $c();
+			return new $c;
 		}
 
 		if (!isset(self::$_instancesByIP[$identifier]))
 		{
-			$instance = new $c();
+			$instance = new $c;
 			$instance->loadByIP($identifier);
 			self::storeInstance($instance);
 		}
@@ -237,21 +338,25 @@ class KunenaUserBan extends JObject
 	}
 
 	/**
-	 * @param   int $start
-	 * @param   int $limit
+	 * @param   int $start start
+	 * @param   int $limit limit
 	 *
 	 * @return array
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public static function getBannedUsers($start = 0, $limit = 50)
 	{
-		$c = __CLASS__;
-		$db = JFactory::getDBO();
-		$now = new JDate();
-		$query = "SELECT b.*
-			FROM #__kunena_users_banned AS b
-			INNER JOIN #__users AS u ON u.id=b.userid
-			WHERE (b.expiration = {$db->quote($db->getNullDate())} OR b.expiration > {$db->quote($now->toSql())})
-			ORDER BY b.created_time DESC";
+		$c   = __CLASS__;
+		$db  = Factory::getDBO();
+		$now = new \Joomla\CMS\Date\Date;
+
+		$query = $db->getQuery(true);
+		$query->select('b.*')
+			->from($db->quoteName('#__kunena_users_banned') . ' AS b')
+			->innerJoin($db->quoteName('#__users') . ' AS u ON u.id=b.userid')
+			->where('b.expiration = ' . $db->quote($db->getNullDate()) . ' OR b.expiration > ' . $db->quote($now->toSql()))
+			->order('b.created_time DESC');
 		$db->setQuery($query, $start, $limit);
 
 		try
@@ -267,7 +372,7 @@ class KunenaUserBan extends JObject
 
 		foreach ($results as $ban)
 		{
-			$instance = new $c();
+			$instance = new $c;
 			$instance->bind($ban);
 			$instance->_exists = true;
 			self::storeInstance($instance);
@@ -278,9 +383,11 @@ class KunenaUserBan extends JObject
 	}
 
 	/**
-	 * @param $userid
+	 * @param   integer $userid userid
 	 *
 	 * @return array
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public static function getUserHistory($userid)
 	{
@@ -289,12 +396,14 @@ class KunenaUserBan extends JObject
 			return array();
 		}
 
-		$c = __CLASS__;
-		$db = JFactory::getDBO();
-		$query = "SELECT *
-			FROM #__kunena_users_banned
-			WHERE `userid`={$db->quote($userid)}
-			ORDER BY id DESC";
+		$c  = __CLASS__;
+		$db = Factory::getDBO();
+
+		$query = $db->getQuery(true);
+		$query->select('*')
+			->from($db->quoteName('#__kunena_users_banned'))
+			->where('userid = ' . $db->quote($userid))
+			->order('id DESC');
 		$db->setQuery($query);
 
 		try
@@ -310,7 +419,7 @@ class KunenaUserBan extends JObject
 
 		foreach ($results as $ban)
 		{
-			$instance = new $c();
+			$instance = new $c;
 			$instance->bind($ban);
 			$instance->_exists = true;
 			self::storeInstance($instance);
@@ -321,7 +430,71 @@ class KunenaUserBan extends JObject
 	}
 
 	/**
+	 * @return KunenaUser
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function getUser()
+	{
+		return KunenaUserHelper::get((int) $this->userid);
+	}
+
+	/**
+	 * @return KunenaUser
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function getCreator()
+	{
+		return KunenaUserHelper::get((int) $this->created_by);
+	}
+
+	/**
+	 * @return KunenaUser
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function getModifier()
+	{
+		return KunenaUserHelper::get((int) $this->modified_by);
+	}
+
+	/**
+	 * Return ban creation date.
+	 *
+	 * @return KunenaDate
+	 * @since Kunena
+	 */
+	public function getCreationDate()
+	{
+		return KunenaDate::getInstance($this->created_time);
+	}
+
+	/**
+	 * Return ban expiration date.
+	 *
+	 * @return KunenaDate
+	 * @since Kunena
+	 */
+	public function getExpirationDate()
+	{
+		return KunenaDate::getInstance($this->expiration);
+	}
+
+	/**
+	 * Return ban modification date.
+	 *
+	 * @return KunenaDate
+	 * @since Kunena
+	 */
+	public function getModificationDate()
+	{
+		return KunenaDate::getInstance($this->modified_time);
+	}
+
+	/**
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function exists()
 	{
@@ -329,73 +502,15 @@ class KunenaUserBan extends JObject
 	}
 
 	/**
-	 * Method to get the ban table object
-	 *
-	 * This function uses a static variable to store the table name of the user table to
-	 * it instantiates. You can call this function statically to set the table name if
-	 * needed.
-	 *
-	 * @access	public
-	 * @param   string	$type	The user table name to be used
-	 * @param   string	$prefix	The user table prefix to be used
-	 * @return	object	The user table object
-	 * @since	1.6
-	 */
-	public function getTable($type = 'KunenaUserBans', $prefix = 'Table')
-	{
-		static $tabletype = null;
-
-		//Set a custom table type is defined
-		if ($tabletype === null || $type != $tabletype['name'] || $prefix != $tabletype['prefix'])
-		{
-			$tabletype['name']		= $type;
-			$tabletype['prefix']	= $prefix;
-		}
-
-		// Create the user table object
-		return JTable::getInstance($tabletype['name'], $tabletype['prefix']);
-	}
-
-	/**
-	 * @param $data
-	 */
-	protected function bind($data)
-	{
-		$this->setProperties($data);
-		$this->comments = !empty($this->comments) ? json_decode($this->comments) : array();
-		$this->params = !empty($this->params) ? json_decode($this->params) : array();
-	}
-
-	/**
-	 * Method to load a KunenaUserBan object by ban id
-	 *
-	 * @access	public
-	 * @param   int	$id The ban id of the item to load
-	 * @return	boolean			True on success
-	 * @since 1.6
-	 */
-	public function load($id)
-	{
-		// Create the user table object
-		$table = $this->getTable();
-
-		// Load the KunenaTableUser object based on the user id
-		$exists = $table->load($id);
-
-		$this->bind($table->getProperties());
-		$this->_exists = $exists;
-
-		return $exists;
-	}
-
-	/**
 	 * Method to load a KunenaUserBan object by user id
 	 *
-	 * @access	public
-	 * @param   int	$userid The user id of the user to load
-	 * @param   int $mode KunenaUserBan::ANY or KunenaUserBan::ACTIVE
-	 * @return	boolean			True on success
-	 * @since 1.6
+	 * @access    public
+	 *
+	 * @param   int $userid The user id of the user to load
+	 * @param   int $mode   KunenaUserBan::ANY or KunenaUserBan::ACTIVE
+	 *
+	 * @return    boolean            True on success
+	 * @since     1.6
 	 */
 	public function loadByUserid($userid, $mode = self::ACTIVE)
 	{
@@ -413,11 +528,13 @@ class KunenaUserBan extends JObject
 	/**
 	 * Method to load a KunenaUserBan object by user id
 	 *
-	 * @access	public
-	 * @param   string	$ip
-	 * @param   int $mode KunenaUserBan::ANY or KunenaUserBan::ACTIVE
-	 * @return	boolean			True on success
-	 * @since 1.6
+	 * @access    public
+	 *
+	 * @param   string $ip   ip
+	 * @param   int    $mode KunenaUserBan::ANY or KunenaUserBan::ACTIVE
+	 *
+	 * @return    boolean            True on success
+	 * @since     1.6
 	 */
 	public function loadByIP($ip, $mode = self::ACTIVE)
 	{
@@ -433,8 +550,11 @@ class KunenaUserBan extends JObject
 	}
 
 	/**
-	 * @param   null $public
-	 * @param   null $private
+	 * @param   null $public  public
+	 * @param   null $private private
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public function setReason($public = null, $private = null)
 	{
@@ -443,110 +563,51 @@ class KunenaUserBan extends JObject
 		if ($public !== null && $public != $this->reason_public)
 		{
 			$this->reason_public = (string) $public;
-			$set = true;
+			$set                 = true;
 		}
 
-		if ($private !== null &&  $private != $this->reason_private)
+		if ($private !== null && $private != $this->reason_private)
 		{
 			$this->reason_private = (string) $private;
-			$set = true;
+			$set                  = true;
 		}
 
 		if ($this->_exists && $set)
 		{
 			$this->modified_time = self::$_now->toSql();
-			$this->modified_by = self::$_my->id;
+			$this->modified_by   = self::$_my->id;
 		}
 	}
 
 	/**
-	 * @return boolean
+	 * @param   null   $userid         userid
+	 * @param   null   $ip             ip
+	 * @param   int    $block          block
+	 * @param   null   $expiration     expiration
+	 * @param   string $reason_private private
+	 * @param   string $reason_public  public
+	 * @param   string $comment        comment
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
-	public function canBan()
+	public function ban($userid = null, $ip = null, $block = 0, $expiration = null, $reason_private = '', $reason_public = '', $comment = '')
 	{
-		$userid = $this->userid;
-		$me = KunenaUserHelper::getMyself();
-		$user = KunenaUserHelper::get($userid);
-
-		if (!$me->isModerator())
-		{
-			$this->setError(JText::_('COM_KUNENA_MODERATION_ERROR_NOT_MODERATOR'));
-			return false;
-		}
-
-		if (!$user->exists())
-		{
-			$this->setError(JText::_('COM_KUNENA_LIB_USER_BAN_ERROR_NOT_USER', $userid));
-			return false;
-		}
-
-		if ($userid == $me->userid)
-		{
-			$this->setError(JText::_('COM_KUNENA_LIB_USER_BAN_ERROR_YOURSELF'));
-			return false;
-		}
-
-		if ($user->isAdmin())
-		{
-			$this->setError(JText::sprintf('COM_KUNENA_LIB_USER_BAN_ERROR_ADMIN', $user->getName()));
-			return false;
-		}
-
-		if ($user->isModerator()&& !$me->isAdmin())
-		{
-			$this->setError(JText::sprintf('COM_KUNENA_LIB_USER_BAN_ERROR_MODERATOR', $user->getName()));
-			return false;
-		}
-
-		return true;
+		$this->userid  = intval($userid) > 0 ? (int) $userid : null;
+		$this->ip      = $ip ? (string) $ip : null;
+		$this->blocked = (int) $block;
+		$this->setExpiration($expiration);
+		$this->reason_private = (string) $reason_private;
+		$this->reason_public  = (string) $reason_public;
+		$this->addComment($comment);
 	}
 
 	/**
-	 * @return boolean
-	 */
-	public function isEnabled()
-	{
-		if ($this->isLifetime())
-		{
-			return true;
-		}
-
-		$expiration = new JDate($this->expiration);
-
-		if ($expiration->toUnix() > self::$_now->toUnix())
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function isLifetime()
-	{
-		return $this->expiration == $this->_db->getNullDate();
-	}
-
-	/**
-	 * @param $comment
-	 */
-	public function addComment($comment)
-	{
-		if (is_string($comment) && !empty($comment))
-		{
-			$c = new stdClass();
-			$c->userid = self::$_my->id;
-			$c->time = self::$_now->toSql();
-			$c->comment = $comment;
-			$this->comments[] = $c;
-		}
-	}
-
-	/**
-	 * @param        $expiration
-	 * @param   string $comment
+	 * @param   mixed  $expiration expiration
+	 * @param   string $comment    comment
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public function setExpiration($expiration, $comment = '')
 	{
@@ -562,69 +623,81 @@ class KunenaUserBan extends JObject
 		}
 		else
 		{
-			$date = new JDate($expiration);
+			$date             = new \Joomla\CMS\Date\Date($expiration);
 			$this->expiration = $date->toUnix() > self::$_now->toUnix() ? $date->toSql() : self::$_now->toSql();
 		}
 
-		if ($this->_exists) {
+		if ($this->_exists)
+		{
 			$this->modified_time = self::$_now->toSql();
-			$this->modified_by = self::$_my->id;
+			$this->modified_by   = self::$_my->id;
 		}
 
 		$this->addComment($comment);
 	}
 
 	/**
-	 * @param   null   $userid
-	 * @param   null   $ip
-	 * @param   int    $block
-	 * @param   null   $expiration
-	 * @param   string $reason_private
-	 * @param   string $reason_public
-	 * @param   string $comment
+	 * @param   string $comment comment
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
-	public function ban($userid=null, $ip=null, $block=0, $expiration=null, $reason_private='', $reason_public='', $comment='')
+	public function addComment($comment)
 	{
-		$this->userid = intval($userid) > 0 ? (int) $userid : null;
-		$this->ip = $ip ? (string) $ip : null;
-		$this->blocked = (int) $block;
-		$this->setExpiration($expiration);
-		$this->reason_private = (string) $reason_private;
-		$this->reason_public = (string) $reason_public;
-		$this->addComment($comment);
+		if (is_string($comment) && !empty($comment))
+		{
+			$c                = new stdClass;
+			$c->userid        = self::$_my->id;
+			$c->time          = self::$_now->toSql();
+			$c->comment       = $comment;
+			$this->comments[] = $c;
+		}
 	}
 
 	/**
-	 * @param   string $comment
+	 * @param   string $comment comment
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public function unBan($comment = '')
 	{
 		// Cannot change expiration if ban is not enabled
-		if (!$this->isEnabled()) { return; }
+		if (!$this->isEnabled())
+		{
+			return;
+		}
 
-		$this->expiration = self::$_now->toSql();
+		$this->expiration    = self::$_now->toSql();
 		$this->modified_time = self::$_now->toSql();
-		$this->modified_by = self::$_my->id;
+		$this->modified_by   = self::$_my->id;
 		$this->addComment($comment);
 	}
 
 	/**
 	 * Method to save the KunenaUserBan object to the database
 	 *
-	 * @access	public
+	 * @access    public
+	 *
 	 * @param   boolean $updateOnly Save the object only if not a new ban
-	 * @return	boolean True on success
-	 * @since 1.6
+	 *
+	 * @return boolean True on success
+	 * @throws Exception
+	 * @since     1.6
 	 */
 	public function save($updateOnly = false)
 	{
-		if (!$this->canBan())
+		try
 		{
-			return false;
+			$this->canBan();
+		}
+		catch (Exception $e)
+		{
+			throw new Exception($e->getMessage());
 		}
 
-		$user = JFactory::getUser($this->userid);
-		$app = JFactory::getApplication ();
+		$user = Factory::getUser($this->userid);
+		$app  = Factory::getApplication();
 		$app->logout((int) $this->userid);
 
 		if (!$this->id)
@@ -632,28 +705,30 @@ class KunenaUserBan extends JObject
 			// If we have new ban, add creation date and user if they do not exist
 			if (!$this->created_time)
 			{
-				$now = new JDate();
+				$now                = new \Joomla\CMS\Date\Date;
 				$this->created_time = $now->toSql();
 			}
 
-			if (!$this->created_by) {
-				$my = JFactory::getUser();
+			if (!$this->created_by)
+			{
+				$my               = Factory::getUser();
 				$this->created_by = $my->id;
 			}
 		}
 
 		// Create the user table object
-		$table	= $this->getTable();
+		$table = $this->getTable();
 		$table->bind($this->getProperties());
 
 		// Check and store the object.
 		if (!$table->check())
 		{
 			$this->setError($table->getError());
+
 			return false;
 		}
 
-		//are we creating a new ban
+		// Are we creating a new ban
 		$isnew = !$this->_exists;
 
 		// If we aren't allowed to create new ban, return
@@ -668,6 +743,7 @@ class KunenaUserBan extends JObject
 			if (!$user)
 			{
 				$this->setError("User {$this->userid} does not exist!");
+
 				return false;
 			}
 
@@ -685,12 +761,12 @@ class KunenaUserBan extends JObject
 			}
 
 			// Change user state also in #__kunena_users
-			$profile = KunenaFactory::getUser($this->userid);
+			$profile         = KunenaFactory::getUser($this->userid);
 			$profile->banned = $this->expiration;
 			$profile->save(true);
 		}
 
-		//Store the ban data in the database
+		// Store the ban data in the database
 		$result = $table->store();
 
 		if (!$result)
@@ -709,16 +785,55 @@ class KunenaUserBan extends JObject
 	}
 
 	/**
+	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function canBan()
+	{
+		$userid = $this->userid;
+		$me     = KunenaUserHelper::getMyself();
+		$user   = KunenaUserHelper::get($userid);
+
+		if (!$me->isModerator())
+		{
+			throw new Exception(JText::_('COM_KUNENA_MODERATION_ERROR_NOT_MODERATOR'));
+		}
+
+		if (!$user->exists())
+		{
+			throw new Exception(JText::_('COM_KUNENA_LIB_USER_BAN_ERROR_NOT_USER', $userid));
+		}
+
+		if ($userid == $me->userid)
+		{
+			throw new Exception(JText::_('COM_KUNENA_LIB_USER_BAN_ERROR_YOURSELF'));
+		}
+
+		if ($user->isAdmin())
+		{
+			throw new Exception(JText::sprintf('COM_KUNENA_LIB_USER_BAN_ERROR_ADMIN', $user->getName()));
+		}
+
+		if ($user->isModerator() && !$me->isAdmin())
+		{
+			throw new Exception(JText::sprintf('COM_KUNENA_LIB_USER_BAN_ERROR_MODERATOR', $user->getName()));
+		}
+
+		return true;
+	}
+
+	/**
 	 * Method to delete the KunenaUserBan object from the database
 	 *
-	 * @access	public
-	 * @return	boolean	True on success
-	 * @since 1.6
+	 * @access    public
+	 * @return    boolean    True on success
+	 * @since     1.6
 	 */
 	public function delete()
 	{
 		// Create the user table object
-		$table	= $this->getTable();
+		$table = $this->getTable();
 
 		$result = $table->delete($this->id);
 

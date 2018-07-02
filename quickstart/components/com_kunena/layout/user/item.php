@@ -2,20 +2,21 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Layout.User
+ * @package         Kunena.Site
+ * @subpackage      Layout.User
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * KunenaLayoutUserItem
  *
  * @since  K4.0
- *
  */
 class KunenaLayoutUserItem extends KunenaLayout
 {
@@ -23,6 +24,8 @@ class KunenaLayoutUserItem extends KunenaLayout
 	 * Method to get tabs for user profile
 	 *
 	 * @return array
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getTabs()
 	{
@@ -38,8 +41,15 @@ class KunenaLayoutUserItem extends KunenaLayout
 		$showUnapproved    = $myProfile && ($this->me->isAdmin() || KunenaAccess::getInstance()->getModeratorStatus());
 		$showAttachments   = $this->config->show_imgfiles_manage_profile && ($moderator || $myProfile);
 		$showBanManager    = $moderator && $myProfile;
-		$showBanHistory    = $banInfo->canBan();
-		$showBanUser       = $banInfo->canBan();
+
+		try
+		{
+			$showBanHistory = $showBanManager = $banInfo->canBan();
+		}
+		catch (Exception $e)
+		{
+			$showBanHistory = $showBanManager = false;
+		}
 
 		// Define all tabs.
 		$tabs = array();
@@ -51,19 +61,19 @@ class KunenaLayoutUserItem extends KunenaLayout
 				'topics_categories'   => 0,
 				'topics_catselection' => 1,
 
-				'userid'              => $this->profile->userid,
-				'mode'                => 'latest',
-				'sel'                 => -1,
-				'limit'               => 10,
-				'filter_order'        => 'time',
-				'limitstart'          => 0,
-				'filter_order_Dir'    => 'desc',
-				'display'             => $this->state->get('display', '')
+				'userid'           => $this->profile->userid,
+				'mode'             => 'latest',
+				'sel'              => -1,
+				'limit'            => 10,
+				'filter_order'     => 'time',
+				'limitstart'       => 0,
+				'filter_order_Dir' => 'desc',
+				'display'          => $this->state->get('display', ''),
 			);
 
 			$tab           = new stdClass;
 			$tab->title    = JText::_('COM_KUNENA_USERPOSTS');
-			$tab->content  = $this->subRequest('Message/List/Recent', new JInput($params), $params);
+			$tab->content  = $this->subRequest('Message/List/Recent', new \Joomla\Input\Input($params), $params);
 			$tab->active   = true;
 			$tabs['posts'] = $tab;
 		}
@@ -76,8 +86,8 @@ class KunenaLayoutUserItem extends KunenaLayout
 
 			if ($this->config->category_subscriptions != 'disabled')
 			{
-				$params = array(
-					'embedded'         => 1,
+				$params       = array(
+					'embedded' => 1,
 
 					'userid'           => $this->profile->userid,
 					'limit'            => 10,
@@ -85,25 +95,25 @@ class KunenaLayoutUserItem extends KunenaLayout
 					'limitstart'       => 0,
 					'filter_order_Dir' => 'desc',
 				);
-				$tab->content .= $this->subRequest('Category/Subscriptions', new JInput($params), $params);
+				$tab->content .= $this->subRequest('Category/Subscriptions', new \Joomla\Input\Input($params), $params);
 			}
 
 			if ($this->config->topic_subscriptions != 'disabled')
 			{
-				$params = array(
+				$params       = array(
 					'embedded'            => 1,
 					'topics_categories'   => 0,
 					'topics_catselection' => 1,
 
-					'userid'              => $this->profile->userid,
-					'mode'                => 'subscriptions',
-					'sel'                 => -1,
-					'limit'               => 10,
-					'filter_order'        => 'time',
-					'limitstart'          => 0,
-					'filter_order_Dir'    => 'desc',
+					'userid'           => $this->profile->userid,
+					'mode'             => 'subscriptions',
+					'sel'              => -1,
+					'limit'            => 10,
+					'filter_order'     => 'time',
+					'limitstart'       => 0,
+					'filter_order_Dir' => 'desc',
 				);
-				$tab->content .= $this->subRequest('Topic/List/User', new JInput($params), $params);
+				$tab->content .= $this->subRequest('Topic/List/User', new \Joomla\Input\Input($params), $params);
 			}
 
 			$tab->active = false;
@@ -121,18 +131,18 @@ class KunenaLayoutUserItem extends KunenaLayout
 				'topics_categories'   => 0,
 				'topics_catselection' => 1,
 
-				'userid'              => $this->profile->userid,
-				'mode'                => 'favorites',
-				'sel'                 => -1,
-				'limit'               => 10,
-				'filter_order'        => 'time',
-				'limitstart'          => 0,
-				'filter_order_Dir'    => 'desc',
+				'userid'           => $this->profile->userid,
+				'mode'             => 'favorites',
+				'sel'              => -1,
+				'limit'            => 10,
+				'filter_order'     => 'time',
+				'limitstart'       => 0,
+				'filter_order_Dir' => 'desc',
 			);
 
 			$tab               = new stdClass;
 			$tab->title        = JText::_('COM_KUNENA_FAVORITES');
-			$tab->content      = $this->subRequest('Topic/List/User', new JInput($params), $params);
+			$tab->content      = $this->subRequest('Topic/List/User', new \Joomla\Input\Input($params), $params);
 			$tab->active       = false;
 			$tabs['favorites'] = $tab;
 		}
@@ -143,35 +153,35 @@ class KunenaLayoutUserItem extends KunenaLayout
 			$tab->title   = JText::_('COM_KUNENA_THANK_YOU');
 			$tab->content = '';
 
-			$params = array(
+			$params       = array(
 				'embedded'            => 1,
 				'topics_categories'   => 0,
 				'topics_catselection' => 1,
 
-				'userid'              => $this->profile->userid,
-				'mode'                => 'mythanks',
-				'sel'                 => -1,
-				'limit'               => 10,
-				'filter_order'        => 'time',
-				'limitstart'          => 0,
-				'filter_order_Dir'    => 'desc',
+				'userid'           => $this->profile->userid,
+				'mode'             => 'mythanks',
+				'sel'              => -1,
+				'limit'            => 10,
+				'filter_order'     => 'time',
+				'limitstart'       => 0,
+				'filter_order_Dir' => 'desc',
 			);
-			$tab->content .= $this->subRequest('Message/List/Recent', new JInput($params), $params);
+			$tab->content .= $this->subRequest('Message/List/Recent', new \Joomla\Input\Input($params), $params);
 
-			$params = array(
+			$params       = array(
 				'embedded'            => 1,
 				'topics_categories'   => 0,
 				'topics_catselection' => 1,
 
-				'userid'              => $this->profile->userid,
-				'mode'                => 'thankyou',
-				'sel'                 => -1,
-				'limit'               => 10,
-				'filter_order'        => 'time',
-				'limitstart'          => 0,
-				'filter_order_Dir'    => 'desc',
+				'userid'           => $this->profile->userid,
+				'mode'             => 'thankyou',
+				'sel'              => -1,
+				'limit'            => 10,
+				'filter_order'     => 'time',
+				'limitstart'       => 0,
+				'filter_order_Dir' => 'desc',
 			);
-			$tab->content .= $this->subRequest('Message/List/Recent', new JInput($params), $params);
+			$tab->content .= $this->subRequest('Message/List/Recent', new \Joomla\Input\Input($params), $params);
 
 			$tab->active      = false;
 			$tabs['thankyou'] = $tab;
@@ -184,35 +194,32 @@ class KunenaLayoutUserItem extends KunenaLayout
 				'topics_categories'   => 0,
 				'topics_catselection' => 1,
 
-				'userid'              => $this->profile->userid,
-				'mode'                => 'unapproved',
-				'sel'                 => -1,
-				'limit'               => 10,
-				'filter_order'        => 'time',
-				'limitstart'          => 0,
-				'filter_order_Dir'    => 'desc',
+				'userid'           => $this->profile->userid,
+				'mode'             => 'unapproved',
+				'sel'              => -1,
+				'limit'            => 10,
+				'filter_order'     => 'time',
+				'limitstart'       => 0,
+				'filter_order_Dir' => 'desc',
 			);
 			$tab                = new stdClass;
 			$tab->title         = JText::_('COM_KUNENA_MESSAGE_ADMINISTRATION');
-			$tab->content       = $this->subRequest('Message/List/Recent', new JInput($params), $params);
+			$tab->content       = $this->subRequest('Message/List/Recent', new \Joomla\Input\Input($params), $params);
 			$tab->active        = false;
 			$tabs['unapproved'] = $tab;
 		}
 
 		if ($showAttachments)
 		{
-			if (KunenaConfig::getInstance()->file_upload != '' | KunenaConfig::getInstance()->image_upload != '')
-			{
-				$params = array(
-					'embedded' => 1,
-					'userid' => $this->profile->userid
-				);
-				$tab                 = new stdClass;
-				$tab->title          = JText::_('COM_KUNENA_MANAGE_ATTACHMENTS');
-				$tab->content        = $this->subRequest('User/Attachments', new JInput($params), $params);
-				$tab->active         = false;
-				$tabs['attachments'] = $tab;
-			}
+			$params              = array(
+				'embedded' => 1,
+				'userid'   => $this->profile->userid,
+			);
+			$tab                 = new stdClass;
+			$tab->title          = JText::_('COM_KUNENA_MANAGE_ATTACHMENTS');
+			$tab->content        = $this->subRequest('User/Attachments', new \Joomla\Input\Input($params), $params);
+			$tab->active         = false;
+			$tabs['attachments'] = $tab;
 		}
 
 		if ($showBanManager)
@@ -233,7 +240,7 @@ class KunenaLayoutUserItem extends KunenaLayout
 			$tabs['banhistory'] = $tab;
 		}
 
-		if ($showBanUser)
+		if ($showBanManager)
 		{
 			$tab             = new stdClass;
 			$tab->title      = $banInfo->exists() ? JText::_('COM_KUNENA_BAN_EDIT') : JText::_('COM_KUNENA_BAN_NEW');
@@ -242,9 +249,11 @@ class KunenaLayoutUserItem extends KunenaLayout
 			$tabs['banuser'] = $tab;
 		}
 
-		$dispatcher = JEventDispatcher::getInstance();
-		JPluginHelper::importPlugin('kunena');
-		$dispatcher->trigger('onKunenaUserTabs');
+		\Joomla\CMS\Plugin\PluginHelper::importPlugin('kunena');
+
+		$plugins = Factory::getApplication()->triggerEvent('onKunenaUserTabs', array($tabs));
+
+		$tabs = $tabs + $plugins;
 
 		return $tabs;
 	}
@@ -253,6 +262,8 @@ class KunenaLayoutUserItem extends KunenaLayout
 	 * Method to display unapproved posts
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displayUnapprovedPosts()
 	{
@@ -274,6 +285,8 @@ class KunenaLayoutUserItem extends KunenaLayout
 	 * Method to display user posts
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displayUserPosts()
 	{
@@ -295,6 +308,8 @@ class KunenaLayoutUserItem extends KunenaLayout
 	 * Method to display who got thankyou
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displayGotThankyou()
 	{
@@ -316,6 +331,8 @@ class KunenaLayoutUserItem extends KunenaLayout
 	 * Method to display who said thankyou
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displaySaidThankyou()
 	{
@@ -337,6 +354,8 @@ class KunenaLayoutUserItem extends KunenaLayout
 	 * Method to display favorites topics
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displayFavorites()
 	{
@@ -358,6 +377,8 @@ class KunenaLayoutUserItem extends KunenaLayout
 	 * Method to display subscriptions
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displaySubscriptions()
 	{
@@ -384,6 +405,8 @@ class KunenaLayoutUserItem extends KunenaLayout
 	 * Method to display categories subscriptions
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displayCategoriesSubscriptions()
 	{

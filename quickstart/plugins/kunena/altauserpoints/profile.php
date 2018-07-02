@@ -2,14 +2,16 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  AltaUserPoints
+ * @package         Kunena.Plugins
+ * @subpackage      AltaUserPoints
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
-defined('_JEXEC') or die ();
+defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * KunenaActivityAltaUserPoints class to handle profile integration with AltaUserPoints
@@ -18,12 +20,18 @@ defined('_JEXEC') or die ();
  */
 class KunenaProfileAltaUserPoints extends KunenaProfile
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $params = null;
 
 	/**
 	 * KunenaProfileAltaUserPoints constructor.
 	 *
-	 * @param $params
+	 * @param   mixed $params params
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($params)
 	{
@@ -31,15 +39,17 @@ class KunenaProfileAltaUserPoints extends KunenaProfile
 	}
 
 	/**
-	 * @param string $action
-	 * @param bool   $xhtml
+	 * @param   string $action action
+	 * @param   bool   $xhtml  xhtml
 	 *
-	 * @return bool
+	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getUserListURL($action = '', $xhtml = true)
 	{
 		$config = KunenaFactory::getConfig();
-		$my     = JFactory::getUser();
+		$my     = Factory::getUser();
 
 		if ($config->userlist_allowed == 0 && $my->id == 0)
 		{
@@ -50,41 +60,14 @@ class KunenaProfileAltaUserPoints extends KunenaProfile
 	}
 
 	/**
-	 * @param        $user
-	 * @param string $task
-	 * @param bool   $xhtml
+	 * @param   int $limit limit
 	 *
-	 * @return bool
-	 */
-	public function getProfileURL($user, $task = '', $xhtml = true)
-	{
-		if ($user == 0)
-		{
-			return false;
-		}
-
-		$user = KunenaFactory::getUser($user);
-		$my   = JFactory::getUser();
-
-		if ($user === false)
-		{
-			return false;
-		}
-
-		$userid     = $my->id != $user->userid ? '&userid=' . AltaUserPointsHelper::getAnyUserReferreID($user->userid) : '';
-		$AUP_itemid = AltaUserPointsHelper::getItemidAupProfil();
-
-		return JRoute::_('index.php?option=com_altauserpoints&view=account' . $userid . '&Itemid=' . $AUP_itemid, $xhtml);
-	}
-
-	/**
-	 * @param int $limit
-	 *
-	 * @return array|bool
+	 * @return array|boolean
+	 * @since Kunena
 	 */
 	public function _getTopHits($limit = 0)
 	{
-		$db    = JFactory::getDBO();
+		$db    = Factory::getDBO();
 		$query = $db->getQuery(true)
 			->select($db->quoteName(array('u.*', 'ju.username', 'ju.email', 'ju.lastvisitDate'), array(null, null, 'last_login')))
 			->from('#__alpha_userpoints AS a')
@@ -107,21 +90,56 @@ class KunenaProfileAltaUserPoints extends KunenaProfile
 	}
 
 	/**
-	 * @param $view
-	 * @param $params
+	 * @param   mixed $view   view
+	 * @param   mixed $params params
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public function showProfile($view, &$params)
 	{
 	}
 
 	/**
-	 * @param      $userid
-	 * @param bool $xhtml
+	 * @param   integer $userid userid
+	 * @param   bool    $xhtml  xhtml
 	 *
-	 * @return bool
+	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getEditProfileURL($userid, $xhtml = true)
 	{
 		return $this->getProfileURL($userid, '', $xhtml);
+	}
+
+	/**
+	 * @param   mixed  $user  user
+	 * @param   string $task  task
+	 * @param   bool   $xhtml xhtml
+	 *
+	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function getProfileURL($user, $task = '', $xhtml = true)
+	{
+		if ($user == 0)
+		{
+			return false;
+		}
+
+		$user = KunenaFactory::getUser($user);
+		$my   = Factory::getUser();
+
+		if ($user === false)
+		{
+			return false;
+		}
+
+		$userid     = $my->id != $user->userid ? '&userid=' . AltaUserPointsHelper::getAnyUserReferreID($user->userid) : '';
+		$AUP_itemid = AltaUserPointsHelper::getItemidAupProfil();
+
+		return JRoute::_('index.php?option=com_altauserpoints&view=account' . $userid . '&Itemid=' . $AUP_itemid, $xhtml);
 	}
 }

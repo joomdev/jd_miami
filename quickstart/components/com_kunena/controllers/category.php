@@ -2,12 +2,12 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Controllers
+ * @package         Kunena.Site
+ * @subpackage      Controllers
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
@@ -21,7 +21,10 @@ require_once KPATH_ADMIN . '/controllers/categories.php';
 class KunenaControllerCategory extends KunenaAdminControllerCategories
 {
 	/**
-	 * @param   array $config
+	 * @param   array $config config
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function __construct($config = array())
 	{
@@ -32,10 +35,12 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories
 
 	/**
 	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
-	function jump()
+	public function jump()
 	{
-		$catid = JFactory::getApplication()->input->getInt('catid', 0);
+		$catid = $this->app->input->getInt('catid', 0);
 
 		if (!$catid)
 		{
@@ -49,10 +54,12 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories
 
 	/**
 	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
-	function markread()
+	public function markread()
 	{
-		if (!JSession::checkToken('request'))
+		if (!\Joomla\CMS\Session\Session::checkToken('request'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirectBack();
@@ -60,8 +67,8 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories
 			return;
 		}
 
-		$catid    = JFactory::getApplication()->input->getInt('catid', 0);
-		$children = JFactory::getApplication()->input->getBool('children', 0);
+		$catid    = $this->app->input->getInt('catid', 0);
+		$children = $this->app->input->getBool('children', 0);
 
 		if (!$catid)
 		{
@@ -83,7 +90,7 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories
 			// One category
 			$category = KunenaForumCategoryHelper::get($catid);
 
-			if (!$category->authorise('read'))
+			if (!$category->isAuthorised('read'))
 			{
 				$this->app->enqueueMessage($category->getError(), 'error');
 				$this->setRedirectBack();
@@ -122,10 +129,12 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories
 
 	/**
 	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
-	function subscribe()
+	public function subscribe()
 	{
-		if (!JSession::checkToken('get'))
+		if (!\Joomla\CMS\Session\Session::checkToken('get'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirectBack();
@@ -133,9 +142,9 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories
 			return;
 		}
 
-		$category = KunenaForumCategoryHelper::get(JFactory::getApplication()->input->getInt('catid', 0));
+		$category = KunenaForumCategoryHelper::get($this->app->input->getInt('catid', 0));
 
-		if (!$category->authorise('read'))
+		if (!$category->isAuthorised('read'))
 		{
 			$this->app->enqueueMessage($category->getError(), 'error');
 			$this->setRedirectBack();
@@ -158,10 +167,12 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories
 
 	/**
 	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
-	function unsubscribe()
+	public function unsubscribe()
 	{
-		if (!JSession::checkToken('request'))
+		if (!\Joomla\CMS\Session\Session::checkToken('request'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirectBack();
@@ -169,17 +180,17 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories
 			return;
 		}
 
-		$catid  = JFactory::getApplication()->input->getInt('catid', 0);
+		$catid  = $this->app->input->getInt('catid', 0);
 		$catids = $catid
 			? array($catid)
-			: array_keys(JFactory::getApplication()->input->get('categories', array(), 'post', 'array'));
+			: array_keys($this->app->input->get('categories', array(), 'post', 'array'));
 		Joomla\Utilities\ArrayHelper::toInteger($catids);
 
 		$categories = KunenaForumCategoryHelper::getCategories($catids);
 
 		foreach ($categories as $category)
 		{
-			if (!$category->authorise('read'))
+			if (!$category->isAuthorised('read'))
 			{
 				$this->app->enqueueMessage($category->getError(), 'error');
 				continue;

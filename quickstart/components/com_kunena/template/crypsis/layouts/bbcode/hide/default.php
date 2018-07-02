@@ -1,12 +1,12 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Template.Crypsis
- * @subpackage  Layout.BBCode
+ * @package         Kunena.Template.Crypsis
+ * @subpackage      Layout.BBCode
  *
  * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 
@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 ?>
 
 <?php if ($this->me->exists()) : ?>
-	<strong><?php JText::_('COM_KUNENA_BBCODE_HIDE_IN_MESSAGE'); ?></strong>
+	<strong><?php echo JText::_('COM_KUNENA_BBCODE_HIDE_IN_MESSAGE'); ?></strong>
 	<div class="kmsgtext-hide"><?php echo $this->content; ?></div>
 <?php else : ?>
 	<strong><?php echo JText::_('COM_KUNENA_BBCODE_HIDDENTEXT'); ?></strong>

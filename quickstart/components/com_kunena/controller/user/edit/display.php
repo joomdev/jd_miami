@@ -1,14 +1,16 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.User
+ * @package         Kunena.Site
+ * @subpackage      Controller.User
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * Class ComponentKunenaControllerUserEditDisplay
@@ -17,15 +19,21 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerUserEditDisplay extends KunenaControllerDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'User/Edit';
 
 	/**
-	 * @var jUser
+	 * @var \Joomla\CMS\User\User
+	 * @since Kunena
 	 */
 	public $user;
 
 	/**
 	 * @var KunenaUser
+	 * @since Kunena
 	 */
 	public $profile;
 
@@ -34,7 +42,8 @@ class ComponentKunenaControllerUserEditDisplay extends KunenaControllerDisplay
 	 *
 	 * @return void
 	 *
-	 * @throws KunenaExceptionAuthorise
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function before()
 	{
@@ -50,7 +59,7 @@ class ComponentKunenaControllerUserEditDisplay extends KunenaControllerDisplay
 
 		$userid = $this->input->getInt('userid');
 
-		$this->user = JFactory::getUser($userid);
+		$this->user    = Factory::getUser($userid);
 		$this->profile = KunenaUserHelper::get($userid);
 		$this->profile->tryAuthorise('edit');
 
@@ -61,10 +70,12 @@ class ComponentKunenaControllerUserEditDisplay extends KunenaControllerDisplay
 	 * Prepare document.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function prepareDocument()
 	{
-		$app       = JFactory::getApplication();
+		$app       = Factory::getApplication();
 		$menu_item = $app->getMenu()->getActive();
 
 		if ($menu_item)

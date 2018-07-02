@@ -2,12 +2,12 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Template.Crypsis
- * @subpackage  Layout.Statistics
+ * @package         Kunena.Template.Crypsis
+ * @subpackage      Layout.Statistics
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 ?>
@@ -19,11 +19,16 @@ defined('_JEXEC') or die;
 		</div>
 	</div>
 	<h2 class="btn-link">
-		<?php if ($this->usersUrl) : ?>
+		<?php if ($this->usersUrl)
+			:
+			?>
 			<a href="<?php echo $this->usersUrl; ?>">
 				<?php echo JText::_('COM_KUNENA_MEMBERS'); ?>
 			</a>
-		<?php else : ?>
+		<?php else
+
+			:
+			?>
 			<?php echo JText::_('COM_KUNENA_MEMBERS'); ?>
 		<?php endif; ?>
 	</h2>
@@ -38,42 +43,51 @@ defined('_JEXEC') or die;
 				<?php echo JText::sprintf('COM_KUNENA_VIEW_COMMON_WHO_TOTAL', $this->membersOnline); ?>
 			</span>
 				<?php
-				$template = KunenaTemplate::getInstance();
+				$template  = KunenaTemplate::getInstance();
 				$direction = $template->params->get('whoisonlineName');
 
-				if ($direction == 'both') : ?>
+				if ($direction == 'both')
+					:
+					?>
 					<div><?php echo $this->setLayout('both'); ?></div>
 				<?php
-				elseif ($direction == 'avatar') : ?>
+				elseif ($direction == 'avatar')
+					:
+					?>
 					<div><?php echo $this->setLayout('avatar'); ?></div>
-				<?php else : ?>
+				<?php else
+
+					:
+					?>
 					<div><?php echo $this->setLayout('name'); ?></div>
 				<?php
-					endif;
+				endif;
 				?>
 
-				<?php if (!empty($this->onlineList)) : ?>
-				<div>
-					<span><?php echo JText::_('COM_KUNENA_LEGEND'); ?>:</span>
-					<span class="kwho-admin">
-						<?php echo KunenaIcons::user(); ?> <?php echo JText::_('COM_KUNENA_COLOR_ADMINISTRATOR'); ?>
+				<?php if (!empty($this->onlineList))
+					:
+					?>
+					<div>
+						<span><?php echo JText::_('COM_KUNENA_LEGEND'); ?>:</span>
+						<span class="kwho-admin">
+						<?php echo KunenaIcons::user() . ' ' . JText::_('COM_KUNENA_COLOR_ADMINISTRATOR'); ?>
 					</span>
-					<span class="kwho-globalmoderator">
-						<?php echo KunenaIcons::user(); ?> <?php echo JText::_('COM_KUNENA_COLOR_GLOBAL_MODERATOR'); ?>
+						<span class="kwho-globalmoderator">
+						<?php echo KunenaIcons::user() . ' ' . JText::_('COM_KUNENA_COLOR_GLOBAL_MODERATOR'); ?>
 					</span>
-					<span class="kwho-moderator">
-						<?php echo KunenaIcons::user(); ?> <?php echo JText::_('COM_KUNENA_COLOR_MODERATOR'); ?>
+						<span class="kwho-moderator">
+						<?php echo KunenaIcons::user() . ' ' . JText::_('COM_KUNENA_COLOR_MODERATOR'); ?>
 					</span>
-					<span class="kwho-banned">
-						<?php echo KunenaIcons::user(); ?> <?php echo JText::_('COM_KUNENA_COLOR_BANNED'); ?>
+						<span class="kwho-banned">
+						<?php echo KunenaIcons::user() . ' ' . JText::_('COM_KUNENA_COLOR_BANNED'); ?>
 					</span>
-					<span class="kwho-user">
-						<?php echo KunenaIcons::user(); ?> <?php echo JText::_('COM_KUNENA_COLOR_USER'); ?>
+						<span class="kwho-user">
+						<?php echo KunenaIcons::user() . ' ' . JText::_('COM_KUNENA_COLOR_USER'); ?>
 					</span>
-					<span class="kwho-guest">
-						<?php echo KunenaIcons::user(); ?> <?php echo JText::_('COM_KUNENA_COLOR_GUEST'); ?>
+						<span class="kwho-guest">
+						<?php echo KunenaIcons::user() . ' ' . JText::_('COM_KUNENA_COLOR_GUEST'); ?>
 					</span>
-				</div>
+					</div>
 				<?php endif; ?>
 			</ul>
 		</div>

@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Controllers
+ * @package         Kunena.Administrator
+ * @subpackage      Controllers
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Kunena Smileys Controller
@@ -18,13 +20,18 @@ defined('_JEXEC') or die();
  */
 class KunenaAdminControllerSmilies extends KunenaController
 {
+	/**
+	 * @var null|string
+	 * @since Kunena
+	 */
 	protected $baseurl = null;
 
 	/**
 	 * Construct
 	 *
-	 * @param   array  $config  config
+	 * @param   array $config config
 	 *
+	 * @throws Exception
 	 * @since    2.0
 	 */
 	public function __construct($config = array())
@@ -38,11 +45,13 @@ class KunenaAdminControllerSmilies extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function add()
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -60,10 +69,12 @@ class KunenaAdminControllerSmilies extends KunenaController
 	 *
 	 * @since    2.0
 	 * @throws Exception
+	 * @since    Kunena
+	 * @throws null
 	 */
 	public function edit()
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -71,7 +82,7 @@ class KunenaAdminControllerSmilies extends KunenaController
 			return;
 		}
 
-		$cid = JFactory::getApplication()->input->get('cid', array(), 'post', 'array');
+		$cid = $this->app->input->get('cid', array(), 'post', 'array');
 		Joomla\Utilities\ArrayHelper::toInteger($cid);
 
 		$id = array_shift($cid);
@@ -95,12 +106,13 @@ class KunenaAdminControllerSmilies extends KunenaController
 	 * @return void
 	 *
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function save()
 	{
-		$db = JFactory::getDbo();
+		$db = Factory::getDbo();
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -108,18 +120,19 @@ class KunenaAdminControllerSmilies extends KunenaController
 			return;
 		}
 
-		$smiley_code        = JFactory::getApplication()->input->getString('smiley_code');
-		$smiley_location    = basename(JFactory::getApplication()->input->getString('smiley_url'));
-		$smiley_emoticonbar = JFactory::getApplication()->input->getInt('smiley_emoticonbar', 0);
-		$smileyid           = JFactory::getApplication()->input->getInt('smileyid', 0);
+		$smiley_code        = $this->app->input->getString('smiley_code');
+		$smiley_location    = basename($this->app->input->getString('smiley_url'));
+		$smiley_emoticonbar = $this->app->input->getInt('smiley_emoticonbar', 0);
+		$smileyid           = $this->app->input->getInt('smileyid', 0);
 
 		if (!$smileyid)
 		{
 			$db->setQuery(
-					"INSERT INTO #__kunena_smileys SET
+				"INSERT INTO #__kunena_smileys SET
 					code={$db->quote($smiley_code)},
 					location={$db->quote($smiley_location)},
-					emoticonbar={$db->quote($smiley_emoticonbar)}");
+					emoticonbar={$db->quote($smiley_emoticonbar)}"
+			);
 
 			try
 			{
@@ -127,7 +140,7 @@ class KunenaAdminControllerSmilies extends KunenaController
 			}
 			catch (RuntimeException $e)
 			{
-				JFactory::getApplication()->enqueueMessage($e->getMessage());
+				$this->app->enqueueMessage($e->getMessage());
 
 				return;
 			}
@@ -139,7 +152,8 @@ class KunenaAdminControllerSmilies extends KunenaController
 					code={$db->quote($smiley_code)},
 					location={$db->quote($smiley_location)},
 					emoticonbar={$db->quote($smiley_emoticonbar)}
-				WHERE id = '$smileyid'");
+				WHERE id = '$smileyid'"
+			);
 
 			try
 			{
@@ -147,7 +161,7 @@ class KunenaAdminControllerSmilies extends KunenaController
 			}
 			catch (RuntimeException $e)
 			{
-				JFactory::getApplication()->enqueueMessage($e->getMessage());
+				$this->app->enqueueMessage($e->getMessage());
 
 				return;
 			}
@@ -165,10 +179,11 @@ class KunenaAdminControllerSmilies extends KunenaController
 	 * @return void
 	 *
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function smileyupload()
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -176,7 +191,7 @@ class KunenaAdminControllerSmilies extends KunenaController
 			return;
 		}
 
-		$file   = $this->app->input->files->get('Filedata');
+		$file = $this->app->input->files->get('Filedata');
 
 		// TODO : change this part to use other method than KunenaUploadHelper::upload()
 		$upload = KunenaUploadHelper::upload($file, JPATH_ROOT . '/' . KunenaFactory::getTemplate()->getSmileyPath(), 'html');
@@ -201,13 +216,14 @@ class KunenaAdminControllerSmilies extends KunenaController
 	 * @return void
 	 *
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function remove()
 	{
 		jimport('joomla.utilities.arrayhelper');
-		$db = JFactory::getDbo();
+		$db = Factory::getDbo();
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -215,7 +231,7 @@ class KunenaAdminControllerSmilies extends KunenaController
 			return;
 		}
 
-		$cid = JFactory::getApplication()->input->get('cid', array(), 'post', 'array');
+		$cid = $this->app->input->get('cid', array(), 'post', 'array');
 		Joomla\Utilities\ArrayHelper::toInteger($cid);
 
 		$cids = implode(',', $cid);
@@ -230,7 +246,7 @@ class KunenaAdminControllerSmilies extends KunenaController
 			}
 			catch (RuntimeException $e)
 			{
-				JFactory::getApplication()->enqueueMessage($e->getMessage());
+				$this->app->enqueueMessage($e->getMessage());
 
 				return;
 			}
@@ -245,7 +261,9 @@ class KunenaAdminControllerSmilies extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since K4.0
+	 * @throws null
 	 */
 	public function cancel()
 	{

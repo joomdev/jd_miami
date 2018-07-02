@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Views
+ * @package         Kunena.Administrator
+ * @subpackage      Views
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * About view for Kunena config backend
@@ -19,9 +21,9 @@ defined('_JEXEC') or die();
 class KunenaAdminViewConfig extends KunenaView
 {
 	/**
-	 *
+	 * @since Kunena
 	 */
-	function displayDefault()
+	public function displayDefault()
 	{
 		$this->lists = $this->get('Configlists');
 
@@ -35,27 +37,36 @@ class KunenaAdminViewConfig extends KunenaView
 	}
 
 	/**
-	 *
+	 * @since Kunena
 	 */
 	protected function setToolBarDefault()
 	{
-		$bar = JToolBar::getInstance('toolbar');
+		$bar = \Joomla\CMS\Toolbar\Toolbar::getInstance('toolbar');
 
 		JToolbarHelper::spacer();
-		JToolBarHelper::apply();
-		JToolBarHelper::save('save');
-		JToolBarHelper::divider();
-		JToolBarHelper::title(JText::_('COM_KUNENA') . ': ' . JText::_('COM_KUNENA_CONFIGURATION'), 'wrench');
+		JToolbarHelper::apply();
+		JToolbarHelper::save('save');
+		JToolbarHelper::divider();
+		JToolbarHelper::title(JText::_('COM_KUNENA') . ': ' . JText::_('COM_KUNENA_CONFIGURATION'), 'wrench');
 
-		JHtml::_('bootstrap.modal', 'settingModal');
+		if (version_compare(JVERSION, '4.0', '>'))
+		{
+			HTMLHelper::_('bootstrap.renderModal', 'settingModal');
+		}
+		else
+		{
+			HTMLHelper::_('bootstrap.modal', 'settingModal');
+		}
+
 		$title = JText::_('COM_KUNENA_RESET_CONFIG');
 		$dhtml = "<button data-toggle=\"modal\" data-target=\"#settingModal\" class=\"btn btn-small\">
 					<i class=\"icon-checkbox-partial\" title=\"$title\"></i>
 					$title</button>";
 		$bar->appendButton('Custom', $dhtml, 'restore');
+		JToolbarHelper::back('JTOOLBAR_CANCEL', 'index.php?option=com_kunena');
 
 		JToolbarHelper::spacer();
-		$help_url  = 'https://docs.kunena.org/en/manual/backend/configuration';
-		JToolBarHelper::help('COM_KUNENA', false, $help_url);
+		$help_url = 'https://docs.kunena.org/en/manual/backend/configuration';
+		JToolbarHelper::help('COM_KUNENA', false, $help_url);
 	}
 }

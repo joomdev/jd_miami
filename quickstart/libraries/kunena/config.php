@@ -1,27 +1,27 @@
 <?php
 /**
  * Kunena Component
- * @package    Kunena.Framework
+ * @package        Kunena.Framework
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  *
  * Based on FireBoard Component
- * @copyright  (C) 2006 - 2007 Best Of Joomla All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       http://www.bestofjoomla.com
+ * @copyright      Copyright (C) 2006 - 2007 Best Of Joomla All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           http://www.bestofjoomla.com
  **/
-
-// Do not allow direct linking
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Class KunenaConfig
+ * @since Kunena
  */
 class KunenaConfig extends JObject
 {
-
 	/**
 	 * @var    integer  ID; input, hidden
 	 * @since  1.5.2
@@ -59,7 +59,7 @@ class KunenaConfig extends JObject
 	public $enablerss = 1;
 
 	/**
-	 * @var    integer	Threads per page; input, number
+	 * @var    integer    Threads per page; input, number
 	 * @since  1.0.0
 	 */
 	public $threads_per_page = 20;
@@ -121,7 +121,7 @@ class KunenaConfig extends JObject
 	/**
 	 * @var    string  Category image path; input, text
 	 * @deprecated 4.0
-	 * @since  1.0.0
+	 * @since      1.0.0
 	 */
 	public $catimagepath = 'category_images';
 
@@ -201,7 +201,7 @@ class KunenaConfig extends JObject
 	 * @var    integer  User edit time Grace; input, number
 	 * @since  1.0.0
 	 */
-	public $useredittimegrace = 600; // input, number, time
+	public $useredittimegrace = 600;
 
 	/**
 	 * @var    integer  Edit markup; select, boolean
@@ -229,7 +229,7 @@ class KunenaConfig extends JObject
 
 	/**
 	 * @var    integer  Max subject; input, number
-	 * @since  1.0.0
+	 * @since      1.0.0
 	 * @depricated K5.0
 	 */
 	public $maxsubject = 50;
@@ -316,7 +316,7 @@ class KunenaConfig extends JObject
 	 * @var    integer  Image width; input, number
 	 * @since  1.0.0
 	 */
-	public $imagewidth = 800; // input, number
+	public $imagewidth = 800;
 
 	/**
 	 * @var    integer  Image size
@@ -970,7 +970,7 @@ class KunenaConfig extends JObject
 	 * @var    integer  Send emails; select, boolean
 	 * @since  2.0.0
 	 */
-	public $send_emails = 1; // select, boolean
+	public $send_emails = 1;
 
 	/**
 	 * @var    integer  Fallback english; select, boolean
@@ -1003,17 +1003,10 @@ class KunenaConfig extends JObject
 	public $iptracking = 1;
 
 	/**
-	 * @var    string  StopForumSpam key; input, text
-	 * @since  2.0.0
-	*/
-	public $stopforumspam_key = '';
-
-	/**
 	 * @var    string  RSS feebburner URL; input, text
 	 * @since  2.0.3
 	 */
 	public $rss_feedburner_url = '';
-	// New for 3.0.0
 
 	/**
 	 * @var    integer  Auto link; select, boolean
@@ -1181,13 +1174,31 @@ class KunenaConfig extends JObject
 	 * @var string to define the image location
 	 * @since  K5.0.2
 	 */
-	public $emailheader = '/media/kunena/email/hero-wide.png';
+	public $emailheader = 'media/kunena/email/hero-wide.png';
 
 	/**
 	 * @var integer
 	 * @since  K5.0.3
 	 */
 	public $user_status = 1;
+
+	/**
+	 * @var integer Allow user signatures
+	 * @since  K5.1.0
+	 */
+	public $signature = 1;
+
+	/**
+	 * @var integer Allow user personal
+	 * @since  K5.1.0
+	 */
+	public $personal = 1;
+
+	/**
+	 * @var integer Allow user social
+	 * @since  K5.1.0
+	 */
+	public $social = 1;
 
 	/**
 	 * @var integer
@@ -1202,7 +1213,121 @@ class KunenaConfig extends JObject
 	public $moderator_permdelete = 0;
 
 	/**
-	 *
+	 * @var string
+	 * @since  K5.0.4
+	 */
+	public $avatartypes = 'gif, jpeg, jpg, png';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $smartlinking = 0;
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $defaultavatar = 'nophoto.png';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $defaultavatarsmall = 's_nophoto.png';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $stopforumspam_key = '';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $quickreply = 1;
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $avataredit = 0;
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $activemenuitem = '';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $mainmenu_id = '';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $home_id = '';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $index_id = '';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $moderators_id = '';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $topiclist_id = '';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $misc_id = '';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $profile_id = '';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $search_id = '';
+
+	/**
+	 * @var string
+	 * @since  K5.1.0
+	 */
+	public $avatar_type = 1;
+
+	/**
+	 * @var string
+	 * @since  K5.1.1
+	 */
+	public $sef_redirect = 1;
+
+	/**
+	 * @var integer
+	 * @since  K5.1.1
+	 */
+	public $allow_edit_poll = 1;
+
+	/**
+	 * @since Kunena
 	 */
 	public function __construct()
 	{
@@ -1211,6 +1336,8 @@ class KunenaConfig extends JObject
 
 	/**
 	 * @return KunenaConfig|mixed
+	 * @since Kunena
+	 * @throws Exception
 	 */
 	public static function getInstance()
 	{
@@ -1218,9 +1345,7 @@ class KunenaConfig extends JObject
 
 		if (!$instance)
 		{
-			// @var JCache|JCacheController $cache
-
-			$cache = JFactory::getCache('com_kunena', 'output');
+			$cache    = Factory::getCache('com_kunena', 'output');
 			$instance = $cache->get('configuration', 'com_kunena');
 
 			if (!$instance)
@@ -1236,7 +1361,62 @@ class KunenaConfig extends JObject
 	}
 
 	/**
-	 * @param   mixed $properties
+	 * Load config settings from database table.
+	 *
+	 * @since Kunena
+	 * @throws Exception
+	 * @return void
+	 */
+	public function load()
+	{
+		$db    = Factory::getDBO();
+		$query = $db->getQuery(true);
+		$query->select('*');
+		$query->from($db->quoteName('#__kunena_configuration'));
+		$query->where($db->quoteName('id') . '=1');
+		$db->setQuery($query);
+
+		try
+		{
+			$config = $db->loadAssoc();
+		}
+		catch (JDatabaseExceptionExecuting $e)
+		{
+			KunenaError::displayDatabaseError($e);
+		}
+
+		if ($config)
+		{
+			$params = json_decode($config['params']);
+			$this->bind($params);
+		}
+
+		// Perform custom validation of config data before we let anybody access it.
+		$this->check();
+
+		\Joomla\CMS\Plugin\PluginHelper::importPlugin('kunena');
+		$plugins = array();
+		Factory::getApplication()->triggerEvent('onKunenaGetConfiguration', array('kunena.configuration', &$plugins));
+		$this->plugins = array();
+
+		foreach ($plugins as $name => $registry)
+		{
+			if ($name == '38432UR24T5bBO6')
+			{
+				$this->bind($registry->toArray());
+			}
+			elseif ($name && $registry instanceof \Joomla\Registry\Registry)
+			{
+				$this->plugins[$name] = $registry;
+			}
+		}
+	}
+
+	/**
+	 * @param   mixed $properties properties
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public function bind($properties)
 	{
@@ -1244,11 +1424,28 @@ class KunenaConfig extends JObject
 	}
 
 	/**
-	 *
+	 * Messages per page
+	 * @since Kunena
+	 * @return void
+	 */
+	public function check()
+	{
+		// Add anything that requires validation
+
+		// Need to have at least two per page of these
+		$this->messages_per_page        = max($this->messages_per_page, 2);
+		$this->messages_per_page_search = max($this->messages_per_page_search, 2);
+		$this->threads_per_page         = max($this->threads_per_page, 2);
+	}
+
+	/**
+	 * @since Kunena
+	 * @throws Exception
+	 * @return void
 	 */
 	public function save()
 	{
-		$db = JFactory::getDBO();
+		$db = Factory::getDBO();
 
 		// Perform custom validation of config data before we write it.
 		$this->check();
@@ -1273,7 +1470,8 @@ class KunenaConfig extends JObject
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public function reset()
 	{
@@ -1282,85 +1480,29 @@ class KunenaConfig extends JObject
 	}
 
 	/**
-	 * Load config settings from database table.
-	 * @param   null $userinfo Not used.
-	 */
-	public function load($userinfo = null)
-	{
-		$db = JFactory::getDBO();
-		$db->setQuery("SELECT * FROM #__kunena_configuration WHERE id=1");
-
-		try
-		{
-			$config = $db->loadAssoc();
-		}
-		catch (JDatabaseExceptionExecuting $e)
-		{
-			KunenaError::displayDatabaseError($e);
-		}
-
-		if ($config)
-		{
-			$params = json_decode($config['params']);
-			$this->bind($params);
-		}
-
-		// Perform custom validation of config data before we let anybody access it.
-		$this->check();
-
-		$dispatcher = JEventDispatcher::getInstance();
-		JPluginHelper::importPlugin('kunena');
-		$plugins = array();
-		$dispatcher->trigger('onKunenaGetConfiguration', array('kunena.configuration', &$plugins));
-		$this->plugins = array();
-
-		foreach ($plugins as $name => $registry)
-		{
-			if ($name == '38432UR24T5bBO6')
-			{
-				$this->bind($registry->toArray());
-			}
-			elseif ($name && $registry instanceof JRegistry)
-			{
-				$this->plugins[$name] = $registry;
-			}
-		}
-	}
-
-	/**
-	 * @param   string $name
+	 * @param   string $name Name of the plugin
 	 *
-	 * @return JRegistry
+	 * @return \Joomla\Registry\Registry
 	 *
 	 * @internal
+	 * @since Kunena
 	 */
 	public function getPlugin($name)
 	{
-		return isset($this->plugins[$name]) ? $this->plugins[$name] : new JRegistry();
-	}
-
-	/**
-	 * Messages per page
-	 */
-	public function check()
-	{
-		// Add anything that requires validation
-
-		// Need to have at least two per page of these
-		$this->messages_per_page = max($this->messages_per_page, 2);
-		$this->messages_per_page_search = max($this->messages_per_page_search, 2);
-		$this->threads_per_page = max($this->threads_per_page, 2);
+		return isset($this->plugins[$name]) ? $this->plugins[$name] : new \Joomla\Registry\Registry;
 	}
 
 	/**
 	 * Email set for the configuration
 	 *
 	 * @return string
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getEmail()
 	{
 		$email = $this->get('email');
 
-		return !empty($email) ? $email : JFactory::getApplication()->get('mailfrom', '');
+		return !empty($email) ? $email : Factory::getApplication()->get('mailfrom', '');
 	}
 }

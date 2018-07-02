@@ -1,12 +1,12 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Attachment
+ * @package       Kunena.Framework
+ * @subpackage    Attachment
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
@@ -17,12 +17,18 @@ defined('_JEXEC') or die();
  */
 class KunenaAttachmentFinder extends KunenaDatabaseObjectFinder
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $table = '#__kunena_attachments';
 
 	/**
 	 * Get log entries.
 	 *
 	 * @return array|KunenaCollection
+	 * @throws Exception|void
+	 * @since Kunena
 	 */
 	public function find()
 	{
@@ -40,7 +46,7 @@ class KunenaAttachmentFinder extends KunenaDatabaseObjectFinder
 		{
 			$results = new KunenaCollection((array) $this->db->loadObjectList('id', 'KunenaAttachment'));
 		}
-		catch (JDatabaseExceptionExecuting $e)
+		catch (RuntimeException $e)
 		{
 			KunenaError::displayDatabaseError($e);
 		}

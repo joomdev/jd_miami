@@ -1,14 +1,17 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Topic
+ * @package         Kunena.Site
+ * @subpackage      Controller.Topic
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
+
 
 /**
  * Class ComponentKunenaControllerTopicListRecentDisplay
@@ -21,6 +24,9 @@ class ComponentKunenaControllerTopicListRecentDisplay extends ComponentKunenaCon
 	 * Prepare recent topics list.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	protected function before()
 	{
@@ -29,15 +35,40 @@ class ComponentKunenaControllerTopicListRecentDisplay extends ComponentKunenaCon
 		require_once KPATH_SITE . '/models/topics.php';
 		$this->model = new KunenaModelTopics(array(), $this->input);
 		$this->model->initialize($this->getOptions(), $this->getOptions()->get('embedded', false));
-		$this->state   = $this->model->getState();
-		$this->me      = KunenaUserHelper::getMyself();
-		$this->moreUri = null;
-		$holding       = $this->getOptions()->get('topics_deletedtopics');
-
+		$this->state    = $this->model->getState();
+		$this->me       = KunenaUserHelper::getMyself();
+		$this->moreUri  = null;
+		$holding        = $this->getOptions()->get('topics_deletedtopics');
 		$this->embedded = $this->getOptions()->get('embedded', true);
 
 		$start = $this->state->get('list.start');
 		$limit = $this->state->get('list.limit');
+
+		$Itemid = $this->input->getInt('Itemid');
+		$format = $this->input->getCmd('format');
+
+		if (!$Itemid && $format != 'feed' && KunenaConfig::getInstance()->sef_redirect)
+		{
+			if (KunenaConfig::getInstance()->topiclist_id)
+			{
+				$itemidfix = KunenaConfig::getInstance()->topiclist_id;
+			}
+			else
+			{
+				$menu      = $this->app->getMenu();
+				$getid     = $menu->getItem(KunenaRoute::getItemID("index.php?option=com_kunena&view=topics&mode={$this->state->get('list.mode')}"));
+				$itemidfix = $getid->id;
+			}
+
+			if (!$itemidfix)
+			{
+				$itemidfix = KunenaRoute::fixMissingItemID();
+			}
+
+			$controller = JControllerLegacy::getInstance("kunena");
+			$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=topics&mode={$this->state->get('list.mode')}&Itemid={$itemidfix}", false));
+			$controller->redirect();
+		}
 
 		// Handle &sel=x parameter.
 		$time = $this->state->get('list.time');
@@ -48,11 +79,11 @@ class ComponentKunenaControllerTopicListRecentDisplay extends ComponentKunenaCon
 		}
 		elseif ($time == 0)
 		{
-			$time = new JDate(KunenaFactory::getSession()->lasttime);
+			$time = new \Joomla\CMS\Date\Date(KunenaFactory::getSession()->lasttime);
 		}
 		else
 		{
-			$time = new JDate(JFactory::getDate()->toUnix() - ($time * 3600));
+			$time = new \Joomla\CMS\Date\Date(Factory::getDate()->toUnix() - ($time * 3600));
 		}
 
 		if ($holding)
@@ -124,7 +155,7 @@ class ComponentKunenaControllerTopicListRecentDisplay extends ComponentKunenaCon
 
 		$this->pagination = new KunenaPagination($finder->count(), $start, $limit);
 
-		$doc = JFactory::getDocument();
+		$doc = Factory::getDocument();
 
 		$page = $this->pagination->pagesCurrent;
 
@@ -179,8 +210,8 @@ class ComponentKunenaControllerTopicListRecentDisplay extends ComponentKunenaCon
 
 		$actions = array('delete', 'approve', 'undelete', 'move', 'permdelete');
 
-		$params = JFactory::getApplication()->getMenu()->getActive()->params;
-		$title = $params->get('page_title');
+		$params      = Factory::getApplication()->getMenu()->getActive()->params;
+		$title       = $params->get('page_title');
 		$pageheading = $params->get('show_page_heading');
 
 		switch ($this->state->get('list.mode'))
@@ -269,10 +300,10 @@ class ComponentKunenaControllerTopicListRecentDisplay extends ComponentKunenaCon
 				}
 
 				$canonicalUrl = 'index.php?option=com_kunena&view=topics&mode=replies';
-			break;
+				break;
 		}
 
-		$doc = JFactory::getDocument();
+		$doc = Factory::getDocument();
 
 		foreach ($doc->_links as $key => $value)
 		{
@@ -297,18 +328,28 @@ class ComponentKunenaControllerTopicListRecentDisplay extends ComponentKunenaCon
 	 * Prepare document.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function prepareDocument()
 	{
-		$page = $this->pagination->pagesCurrent;
-		$total = $this->pagination->pagesTotal;
+		$page       = $this->pagination->pagesCurrent;
+		$total      = $this->pagination->pagesTotal;
 		$headerText = $this->headerText . ($total > 1 && $page > 1 ? " - " . JText::_('COM_KUNENA_PAGES') . " {$page}" : '');
-		$doc = JFactory::getDocument();
-		$app = JFactory::getApplication();
-		$menu_item   = $app->getMenu()->getActive();
 
-		$config = JFactory::getConfig();
-		$robots = $config->get('robots');
+		$config    = Factory::getConfig();
+		$robots    = $config->get('robots');
+		$doc       = Factory::getDocument();
+		$app       = Factory::getApplication();
+		$menu_item = $app->getMenu()->getActive();
+
+		$doc->setMetaData('og:url', \Joomla\CMS\Uri\Uri::current(), 'property');
+
+		if (JFile::exists(JPATH_SITE . '/' . KunenaConfig::getInstance()->emailheader))
+		{
+			$image = \Joomla\CMS\Uri\Uri::base() . KunenaConfig::getInstance()->emailheader;
+			$doc->setMetaData('og:image', $image, 'property');
+		}
 
 		if ($robots == '')
 		{
@@ -345,6 +386,10 @@ class ComponentKunenaControllerTopicListRecentDisplay extends ComponentKunenaCon
 				$this->title = $this->headerText;
 				$this->setTitle($headerText);
 			}
+
+			$doc->setMetaData('og:type', 'article', 'property');
+			$doc->setMetaData('og:description', $headerText, 'property');
+			$doc->setMetaData('og:title', $headerText, 'property');
 
 			if (!empty($params_keywords))
 			{

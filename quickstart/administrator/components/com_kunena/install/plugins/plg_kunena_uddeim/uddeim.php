@@ -2,20 +2,27 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  UddeIM
+ * @package         Kunena.Plugins
+ * @subpackage      UddeIM
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
-class PlgKunenaUddeIM extends JPlugin
+/**
+ * Class PlgKunenaUddeIM
+ * @since Kunena
+ */
+class PlgKunenaUddeIM extends \Joomla\CMS\Plugin\CMSPlugin
 {
 	/**
-	 * @param   object $subject
-	 * @param   array  $config
+	 * @param   object $subject subject
+	 * @param   array  $config  config
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function __construct(&$subject, $config)
 	{
@@ -30,12 +37,25 @@ class PlgKunenaUddeIM extends JPlugin
 
 		if (!is_file($path))
 		{
+			if (\Joomla\CMS\Plugin\PluginHelper::isEnabled('kunena', 'uddeim'))
+			{
+				$db = JFactory::getDBO();
+				$query = $db->getQuery(true);
+				$query->update('`#__extensions`');
+				$query->where($db->quoteName('element') . ' = ' . $db->quote('uddeim'));
+				$query->where($db->quoteName('type') . ' = ' . $db->quote('plugin'));
+				$query->where($db->quoteName('folder') . '= ' . $db->quote('kunena'));
+				$query->set($db->quoteName('enabled') . '=0');
+				$db->setQuery($query);
+				$db->execute();
+			}
+
 			return;
 		}
 
-		include_once($path);
+		include_once $path;
 
-		$uddeim = new uddeIMAPI();
+		$uddeim = new uddeIMAPI;
 
 		if ($uddeim->version() < 1)
 		{
@@ -49,12 +69,13 @@ class PlgKunenaUddeIM extends JPlugin
 
 	/**
 	 * @return KunenaPrivateUddeIM|null
+	 * @since Kunena
 	 */
 	public function onKunenaGetPrivate()
 	{
 		if (!$this->params->get('private', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/private.php";

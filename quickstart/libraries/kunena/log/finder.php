@@ -1,12 +1,12 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Forum.Message
+ * @package       Kunena.Framework
+ * @subpackage    Forum.Message
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
@@ -17,10 +17,15 @@ defined('_JEXEC') or die();
  */
 class KunenaLogFinder extends KunenaDatabaseObjectFinder
 {
+	/**
+	 * @var string
+	 * @since Kunena 5.0
+	 */
 	protected $table = '#__kunena_logs';
 
 	/**
 	 * Constructor.
+	 * @since Kunena 5.0
 	 */
 	public function __construct()
 	{
@@ -30,12 +35,13 @@ class KunenaLogFinder extends KunenaDatabaseObjectFinder
 	/**
 	 * Filter by time.
 	 *
-	 * @param JDate $starting  Starting date or null if older than ending date.
-	 * @param JDate $ending    Ending date or null if newer than starting date.
+	 * @param   \Joomla\CMS\Date\Date $starting Starting date or null if older than ending date.
+	 * @param   \Joomla\CMS\Date\Date $ending   Ending date or null if newer than starting date.
 	 *
 	 * @return $this
+	 * @since Kunena 5.0
 	 */
-	public function filterByTime(JDate $starting = null, JDate $ending = null)
+	public function filterByTime(\Joomla\CMS\Date\Date $starting = null, \Joomla\CMS\Date\Date $ending = null)
 	{
 		if ($starting && $ending)
 		{
@@ -53,6 +59,12 @@ class KunenaLogFinder extends KunenaDatabaseObjectFinder
 		return $this;
 	}
 
+	/**
+	 * @param   mixed $condition condition
+	 *
+	 * @return $this
+	 * @since Kunena 5.0
+	 */
 	public function innerJoin($condition)
 	{
 		$this->query->innerJoin($condition);
@@ -60,6 +72,12 @@ class KunenaLogFinder extends KunenaDatabaseObjectFinder
 		return $this;
 	}
 
+	/**
+	 * @param   mixed $columns columns
+	 *
+	 * @return $this
+	 * @since Kunena 5.0
+	 */
 	public function select($columns)
 	{
 		$this->query->select($columns);
@@ -67,6 +85,12 @@ class KunenaLogFinder extends KunenaDatabaseObjectFinder
 		return $this;
 	}
 
+	/**
+	 * @param   mixed $columns columns
+	 *
+	 * @return $this
+	 * @since Kunena 5.0
+	 */
 	public function group($columns)
 	{
 		$this->query->group($columns);
@@ -78,6 +102,8 @@ class KunenaLogFinder extends KunenaDatabaseObjectFinder
 	 * Get log entries.
 	 *
 	 * @return array|KunenaCollection
+	 * @throws Exception
+	 * @since Kunena 5.0
 	 */
 	public function find()
 	{
@@ -103,6 +129,12 @@ class KunenaLogFinder extends KunenaDatabaseObjectFinder
 		return $results;
 	}
 
+	/**
+	 * @param   JDatabaseQuery $query query
+	 *
+	 * @since Kunena 5.0
+	 * @return void
+	 */
 	protected function build(JDatabaseQuery $query)
 	{
 	}

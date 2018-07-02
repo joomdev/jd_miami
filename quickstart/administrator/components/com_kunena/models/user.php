@@ -2,14 +2,17 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Models
+ * @package         Kunena.Administrator
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Factory;
 
 jimport('joomla.application.component.model');
 
@@ -21,49 +24,15 @@ jimport('joomla.application.component.model');
 class KunenaAdminModelUser extends KunenaModel
 {
 	/**
-	 * Method to auto-populate the model state.
-	 */
-	protected function populateState()
-	{
-		$this->context = 'com_kunena.admin.user';
-
-		$app = JFactory::getApplication();
-
-		// Adjust the context to support modal layouts.
-		$layout        = $app->input->get('layout');
-		$this->context = 'com_kunena.admin.user';
-
-		if ($layout)
-		{
-			$this->context .= '.' . $layout;
-		}
-
-		$value = JFactory::getApplication()->input->getInt('userid');
-		$this->setState($this->getName() . '.id', $value);
-	}
-
-	/**
-	 * @return KunenaUser
+	 * @return array|KunenaForumTopic[]|void
 	 *
 	 * @throws Exception
-	 */
-	public function getUser()
-	{
-		$userid = $this->getState($this->getName() . '.id');
-
-		$user = KunenaUserHelper::get($userid);
-
-		return $user;
-	}
-
-	/**
-	 * @return array|KunenaForumTopic[]
-	 *
-	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	public function getSubscriptions()
 	{
-		$db     = JFactory::getDBO();
+		$db     = Factory::getDBO();
 		$userid = $this->getState($this->getName() . '.id');
 
 		$db->setQuery("SELECT topic_id AS thread FROM #__kunena_user_topics WHERE user_id='$userid' AND subscribed=1");
@@ -74,7 +43,7 @@ class KunenaAdminModelUser extends KunenaModel
 		}
 		catch (RuntimeException $e)
 		{
-			JFactory::getApplication()->enqueueMessage($e->getMessage());
+			Factory::getApplication()->enqueueMessage($e->getMessage());
 
 			return;
 		}
@@ -98,6 +67,7 @@ class KunenaAdminModelUser extends KunenaModel
 	 * @return KunenaForumCategory[]
 	 *
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getCatsubcriptions()
 	{
@@ -109,13 +79,14 @@ class KunenaAdminModelUser extends KunenaModel
 	}
 
 	/**
-	 * @return array
+	 * @return array|void
 	 *
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getIPlist()
 	{
-		$db     = JFactory::getDBO();
+		$db     = Factory::getDBO();
 		$userid = $this->getState($this->getName() . '.id');
 
 		$db->setQuery("SELECT ip FROM #__kunena_messages WHERE userid='$userid' GROUP BY ip");
@@ -126,7 +97,7 @@ class KunenaAdminModelUser extends KunenaModel
 		}
 		catch (RuntimeException $e)
 		{
-			JFactory::getApplication()->enqueueMessage($e->getMessage());
+			Factory::getApplication()->enqueueMessage($e->getMessage());
 
 			return;
 		}
@@ -144,7 +115,7 @@ class KunenaAdminModelUser extends KunenaModel
 			}
 			catch (RuntimeException $e)
 			{
-				JFactory::getApplication()->enqueueMessage($e->getMessage());
+				Factory::getApplication()->enqueueMessage($e->getMessage());
 
 				return;
 			}
@@ -163,6 +134,8 @@ class KunenaAdminModelUser extends KunenaModel
 	/**
 	 * @return mixed
 	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getListmodcats()
 	{
@@ -179,26 +152,43 @@ class KunenaAdminModelUser extends KunenaModel
 
 		if ($this->me->isAdmin())
 		{
-			$categoryList[] = JHtml::_('select.option', 0, JText::_('COM_KUNENA_GLOBAL_MODERATOR'));
+			$categoryList[] = HTMLHelper::_('select.option', 0, JText::_('COM_KUNENA_GLOBAL_MODERATOR'));
 		}
 
 		$params  = array(
 			'sections' => false,
-			'action'   => 'read');
-		$modCats = JHtml::_('kunenaforum.categorylist', 'catid[]', 0, $categoryList, $params, 'class="inputbox" multiple="multiple" size="15"', 'value', 'text', $modCatList, 'kforums');
+			'action'   => 'read',);
+		$modCats = HTMLHelper::_('kunenaforum.categorylist', 'catid[]', 0, $categoryList, $params, 'class="inputbox" multiple="multiple" size="15"', 'value', 'text', $modCatList, 'kforums');
 
 		return $modCats;
 	}
 
 	/**
-	 * @return array|mixed
+	 * @return KunenaUser
 	 *
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function getUser()
+	{
+		$userid = $this->getState($this->getName() . '.id');
+
+		$user = KunenaUserHelper::get($userid);
+
+		return $user;
+	}
+
+	/**
+	 * @return array|mixed
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getListuserranks()
 	{
-		$db   = JFactory::getDBO();
+		$db   = Factory::getDBO();
 		$user = $this->getUser();
-		//grab all special ranks
+
+		// Grab all special ranks
 		$db->setQuery("SELECT * FROM #__kunena_ranks WHERE rank_special = '1'");
 
 		try
@@ -207,20 +197,20 @@ class KunenaAdminModelUser extends KunenaModel
 		}
 		catch (RuntimeException $e)
 		{
-			JFactory::getApplication()->enqueueMessage($e->getMessage());
+			Factory::getApplication()->enqueueMessage($e->getMessage());
 
 			return;
 		}
 
-		$yesnoRank [] = JHtml::_('select.option', '0', JText::_('COM_KUNENA_RANK_NO_ASSIGNED'));
+		$yesnoRank [] = HTMLHelper::_('select.option', '0', JText::_('COM_KUNENA_RANK_NO_ASSIGNED'));
 
 		foreach ($specialRanks as $ranks)
 		{
-			$yesnoRank [] = JHtml::_('select.option', $ranks->rank_id, $ranks->rank_title);
+			$yesnoRank [] = HTMLHelper::_('select.option', $ranks->rank_id, $ranks->rank_title);
 		}
 
-		//build special ranks select list
-		$selectRank = JHtml::_('select.genericlist', $yesnoRank, 'newrank', 'class="inputbox" size="5"', 'value', 'text', $user->rank);
+		// Build special ranks select list
+		$selectRank = HTMLHelper::_('select.genericlist', $yesnoRank, 'newrank', 'class="inputbox" size="5"', 'value', 'text', $user->rank);
 
 		return $selectRank;
 	}
@@ -228,19 +218,21 @@ class KunenaAdminModelUser extends KunenaModel
 	/**
 	 * @return mixed
 	 *
+	 * @since Kunena
 	 */
 	public function getMovecatslist()
 	{
-		return JHtml::_('kunenaforum.categorylist', 'catid', 0, array(), array(), 'class="inputbox"', 'value', 'text');
+		return HTMLHelper::_('kunenaforum.categorylist', 'catid', 0, array(), array(), 'class="inputbox"', 'value', 'text');
 	}
 
 	/**
 	 * @return array|string
-	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getMoveuser()
 	{
-		$db = JFactory::getDBO();
+		$db = Factory::getDBO();
 
 		$userids = (array) $this->app->getUserState('kunena.usermove.userids');
 
@@ -258,11 +250,35 @@ class KunenaAdminModelUser extends KunenaModel
 		}
 		catch (RuntimeException $e)
 		{
-			JFactory::getApplication()->enqueueMessage($e->getMessage());
+			Factory::getApplication()->enqueueMessage($e->getMessage());
 
 			return;
 		}
 
 		return $userids;
+	}
+
+	/**
+	 * Method to auto-populate the model state.
+	 * @since Kunena
+	 * @throws Exception
+	 */
+	protected function populateState()
+	{
+		$this->context = 'com_kunena.admin.user';
+
+		$app = Factory::getApplication();
+
+		// Adjust the context to support modal layouts.
+		$layout        = $app->input->get('layout');
+		$this->context = 'com_kunena.admin.user';
+
+		if ($layout)
+		{
+			$this->context .= '.' . $layout;
+		}
+
+		$value = Factory::getApplication()->input->getInt('userid');
+		$this->setState($this->getName() . '.id', $value);
 	}
 }

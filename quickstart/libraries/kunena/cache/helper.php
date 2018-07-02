@@ -1,23 +1,29 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Cache
+ * @package       Kunena.Framework
+ * @subpackage    Cache
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Class KunenaCacheHelper has helper functions to clear all caches that affects Kunena.
+ * @since Kunena
  */
 abstract class KunenaCacheHelper
 {
 	/**
 	 * Clear all cache types. Please avoid using this function except after installation and
 	 * when user wants to do it manually.
+	 * @since Kunena
+	 * @throws Exception
+	 * @return void
 	 */
 	public static function clearAll()
 	{
@@ -32,51 +38,35 @@ abstract class KunenaCacheHelper
 	}
 
 	/**
-	 * Perform normal cache cleanup.
-	 */
-	public static function clear()
-	{
-		self::clearKunena();
-		self::clearSystem();
-		self::clearMenu();
-
-	}
-
-	/**
 	 * Clear Kunena cache.
+	 * @since Kunena
+	 * @return void
 	 */
 	public static function clearKunena()
 	{
-		// @var JCache|JCacheController $cache
+		// @var \Joomla\CMS\Cache\Cache|\Joomla\CMS\Cache\CacheController $cache
 
-		$cache = JFactory::getCache();
+		$cache = Factory::getCache();
 		$cache->clean('com_kunena');
 	}
 
 	/**
-	 * Clear Category cache.
-	 */
-	public static function clearCategories()
-	{
-		// @var JCache|JCacheController $cache
-
-		$cache = JFactory::getCache();
-		$cache->remove('categories', 'com_kunena');
-	}
-
-	/**
 	 * Clear Joomla system cache.
+	 * @since Kunena
+	 * @return void
 	 */
 	public static function clearSystem()
 	{
-		// @var JCache|JCacheController $cache
+		// @var \Joomla\CMS\Cache\Cache|\Joomla\CMS\Cache\CacheController $cache
 
-		$cache = JFactory::getCache();
+		$cache = Factory::getCache();
 		$cache->clean('_system');
 	}
 
 	/**
 	 * Clear Joomla menu cache.
+	 * @since Kunena
+	 * @return void
 	 */
 	public static function clearMenu()
 	{
@@ -85,6 +75,9 @@ abstract class KunenaCacheHelper
 
 	/**
 	 * Clear Kunena access cache.
+	 * @since Kunena
+	 * @throws Exception
+	 * @return void
 	 */
 	public static function clearAccess()
 	{
@@ -93,6 +86,8 @@ abstract class KunenaCacheHelper
 
 	/**
 	 * Clear cached files from Kunena.
+	 * @since Kunena
+	 * @return void
 	 */
 	public static function clearCacheFiles()
 	{
@@ -109,6 +104,8 @@ abstract class KunenaCacheHelper
 
 	/**
 	 * Clear cached template files.
+	 * @since Kunena
+	 * @return void
 	 */
 	public static function clearTemplateFiles()
 	{
@@ -125,6 +122,8 @@ abstract class KunenaCacheHelper
 
 	/**
 	 * Clear PHP statcache (contains file size etc).
+	 * @since Kunena
+	 * @return void
 	 */
 	public static function clearStatCache()
 	{
@@ -133,6 +132,8 @@ abstract class KunenaCacheHelper
 
 	/**
 	 * Clear compiled PHP files, handy during installation when PHP files change.
+	 * @since Kunena
+	 * @return void
 	 */
 	public static function clearCompiledPHP()
 	{
@@ -147,5 +148,28 @@ abstract class KunenaCacheHelper
 		{
 			@xcache_clear_cache(XC_TYPE_PHP);
 		}
+	}
+
+	/**
+	 * Perform normal cache cleanup.
+	 * @since Kunena
+	 * @return void
+	 */
+	public static function clear()
+	{
+		self::clearKunena();
+		self::clearSystem();
+		self::clearMenu();
+	}
+
+	/**
+	 * Clear Category cache.
+	 * @since Kunena
+	 * @return void
+	 */
+	public static function clearCategories()
+	{
+		$cache = Factory::getCache();
+		$cache->remove('categories', 'com_kunena');
 	}
 }

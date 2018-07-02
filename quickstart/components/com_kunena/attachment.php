@@ -2,11 +2,11 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Site
+ * @package        Kunena.Site
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 
 /*
@@ -23,6 +23,8 @@ if (version_compare(PHP_VERSION, '5.3.1', '<'))
  */
 define('_JEXEC', 1);
 
+use Joomla\CMS\Factory;
+
 // Set base directory. This should usually work even with symbolic linked Kunena.
 define('JPATH_BASE', dirname(dirname(dirname(isset($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : __DIR__))));
 
@@ -34,7 +36,8 @@ require_once JPATH_BASE . '/includes/defines.php';
 
 // Installation check, and check on removal of the install directory.
 if (!file_exists(JPATH_CONFIGURATION . '/configuration.php')
-	|| (filesize(JPATH_CONFIGURATION . '/configuration.php') < 10))
+	|| (filesize(JPATH_CONFIGURATION . '/configuration.php') < 10)
+)
 {
 	echo 'No configuration file found and no installation code available. Exiting...';
 
@@ -57,28 +60,49 @@ require_once JPATH_LIBRARIES . '/cms.php';
 
 require_once JPATH_BASE . '/includes/framework.php';
 
-class KunenaApplication extends JApplicationWeb
+/**
+ *  Kunena Application
+ *
+ * @package  Kunena
+ *
+ * @since    K2.0
+ */
+class KunenaApplication extends \Joomla\CMS\Application\WebApplication
 {
+	/**
+	 * @var string
+	 * @since K2.0
+	 */
 	protected $_name = 'site';
 
+	/**
+	 * @var integer
+	 * @since K2.0
+	 */
 	protected $_clientId = 0;
 
+	/**
+	 * @var array
+	 * @since K2.0
+	 */
 	protected $userstate = array();
 
 	/**
-	 * @param   JInput                $input
-	 * @param   JRegistry             $config
-	 * @param   JApplicationWebClient $client
+	 * @param   \Joomla\Input\Input               $input  input
+	 * @param   \Joomla\Registry\Registry         $config config
+	 * @param   \Joomla\Application\Web\WebClient $client client
+	 *
+	 * @since Kunena
 	 */
-	public function __construct(JInput $input = null, JRegistry $config = null, JApplicationWebClient $client = null)
+	public function __construct(Joomla\Input\Input $input = null, \Joomla\Registry\Registry $config = null, \Joomla\Application\Web\WebClient $client = null)
 	{
 		parent::__construct($input, $config, $client);
 
 		// Load and set the dispatcher
 		$this->loadDispatcher();
 
-		// Register the application to JFactory
-		JFactory::$application = $this;
+		// Register the application to FactoryF
+		Factory::$application = $this;
 
 		// Enable sessions by default.
 		if (is_null($this->config->get('session')))
@@ -97,17 +121,18 @@ class KunenaApplication extends JApplicationWeb
 		{
 			$this->loadSession();
 
-			// Register the session with JFactory
-			JFactory::$session = $this->getSession();
+			// Register the session with Factory
+			Factory::$session = $this->getSession();
 		}
 	}
 
 	/**
-	 * @param   JSession $session
+	 * @param   \JSession $session session
 	 *
 	 * @return $this
+	 * @since Kunena
 	 */
-	public function loadSession(JSession $session = null)
+	public function loadSession(\JSession $session = null)
 	{
 		if ($session !== null)
 		{
@@ -125,13 +150,13 @@ class KunenaApplication extends JApplicationWeb
 		// Get the session handler from the configuration.
 		$handler = $this->get('session_handler', 'none');
 
-		// Initialize the options for JSession.
+		// Initialize the options for \Joomla\CMS\Session\Session.
 		$options = array(
 			'name'   => $name,
-			'expire' => $lifetime
+			'expire' => $lifetime,
 		);
 
-		$session = JSession::getInstance($handler, $options);
+		$session = \Joomla\CMS\Session\Session::getInstance($handler, $options);
 		$session->initialise($this->input, $this->dispatcher);
 
 		if ($session->getState() == 'expired')
@@ -150,7 +175,9 @@ class KunenaApplication extends JApplicationWeb
 	}
 
 	/**
-	 *
+	 * @return void
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function doExecute()
 	{
@@ -175,6 +202,7 @@ class KunenaApplication extends JApplicationWeb
 
 	/**
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function isSite()
 	{
@@ -183,6 +211,7 @@ class KunenaApplication extends JApplicationWeb
 
 	/**
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function isAdmin()
 	{
@@ -190,9 +219,10 @@ class KunenaApplication extends JApplicationWeb
 	}
 
 	/**
-	 * @param   bool $params
+	 * @param   bool $params params
 	 *
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getTemplate($params = false)
 	{
@@ -200,8 +230,11 @@ class KunenaApplication extends JApplicationWeb
 	}
 
 	/**
-	 * @param $name
-	 * @param $value
+	 * @param   string  $name  name
+	 * @param   boolean $value value
+	 *
+	 * @return void
+	 * @since Kunena
 	 */
 	public function setUserState($name, $value)
 	{
@@ -209,10 +242,11 @@ class KunenaApplication extends JApplicationWeb
 	}
 
 	/**
-	 * @param        $name
-	 * @param   null $default
+	 * @param   string $name    name
+	 * @param   null   $default default
 	 *
 	 * @return null
+	 * @since Kunena
 	 */
 	public function getUserState($name, $default = null)
 	{
@@ -227,8 +261,8 @@ require_once JPATH_ADMINISTRATOR . '/components/com_kunena/api.php';
 try
 {
 	$app->execute();
-} catch (Exception $e)
+}
+catch (Exception $e)
 {
 	echo $e->getMessage();
 }
-

@@ -2,12 +2,12 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Layout.Category.Index
+ * @package         Kunena.Site
+ * @subpackage      Layout.Category.Index
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 
@@ -15,7 +15,6 @@ defined('_JEXEC') or die;
  * KunenaLayoutCategoryIndex
  *
  * @since  K4.0
- *
  */
 class KunenaLayoutCategoryIndex extends KunenaLayout
 {
@@ -25,6 +24,7 @@ class KunenaLayoutCategoryIndex extends KunenaLayout
 	 * @param   int $maxpages Maximum that are allowed for pagination
 	 *
 	 * @return KunenaPagination
+	 * @since Kunena
 	 */
 	public function getPaginationObject($maxpages)
 	{
@@ -37,17 +37,16 @@ class KunenaLayoutCategoryIndex extends KunenaLayout
 	/**
 	 * Method to retrieve category icon
 	 *
-	 * @param   KunenaCategory $category The KunenaCategory object
+	 * @param   string $category The KunenaCategory object
 	 *
 	 * @return string
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getCategoryIcon($category)
 	{
-		$template = KunenaFactory::getTemplate();
+		$template     = KunenaFactory::getTemplate();
 		$catimagepath = $template->params->get('DefaultCategoryicon');
-
-		$path = JPATH_ROOT . '/media/kunena/' . $catimagepath . '/';
-		$uri  = JUri::root(true) . '/media/kunena/' . $catimagepath . '/';
 
 		if ($category->getNewCount())
 		{
@@ -76,13 +75,15 @@ class KunenaLayoutCategoryIndex extends KunenaLayout
 	/**
 	 * Method to retrieve small category icon
 	 *
-	 * @param   KunenaSubCategory $subcategory The KunenaCategory object
+	 * @param   string $subcategory The KunenaCategory object
 	 *
 	 * @return string
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getSmallCategoryIcon($subcategory)
 	{
-		$this->ktemplate = KunenaFactory::getTemplate();
+		$this->ktemplate     = KunenaFactory::getTemplate();
 		$defaultcategoryicon = $this->ktemplate->params->get('DefaultCategoryicon');
 
 		if ($subcategory->getNewCount())
@@ -115,30 +116,36 @@ class KunenaLayoutCategoryIndex extends KunenaLayout
 	 * @param   int $category_id The category Id
 	 * @param   int $numTopics   The number of topics
 	 *
-	 * @return string|null
+	 * @return boolean|null
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getMarkReadButtonURL($category_id, $numTopics)
 	{
 		// Is user allowed to mark forums as read?
 		if (KunenaUserHelper::getMyself()->exists() && $numTopics)
 		{
-			$token = '&' . JSession::getFormToken() . '=1';
+			$token = '&' . \Joomla\CMS\Session\Session::getFormToken() . '=1';
 
 			$url = KunenaRoute::_("index.php?option=com_kunena&view=category&task=markread&catid={$category_id}{$token}");
 
 			return $url;
 		}
 
-		return null;
+		return;
 	}
 
 	/**
 	 * Method to retrieve the URL of category RSS feed
 	 *
-	 * @param   int       $catid The Id of category
-	 * @param bool|string $xhtml Replace & by & for XML compliance.
+	 * @param   int         $catid The Id of category
+	 * @param   bool|string $xhtml Replace & by & for XML compliance.
 	 *
-	 * @return null|string
+	 * @return boolean|null
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getCategoryRSSURL($catid, $xhtml = true)
 	{
@@ -149,6 +156,6 @@ class KunenaLayoutCategoryIndex extends KunenaLayout
 			return KunenaRoute::_("index.php?option=com_kunena&view=category&format=feed&layout=default{$params}", $xhtml);
 		}
 
-		return null;
+		return;
 	}
 }

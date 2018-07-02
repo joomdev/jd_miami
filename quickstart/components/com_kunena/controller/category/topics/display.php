@@ -1,14 +1,16 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Category
+ * @package         Kunena.Site
+ * @subpackage      Controller.Category
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * Class ComponentKunenaControllerApplicationMiscDisplay
@@ -17,26 +19,45 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerCategoryTopicsDisplay extends KunenaControllerDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'Category/Item';
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $headerText;
 
 	/**
 	 * @var KunenaForumCategory
+	 * @since Kunena
 	 */
 	public $category;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $total;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $topics;
 
 	/**
 	 * @var KunenaPagination
+	 * @since Kunena
 	 */
 	public $pagination;
 
 	/**
 	 * @var KunenaUser
+	 * @since Kunena
 	 */
 	public $me;
 
@@ -45,7 +66,8 @@ class ComponentKunenaControllerCategoryTopicsDisplay extends KunenaControllerDis
 	 *
 	 * @return void
 	 *
-	 * @throws KunenaExceptionAuthorise
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function before()
 	{
@@ -56,9 +78,19 @@ class ComponentKunenaControllerCategoryTopicsDisplay extends KunenaControllerDis
 
 		$this->me = KunenaUserHelper::getMyself();
 
-		$catid = $this->input->getInt('catid');
+		$catid      = $this->input->getInt('catid');
 		$limitstart = $this->input->getInt('limitstart', 0);
-		$limit = $this->input->getInt('limit', 0);
+		$limit      = $this->input->getInt('limit', 0);
+		$Itemid     = $this->input->getInt('Itemid');
+		$format     = $this->input->getCmd('format');
+
+		if (!$Itemid && $format != 'feed' && KunenaConfig::getInstance()->sef_redirect)
+		{
+			$itemid     = KunenaRoute::fixMissingItemID();
+			$controller = JControllerLegacy::getInstance("kunena");
+			$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=category&catid={$catid}&Itemid={$itemid}", false));
+			$controller->redirect();
+		}
 
 		if ($limit < 1 || $limit > 100)
 		{
@@ -76,11 +108,11 @@ class ComponentKunenaControllerCategoryTopicsDisplay extends KunenaControllerDis
 		$topic_ordering = $this->category->topic_ordering;
 
 		$access = KunenaAccess::getInstance();
-		$hold = $access->getAllowedHold($this->me, $catid);
-		$moved = 1;
+		$hold   = $access->getAllowedHold($this->me, $catid);
+		$moved  = 1;
 		$params = array(
-			'hold' => $hold,
-			'moved' => $moved
+			'hold'  => $hold,
+			'moved' => $moved,
 		);
 
 		switch ($topic_ordering)
@@ -98,17 +130,24 @@ class ComponentKunenaControllerCategoryTopicsDisplay extends KunenaControllerDis
 
 		list($this->total, $this->topics) = KunenaForumTopicHelper::getLatestTopics($catid, $limitstart, $limit, $params);
 
+		if ($limitstart > 1 && !$this->topics)
+		{
+			$controller = JControllerLegacy::getInstance("kunena");
+			$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=category&catid={$catid}&Itemid={$itemid}", false));
+			$controller->redirect();
+		}
+
 		if ($this->total > 0)
 		{
 			// Collect user ids for avatar prefetch when integrated.
-			$userlist = array();
+			$userlist     = array();
 			$lastpostlist = array();
 
 			foreach ($this->topics as $topic)
 			{
 				$userlist[intval($topic->first_post_userid)] = intval($topic->first_post_userid);
-				$userlist[intval($topic->last_post_userid)] = intval($topic->last_post_userid);
-				$lastpostlist[intval($topic->last_post_id)] = intval($topic->last_post_id);
+				$userlist[intval($topic->last_post_userid)]  = intval($topic->last_post_userid);
+				$lastpostlist[intval($topic->last_post_id)]  = intval($topic->last_post_id);
 			}
 
 			// Prefetch all users/avatars to avoid user by user queries during template iterations.
@@ -138,7 +177,7 @@ class ComponentKunenaControllerCategoryTopicsDisplay extends KunenaControllerDis
 
 		$this->pagination = new KunenaPagination($this->total, $limitstart, $limit);
 		$this->pagination->setDisplayedPages(5);
-		$doc = JFactory::getDocument();
+		$doc  = Factory::getDocument();
 		$page = $this->pagination->pagesCurrent;
 
 		if ($page > 1)
@@ -151,7 +190,7 @@ class ComponentKunenaControllerCategoryTopicsDisplay extends KunenaControllerDis
 					{
 						if ($value['relation'] == 'canonical')
 						{
-							$canonicalUrl = $this->category->getUrl();
+							$canonicalUrl               = $this->category->getUrl();
 							$doc->_links[$canonicalUrl] = $value;
 							unset($doc->_links[$key]);
 							break;
@@ -166,25 +205,32 @@ class ComponentKunenaControllerCategoryTopicsDisplay extends KunenaControllerDis
 	 * Prepare document.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	protected function prepareDocument()
 	{
-		$page         = $this->pagination->pagesCurrent;
-		$pages        = $this->pagination->pagesTotal;
+		$page  = $this->pagination->pagesCurrent;
+		$pages = $this->pagination->pagesTotal;
 
-		$pagesText = ($pages > 1  && $page > 1 ? " - " . JText::_('COM_KUNENA_PAGES') . " {$page}" : '');
-
-
+		$pagesText    = ($pages > 1 && $page > 1 ? " - " . JText::_('COM_KUNENA_PAGES') . " {$page}" : '');
 		$parentText   = $this->category->getParent()->name;
 		$categoryText = $this->category->name;
 		$categorydesc = $this->category->description;
 
-		$app       = JFactory::getApplication();
+		$app       = Factory::getApplication();
 		$menu_item = $app->getMenu()->getActive();
 
-		$doc = JFactory::getDocument();
-		$config = JFactory::getConfig();
+		$doc    = Factory::getDocument();
+		$config = Factory::getConfig();
 		$robots = $config->get('robots');
+
+		if (JFile::exists(JPATH_SITE . '/' . KunenaConfig::getInstance()->emailheader))
+		{
+			$image = \Joomla\CMS\Uri\Uri::base() . KunenaConfig::getInstance()->emailheader;
+			$doc->setMetaData('og:image', $image, 'property');
+		}
 
 		if ($robots == '' && $this->topics)
 		{
@@ -207,7 +253,7 @@ class ComponentKunenaControllerCategoryTopicsDisplay extends KunenaControllerDis
 
 		if ($pagdata->previous->link)
 		{
-			$pagdata->previous->link = str_replace( '?limitstart=0', '', $pagdata->previous->link);
+			$pagdata->previous->link = str_replace('?limitstart=0', '', $pagdata->previous->link);
 			$doc->addHeadLink($pagdata->previous->link, 'prev');
 		}
 
@@ -226,7 +272,7 @@ class ComponentKunenaControllerCategoryTopicsDisplay extends KunenaControllerDis
 					{
 						if ($value['relation'] == 'canonical')
 						{
-							$canonicalUrl = KunenaRoute::_();
+							$canonicalUrl               = KunenaRoute::_();
 							$doc->_links[$canonicalUrl] = $value;
 							unset($doc->_links[$key]);
 							break;

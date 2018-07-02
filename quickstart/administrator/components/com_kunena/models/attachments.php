@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Models
+ * @package         Kunena.Administrator
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 jimport('joomla.application.component.modellist');
 
@@ -18,11 +20,12 @@ jimport('joomla.application.component.modellist');
  *
  * @since 2.0
  */
-class KunenaAdminModelAttachments extends JModelList
+class KunenaAdminModelAttachments extends \Joomla\CMS\MVC\Model\ListModel
 {
-
 	/**
-	 * @param   array $config
+	 * @param   array $config config
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($config = array())
 	{
@@ -45,17 +48,18 @@ class KunenaAdminModelAttachments extends JModelList
 	/**
 	 * Method to auto-populate the model state.
 	 *
-	 * @param   string $ordering
-	 * @param   string $direction
+	 * @param   string $ordering  ordering
+	 * @param   string $direction direction
 	 *
 	 * @return    void
+	 * @throws Exception
 	 * @since    1.6
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
 		$this->context = 'com_kunena.admin.attachments';
 
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 
 		// Adjust the context to support modal layouts.
 		$layout = $app->input->get('layout');
@@ -96,9 +100,10 @@ class KunenaAdminModelAttachments extends JModelList
 	}
 
 	/**
-	 * @param   string $id
+	 * @param   string $id id
 	 *
 	 * @return string
+	 * @since Kunena
 	 */
 	protected function getStoreId($id = '')
 	{
@@ -114,11 +119,14 @@ class KunenaAdminModelAttachments extends JModelList
 	}
 
 	/**
-	 * @param   string $query
-	 * @param   int    $limitstart
-	 * @param   int    $limit
+	 * @param   string $query      query
+	 * @param   int    $limitstart limitstart
+	 * @param   int    $limit      limit
 	 *
 	 * @return KunenaAttachment[]
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function _getList($query, $limitstart = 0, $limit = 0)
 	{
@@ -142,6 +150,7 @@ class KunenaAdminModelAttachments extends JModelList
 
 	/**
 	 * @return JDatabaseQuery
+	 * @since Kunena
 	 */
 	protected function getListQuery()
 	{
@@ -227,9 +236,9 @@ class KunenaAdminModelAttachments extends JModelList
 			default:
 				$query->order('a.id ' . $direction);
 		}
-		
+
 		$filter = $this->getState('filter.search');
-		
+
 		if (!empty($filter))
 		{
 			$post = $db->Quote('%' . $db->escape($filter, true) . '%');

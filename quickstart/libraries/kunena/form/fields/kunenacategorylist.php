@@ -1,38 +1,48 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Form
+ * @package       Kunena.Framework
+ * @subpackage    Form
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\HTML\HTMLHelper;
 
 jimport('joomla.form.formfield');
 
 /**
- * Class JFormFieldKunenaCategoryList
+ * Class \Joomla\CMS\Form\FormField|KunenaCategoryList
+ * @since Kunena
  */
-class JFormFieldKunenaCategoryList extends JFormField
+class JFormFieldKunenaCategoryList extends \Joomla\CMS\Form\FormField
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $type = 'KunenaCategoryList';
 
 	/**
-	* @return string
-  */
+	 * @return string
+	 * @throws Exception
+	 * @since Kunena
+	 */
 	protected function getInput()
 	{
 		if (!class_exists('KunenaForum') || !KunenaForum::installed())
 		{
 			echo '<a href="index.php?option=com_kunena">PLEASE COMPLETE KUNENA INSTALLATION</a>';
+
 			return '';
 		}
 
 		KunenaFactory::loadLanguage('com_kunena');
 
-		$size = $this->element['size'];
+		$size  = $this->element['size'];
 		$class = $this->element['class'];
 
 		$attribs = ' ';
@@ -51,14 +61,15 @@ class JFormFieldKunenaCategoryList extends JFormField
 			$attribs .= 'class="inputbox"';
 		}
 
-		if (!empty($this->element['multiple'])) {
+		if (!empty($this->element['multiple']))
+		{
 			$attribs .= ' multiple="multiple"';
 		}
 
 		// Get the field options.
 		$options = $this->getOptions();
 
-		return JHtml::_('kunenaforum.categorylist', $this->name, 0, $options, $this->element, $attribs, 'value', 'text', $this->value);
+		return HTMLHelper::_('kunenaforum.categorylist', $this->name, 0, $options, $this->element, $attribs, 'value', 'text', $this->value);
 	}
 
 	/**
@@ -81,7 +92,7 @@ class JFormFieldKunenaCategoryList extends JFormField
 			}
 
 			// Create a new option object based on the <option /> element.
-			$tmp = JHtml::_('select.option', (string) $option['value'], JText::alt(trim((string) $option), preg_replace('/[^a-zA-Z0-9_\-]/', '_', $this->fieldname)), 'value', 'text', ((string) $option['disabled'] == 'true'));
+			$tmp = HTMLHelper::_('select.option', (string) $option['value'], JText::alt(trim((string) $option), preg_replace('/[^a-zA-Z0-9_\-]/', '_', $this->fieldname)), 'value', 'text', ((string) $option['disabled'] == 'true'));
 
 			// Set some option attributes.
 			$tmp->class = (string) $option['class'];

@@ -4,11 +4,13 @@
  *
  * @package    Kunena.Package
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
  * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link       https://www.kunena.org
  **/
-defined('_JEXEC') or die ();
+defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Kunena package installer script.
@@ -19,31 +21,35 @@ class Pkg_KunenaInstallerScript
 	 * List of supported versions. Newest version first!
 	 *
 	 * @var array
-	 */
+	 * @since Kunena
+ 	 */
 	protected $versions = array(
 		'PHP'     => array(
+			'7.2' => '7.2.0',
 			'7.1' => '7.1.0',
 			'7.0' => '7.0.4',
 			'5.6' => '5.6.8',
-			'5.5' => '5.5.9',
-			'5.4' => '5.4.13',
-			'5.3' => '5.3.10',
-			'0'   => '7.0.11' // Preferred version
+			'0'   => '7.1.9' // Preferred version
 		),
 		'MySQL'   => array(
+			'5.5' => '5.5',
 			'5.1' => '5.1',
 			'0'   => '5.5' // Preferred version
 		),
 		'Joomla!' => array(
-			'3.5' => '3.5.1',
-			'0'   => '3.6.2' // Preferred version
+			'3.8' => '3.8.0',
+			'3.9' => '3.9.0',
+			'4.0' => '4.0.0',
+			'0'   => '3.8.0' // Preferred version
 		)
 	);
+
 	/**
 	 * List of required PHP extensions.
 	 *
 	 * @var array
-	 */
+	 * @since Kunena
+ 	 */
 	protected $extensions = array('dom', 'gd', 'json', 'pcre', 'SimpleXML');
 
 	public function install($parent)
@@ -116,11 +122,19 @@ class Pkg_KunenaInstallerScript
 		$this->enablePlugin('system', 'kunena');
 		$this->enablePlugin('quickicon', 'kunena');
 
-		$app   = JFactory::getApplication();
-		$modal = <<<EOS
+		if (version_compare(JVERSION, '4.0', '<'))
+		{
+			$app   = JFactory::getApplication();
+			$modal = <<<EOS
 			<div id="kunena-modal" class="modal hide fade" style="width:auto;min-width:32%;margin-left:-13%;top:25%;padding:10px;"><div class="modal-body"></div></div><script>jQuery('#kunena-modal').remove().prependTo('body').modal({backdrop: 'static', keyboard: false, remote: '{$this->makeRoute('index.php?option=com_kunena&view=install&format=raw')}'})</script>
 EOS;
-		$app->enqueueMessage('Installing Kunena... ' . $modal);
+			$app->enqueueMessage('Installing Kunena... ' . $modal);
+		}
+		else
+		{
+			$app = Factory::getApplication();
+			$app->redirect(JRoute::_('index.php?option=com_kunena&view=install', false));
+		}
 
 		return true;
 	}
@@ -157,7 +171,7 @@ EOS;
 	/**
 	 *  On some hosting the PHP version given with the version of the packet in the distribution
 	 *
-	 *  @param  string $version The PHP version to clean
+	 * @param   string $version The PHP version to clean
 	 */
 	protected function getCleanPhpVersion()
 	{
@@ -194,7 +208,9 @@ EOS;
 
 		$recommended = end($this->versions[$name]);
 		$app->enqueueMessage(sprintf("%s %s is not supported. Minimum required version is %s %s, but it is highly recommended to use %s %s or later.",
-			$name, $version, $name, $minor, $name, $recommended), 'notice');
+            $name, $version, $name, $minor, $name, $recommended
+        ), 'notice'
+        );
 
 		return false;
 	}
@@ -297,7 +313,8 @@ EOS;
 		}
 
 		$app->enqueueMessage(sprintf('Sorry, it is not possible to downgrade Kunena %s to version %s.', $installed, $version),
-			'notice');
+            'notice'
+        );
 
 		return false;
 	}
@@ -315,9 +332,9 @@ EOS;
 		$list = (array) $db->loadColumn();
 
 		$query = $db->getQuery(true)
-			->set($db->quoteName('name') . '=' . $db->quote('Kunena 5.0 Update Site'))
+			->set($db->quoteName('name') . '=' . $db->quote('Kunena 5.1 Update Site'))
 			->set($db->quoteName('type') . '=' . $db->quote('collection'))
-			->set($db->quoteName('location') . '=' . $db->quote('https://update.kunena.org/5.0/list.xml'))
+			->set($db->quoteName('location') . '=' . $db->quote('https://update.kunena.org/5.1/list.xml'))
 			->set($db->quoteName('enabled') . '=1')
 			->set($db->quoteName('last_check_timestamp') . '=0');
 

@@ -1,24 +1,25 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Template.Crypsis
- * @subpackage  Layout.Widget
+ * @package         Kunena.Template.Crypsis
+ * @subpackage      Layout.Widget
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 
-$id = ' id="' . $this->id . '"';
-$class = 'class="modal fade"';
-$name = ' name="' . $this->name . '"';
-$label  = $this->label;
-$description  = $this->description;
-$data = $this->data;
-$form = $this->form;
+$id          = ' id="' . $this->id . '"';
+$class       = 'class="modal fade"';
+$name        = ' name="' . $this->name . '"';
+$label       = $this->label;
+$description = $this->description;
+$data        = $this->data;
+$form        = $this->form;
 ?>
-<div <?php echo $class . $id?> tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div <?php echo $class . $id ?> tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+                                style="display: none;">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -29,12 +30,14 @@ $form = $this->form;
 				<p><?php echo $description ?></p>
 				<div class="control-group">
 					<div class="controls">
-						<textarea <?php echo $name ?> style="resize: none; text-align: left;" class="input-block-level" rows="3" maxlength="255"><?php echo $data; ?></textarea>
+						<textarea <?php echo $name ?> style="resize: none; text-align: left;" class="input-block-level"
+						                              rows="3"
+						                              maxlength="255"><?php echo $data; ?></textarea>
 					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('<?php echo $form ?> ');">
+				<button class="btn btn-primary" type="submit" id="btn_statustext">
 					<?php echo JText::_('JSUBMIT'); ?>
 				</button>
 				<button class="btn btn-default" type="button" data-dismiss="modal">

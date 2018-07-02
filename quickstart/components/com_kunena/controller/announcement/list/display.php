@@ -1,14 +1,16 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Announcement
+ * @package         Kunena.Site
+ * @subpackage      Controller.Announcement
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * Class ComponentKunenaControllerAnnouncementListDisplay
@@ -17,22 +19,47 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerAnnouncementListDisplay extends KunenaControllerDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'Announcement/List';
 
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	public $announcements;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	public $pagination;
 
 	/**
 	 * Prepare announcement list display.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function before()
 	{
 		parent::before();
 
 		$limit = $this->input->getInt('limit', 0);
+
+		$Itemid = $this->input->getInt('Itemid');
+
+		if (!$Itemid && KunenaConfig::getInstance()->sef_redirect)
+		{
+			$itemid     = KunenaRoute::fixMissingItemID();
+			$controller = JControllerLegacy::getInstance("kunena");
+			$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=announcement&layout=list&Itemid={$itemid}", false));
+			$controller->redirect();
+		}
 
 		if ($limit < 1 || $limit > 100)
 		{
@@ -46,8 +73,8 @@ class ComponentKunenaControllerAnnouncementListDisplay extends KunenaControllerD
 			$limitstart = 0;
 		}
 
-		$moderator = KunenaUserHelper::getMyself()->isModerator();
-		$this->pagination = new KunenaPagination(KunenaForumAnnouncementHelper::getCount(!$moderator), $limitstart, $limit);
+		$moderator           = KunenaUserHelper::getMyself()->isModerator();
+		$this->pagination    = new KunenaPagination(KunenaForumAnnouncementHelper::getCount(!$moderator), $limitstart, $limit);
 		$this->announcements = KunenaForumAnnouncementHelper::getAnnouncements(
 			$this->pagination->limitstart,
 			$this->pagination->limit,
@@ -59,10 +86,12 @@ class ComponentKunenaControllerAnnouncementListDisplay extends KunenaControllerD
 	 * Prepare document.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function prepareDocument()
 	{
-		$app       = JFactory::getApplication();
+		$app       = Factory::getApplication();
 		$menu_item = $app->getMenu()->getActive();
 
 		if ($menu_item)

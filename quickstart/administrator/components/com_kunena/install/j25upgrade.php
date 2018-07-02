@@ -2,23 +2,24 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Installer
+ * @package        Kunena.Installer
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
 /**
  * Kunena 2.0 jUpgrade migration class from Joomla! 1.5 to Joomla! 2.5
- *
+ * @since Kunena
  */
 class jUpgradeComponentKunena extends jUpgradeExtensions
 {
-
 	/**
-	 * @param   null $step
+	 * @param   null $step step
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($step = null)
 	{
@@ -55,6 +56,7 @@ class jUpgradeComponentKunena extends jUpgradeExtensions
 	 *
 	 * @return    array    List of tables without prefix
 	 *
+	 * @throws Exception
 	 * @since    1.6.4
 	 */
 	protected function getCopyTables()
@@ -77,7 +79,7 @@ class jUpgradeComponentKunena extends jUpgradeExtensions
 	 * Returning false will force jUpgrade to call this function again,
 	 * which allows you to continue import by reading $this->state before continuing.
 	 *
-	 * @param   string $table
+	 * @param   string $table table
 	 *
 	 * @return    boolean Ready (true/false)
 	 *
@@ -169,6 +171,7 @@ class jUpgradeComponentKunena extends jUpgradeExtensions
 	 *
 	 * @return array
 	 *
+	 * @since Kunena
 	 */
 	protected function mapUserGroups($list)
 	{
@@ -214,7 +217,7 @@ class jUpgradeComponentKunena extends jUpgradeExtensions
 		jimport('joomla.environment.uri');
 
 		// Get component object
-		$component = JTable::getInstance('extension', 'JTable', array('dbo' => $this->db_new));
+		$component = \Joomla\CMS\Table\Table::getInstance('extension', '\Joomla\CMS\Table\Table', array('dbo' => $this->db_new));
 		$component->load(array('type' => 'component', 'element' => $this->name));
 
 		// First fix all broken menu items
@@ -289,7 +292,7 @@ class jUpgradeComponentKunena extends jUpgradeExtensions
 				$menuitem->link = 'index.php?' . implode('&', $query_string);
 
 				// Save menu object
-				$menu = JTable::getInstance('menu', 'JTable', array('dbo' => $this->db_new));
+				$menu = \Joomla\CMS\Table\Table::getInstance('menu', '\Joomla\CMS\Table\Table', array('dbo' => $this->db_new));
 				$menu->bind(get_object_vars($menuitem), array('tree', 'query'));
 				$success = $menu->check();
 

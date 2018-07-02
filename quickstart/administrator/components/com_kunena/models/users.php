@@ -2,14 +2,17 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Models
+ * @package         Kunena.Administrator
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Factory;
 
 jimport('joomla.application.component.modellist');
 
@@ -18,7 +21,7 @@ jimport('joomla.application.component.modellist');
  *
  * @since  2.0
  */
-class KunenaAdminModelUsers extends JModelList
+class KunenaAdminModelUsers extends \Joomla\CMS\MVC\Model\ListModel
 {
 	/**
 	 * Constructor.
@@ -26,6 +29,7 @@ class KunenaAdminModelUsers extends JModelList
 	 * @param   array $config An optional associative array of configuration settings.
 	 *
 	 * @see        JController
+	 * @since      Kunena
 	 */
 	public function __construct($config = array())
 	{
@@ -41,7 +45,7 @@ class KunenaAdminModelUsers extends JModelList
 				'signature',
 				'enabled',
 				'banned',
-				'moderator'
+				'moderator',
 			);
 		}
 
@@ -51,18 +55,115 @@ class KunenaAdminModelUsers extends JModelList
 	}
 
 	/**
-	 * Method to auto-populate the model state.
+	 * Method to get User objects of data items.
 	 *
-	 * @param null $ordering
-	 * @param null $direction
+	 * @return boolean|KunenaUser
 	 *
 	 * @throws Exception
+	 * @since   3.0
+	 */
+	public function getItems()
+	{
+		// Get a storage key.
+		$store = $this->getStoreId();
+
+		// Try to load the data from internal storage.
+		if (isset($this->cache[$store]))
+		{
+			return $this->cache[$store];
+		}
+
+		// Load the list items.
+		$query = $this->_getListQuery();
+
+		try
+		{
+			$items = $this->_getList($query, $this->getStart(), $this->getState('list.limit'));
+		}
+		catch (RuntimeException $e)
+		{
+			Factory::getApplication()->enqueueMessage($e->getMessage());
+
+			return false;
+		}
+
+		$ids = array();
+
+		foreach ($items as $item)
+		{
+			$ids[] = $item->id;
+		}
+
+		$instances = KunenaUserHelper::loadUsers($ids);
+
+		// Add the items to the internal cache.
+		$this->cache[$store] = $instances;
+
+		return $this->cache[$store];
+	}
+
+	/**
+	 * Method to get a store id based on model configuration state.
+	 *
+	 * This is necessary because the model is used by the component and
+	 * different modules that might need different sets of data or different
+	 * ordering requirements.
+	 *
+	 * @param   string $id A prefix for the store id.
+	 *
+	 * @return    string        A store id.
+	 * @since Kunena
+	 */
+	protected function getStoreId($id = '')
+	{
+		// Compile the store id.
+		$id .= ':' . $this->getState('filter.search');
+		$id .= ':' . $this->getState('filter.username');
+		$id .= ':' . $this->getState('filter.email');
+		$id .= ':' . $this->getState('filter.ip');
+		$id .= ':' . $this->getState('filter.rank');
+		$id .= ':' . $this->getState('filter.signature');
+		$id .= ':' . $this->getState('filter.block');
+		$id .= ':' . $this->getState('filter.banned');
+		$id .= ':' . $this->getState('filter.moderator');
+
+		return parent::getStoreId($id);
+	}
+
+	/**
+	 * Method to get html list of Kunena categories
+	 *
+	 * @return  string
+	 *
+	 * @throws Exception
+	 * @since  3.0
+	 */
+	public function getModcatslist()
+	{
+		$options = array();
+
+		if ($this->me->isAdmin())
+		{
+			$options[] = HTMLHelper::_('select.option', 0, JText::_('COM_KUNENA_GLOBAL_MODERATOR'));
+		}
+
+		return HTMLHelper::_('kunenaforum.categorylist', 'catid[]', 0, $options, array('action' => 'admin'), 'class="input-block-level" multiple="multiple" size="5"', 'value', 'text', 0);
+	}
+
+	/**
+	 * Method to auto-populate the model state.
+	 *
+	 * @param   null $ordering  ordering
+	 * @param   null $direction direction
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
 		$this->context = 'com_kunena.admin.users';
 
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 
 		// Adjust the context to support modal layouts.
 		$layout        = $app->input->get('layout');
@@ -109,37 +210,10 @@ class KunenaAdminModelUsers extends JModelList
 	}
 
 	/**
-	 * Method to get a store id based on model configuration state.
-	 *
-	 * This is necessary because the model is used by the component and
-	 * different modules that might need different sets of data or different
-	 * ordering requirements.
-	 *
-	 * @param   string $id A prefix for the store id.
-	 *
-	 * @return    string        A store id.
-	 */
-	protected function getStoreId($id = '')
-	{
-		// Compile the store id.
-		$id .= ':' . $this->getState('filter.search');
-		$id .= ':' . $this->getState('filter.username');
-		$id .= ':' . $this->getState('filter.email');
-		$id .= ':' . $this->getState('filter.ip');
-		$id .= ':' . $this->getState('filter.rank');
-		$id .= ':' . $this->getState('filter.signature');
-		$id .= ':' . $this->getState('filter.block');
-		$id .= ':' . $this->getState('filter.banned');
-		$id .= ':' . $this->getState('filter.moderator');
-
-		return parent::getStoreId($id);
-	}
-
-	/**
 	 * Build an SQL query to load the list data.
 	 *
 	 * @return    JDatabaseQuery
-	 *
+	 * @since Kunena
 	 */
 	protected function getListQuery()
 	{
@@ -239,7 +313,7 @@ class KunenaAdminModelUsers extends JModelList
 
 		if ($filter !== '')
 		{
-			$now = new JDate;
+			$now = new \Joomla\CMS\Date\Date;
 
 			if ($filter)
 			{
@@ -297,69 +371,5 @@ class KunenaAdminModelUsers extends JModelList
 		}
 
 		return $query;
-	}
-
-	/**
-	 * Method to get User objects of data items.
-	 *
-	 * @return  KunenaUser  List of KunenaUser objects found.
-	 *
-	 * @since   3.0
-	 */
-	public function getItems()
-	{
-		// Get a storage key.
-		$store = $this->getStoreId();
-
-		// Try to load the data from internal storage.
-		if (isset($this->cache[$store]))
-		{
-			return $this->cache[$store];
-		}
-
-		// Load the list items.
-		$query = $this->_getListQuery();
-		$items = $this->_getList($query, $this->getStart(), $this->getState('list.limit'));
-
-		// Check for a database error.
-		if ($this->_db->getErrorNum())
-		{
-			$this->setError($this->_db->getErrorMsg());
-
-			return false;
-		}
-
-		$ids = array();
-
-		foreach ($items as $item)
-		{
-			$ids[] = $item->id;
-		}
-
-		$instances = KunenaUserHelper::loadUsers($ids);
-
-		// Add the items to the internal cache.
-		$this->cache[$store] = $instances;
-
-		return $this->cache[$store];
-	}
-
-	/**
-	 * Method to get html list of Kunena categories
-	 *
-	 * @return  string
-	 *
-	 * @since  3.0
-	 */
-	public function getModcatslist()
-	{
-		$options = array();
-
-		if ($this->me->isAdmin())
-		{
-			$options[] = JHtml::_('select.option', 0, JText::_('COM_KUNENA_GLOBAL_MODERATOR'));
-		}
-
-		return JHtml::_('kunenaforum.categorylist', 'catid[]', 0, $options, array('action' => 'admin'), 'class="input-block-level" multiple="multiple" size="5"', 'value', 'text', 0);
 	}
 }

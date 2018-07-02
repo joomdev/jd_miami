@@ -2,20 +2,26 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Joomla
+ * @package         Kunena.Plugins
+ * @subpackage      Joomla
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
-class plgKunenaJoomla extends JPlugin
+/**
+ * Class plgKunenaJoomla
+ * @since Kunena
+ */
+class plgKunenaJoomla extends \Joomla\CMS\Plugin\CMSPlugin
 {
 	/**
-	 * @param   object $subject
-	 * @param   array  $config
+	 * @param   object $subject subject
+	 * @param   array  $config  config
+	 *
+	 * @since Kunena
 	 */
 	public function __construct(&$subject, $config)
 	{
@@ -32,12 +38,13 @@ class plgKunenaJoomla extends JPlugin
 
 	/**
 	 * @return KunenaAccessJoomla|null
+	 * @since Kunena
 	 */
 	public function onKunenaGetAccessControl()
 	{
 		if (!$this->params->get('access', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/access.php";
@@ -47,12 +54,13 @@ class plgKunenaJoomla extends JPlugin
 
 	/**
 	 * @return KunenaLoginJoomla|null
+	 * @since Kunena
 	 */
 	public function onKunenaGetLogin()
 	{
 		if (!$this->params->get('login', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/login.php";

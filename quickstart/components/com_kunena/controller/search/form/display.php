@@ -1,14 +1,16 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Search
+ * @package         Kunena.Site
+ * @subpackage      Controller.Search
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * Class ComponentKunenaControllerSearchFormDisplay
@@ -17,10 +19,15 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerSearchFormDisplay extends KunenaControllerDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'Search/Form';
 
 	/**
 	 * @var KunenaModelSearch
+	 * @since Kunena
 	 */
 	public $model;
 
@@ -28,6 +35,9 @@ class ComponentKunenaControllerSearchFormDisplay extends KunenaControllerDisplay
 	 * Prepare search form display.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function before()
 	{
@@ -38,24 +48,51 @@ class ComponentKunenaControllerSearchFormDisplay extends KunenaControllerDisplay
 		$this->model->initialize($this->getOptions(), $this->getOptions()->get('embedded', false));
 		$this->state = $this->model->getState();
 
+		$Itemid = Factory::getApplication()->input->getCmd('Itemid');
+
+		if (!$Itemid && KunenaConfig::getInstance()->sef_redirect)
+		{
+			if (KunenaConfig::getInstance()->search_id)
+			{
+				$itemidfix = KunenaConfig::getInstance()->search_id;
+			}
+			else
+			{
+				$menu      = $this->app->getMenu();
+				$getid     = $menu->getItem(KunenaRoute::getItemID("index.php?option=com_kunena&view=search"));
+				$itemidfix = $getid->id;
+			}
+
+			if (!$itemidfix)
+			{
+				$itemidfix = KunenaRoute::fixMissingItemID();
+			}
+
+			$controller = JControllerLegacy::getInstance("kunena");
+			$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=search&Itemid={$itemidfix}", false));
+			$controller->redirect();
+		}
+
 		$this->me = KunenaUserHelper::getMyself();
 
 		$this->isModerator = ($this->me->isAdmin() || KunenaAccess::getInstance()->getModeratorStatus());
-		$this->error = $this->model->getError();
+		$this->error       = $this->model->getError();
 	}
 
 	/**
 	 * Prepare document.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function prepareDocument()
 	{
-		$app       = JFactory::getApplication();
+		$app       = Factory::getApplication();
 		$menu_item = $app->getMenu()->getActive();
 
-		$doc = JFactory::getDocument();
-		$config = JFactory::getConfig();
+		$doc    = Factory::getDocument();
+		$config = Factory::getConfig();
 		$robots = $config->get('robots');
 
 		if ($robots == '')

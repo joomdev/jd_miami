@@ -2,14 +2,17 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Template.Crypsis
- * @subpackage  Template
+ * @package         Kunena.Template.Crypsis
+ * @subpackage      Template
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * Crypsis template.
@@ -25,6 +28,7 @@ class KunenaTemplateCrypsisb3 extends KunenaTemplate
 	 * The feature allows you to create one base template and only override changed files.
 	 *
 	 * @var array
+	 * @since Kunena
 	 */
 	protected $default = array('crypsis');
 
@@ -34,31 +38,33 @@ class KunenaTemplateCrypsisb3 extends KunenaTemplate
 	 * These will override default files in JROOT/media/kunena
 	 *
 	 * @var array
+	 * @since Kunena
 	 */
 	protected $pathTypes = array(
-		'emoticons' => 'media/emoticons',
-		'ranks' => 'media/ranks',
-		'icons' => 'media/icons',
+		'emoticons'     => 'media/emoticons',
+		'ranks'         => 'media/ranks',
+		'icons'         => 'media/icons',
 		'categoryicons' => 'media/category_icons',
-		'images' => 'media/images',
-		'js' => 'media/js',
-		'css' => 'media/css'
+		'images'        => 'media/images',
+		'js'            => 'media/js',
+		'css'           => 'media/css',
 	);
 
 	/**
 	 * User group initialization.
 	 *
 	 * @return void
+	 * @since Kunena
 	 */
 	protected $userClasses = array(
 		'kwho-',
-		'admin' => 'kwho-admin',
+		'admin'     => 'kwho-admin',
 		'globalmod' => 'kwho-globalmoderator',
 		'moderator' => 'kwho-moderator',
-		'user' => 'kwho-user',
-		'guest' => 'kwho-guest',
-		'banned' => 'kwho-banned',
-		'blocked' => 'kwho-blocked'
+		'user'      => 'kwho-user',
+		'guest'     => 'kwho-guest',
+		'banned'    => 'kwho-banned',
+		'blocked'   => 'kwho-blocked',
 	);
 
 	/**
@@ -67,10 +73,12 @@ class KunenaTemplateCrypsisb3 extends KunenaTemplate
 	 * By default language files are also loaded from the parent templates.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function loadLanguage()
 	{
-		$lang = JFactory::getLanguage();
+		$lang = Factory::getLanguage();
 		KunenaFactory::loadLanguage('kunena_tmpl_crypsis');
 
 		foreach (array_reverse($this->default) as $template)
@@ -84,13 +92,24 @@ class KunenaTemplateCrypsisb3 extends KunenaTemplate
 	 * Template initialization.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function initialize()
 	{
-		JHtml::_('bootstrap.framework');
-		JHtml::_('bootstrap.tooltip', '[data-toggle="tooltip"]');
-		JHtml::_('jquery.framework');
-		JHtml::_('bootstrap.modal');
+		HTMLHelper::_('bootstrap.framework');
+		HTMLHelper::_('jquery.framework');
+		HTMLHelper::_('bootstrap.tooltip');
+
+		if (version_compare(JVERSION, '4.0', '>'))
+		{
+			HTMLHelper::_('bootstrap.renderModal');
+		}
+		else
+		{
+			HTMLHelper::_('bootstrap.modal');
+		}
+
 		$this->addScript('assets/js/main.js');
 
 		// Compile CSS from LESS files.
@@ -98,7 +117,7 @@ class KunenaTemplateCrypsisb3 extends KunenaTemplate
 		$this->addStyleSheet('kunena.css');
 
 		$this->ktemplate = KunenaFactory::getTemplate();
-		$storage = $this->ktemplate->params->get('storage');
+		$storage         = $this->ktemplate->params->get('storage');
 
 		if ($storage)
 		{
@@ -114,31 +133,38 @@ class KunenaTemplateCrypsisb3 extends KunenaTemplate
 		}
 
 		$filename = JPATH_SITE . '/components/com_kunena/template/crypsisb3/assets/css/custom.css';
+
 		if (file_exists($filename))
 		{
 			$this->addStyleSheet('assets/css/custom.css');
 		}
 
 		$fontawesome = $this->ktemplate->params->get('fontawesome');
-		$doc = JFactory::getDocument();
+		$doc         = Factory::getDocument();
 
 		if ($fontawesome)
 		{
-			$doc->addStyleSheet("https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
+			/** @noinspection PhpDeprecationInspection */
+			$doc->addScript('https://use.fontawesome.com/releases/v5.0.13/js/all.js', array(), array('defer' => true));
+			$doc->addScript('https://use.fontawesome.com/releases/v5.0.13/js/v4-shims.js', array(), array('defer' => true));
 		}
 
 		$icons = $this->ktemplate->params->get('icons');
+
 		if ($icons)
 		{
+			/** @noinspection PhpDeprecationInspection */
 			$doc->addStyleSheet("//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css");
 		}
 
 		// Load template colors settings
-		$styles = <<<EOF
+		$styles    = <<<EOF
 		/* Kunena Custom CSS */
 EOF;
 		$iconcolor = $this->ktemplate->params->get('IconColor');
-		if ($iconcolor) {
+
+		if ($iconcolor)
+		{
 			$styles .= <<<EOF
 		.layout#kunena [class*="category"] i,
 		.layout#kunena .glyphicon-topic,
@@ -148,43 +174,49 @@ EOF;
 		}
 
 		$iconcolornew = $this->ktemplate->params->get('IconColorNew');
-		if ($iconcolornew) {
+
+		if ($iconcolornew)
+		{
 			$styles .= <<<EOF
 		.layout#kunena [class*="category"] .knewchar { color: {$iconcolornew} !important; }
 		.layout#kunena sup.knewchar { color: {$iconcolornew} !important; }
 		.layout#kunena .topic-item-unread { border-left-color: {$iconcolornew} !important;}
 		.layout#kunena .topic-item-unread .glyphicon { color: {$iconcolornew} !important;}
 		.layout#kunena .topic-item-unread i.fa { color: {$iconcolornew} !important;}
+		.layout#kunena .topic-item-unread svg { color: {$iconcolornew} !important;}
 EOF;
 		}
 
-		$document = JFactory::getDocument();
+		$document = Factory::getDocument();
 		$document->addStyleDeclaration($styles);
 
 		parent::initialize();
 	}
 
 	/**
-	 * @param        $filename
-	 * @param   string $group
+	 * @param          $filename
+	 * @param   string $group group
 	 *
-	 * @return JDocument
+	 * @return \Joomla\CMS\Document\Document
+	 * @since Kunena
 	 */
 	public function addStyleSheet($filename, $group = 'forum')
 	{
 		$filename = $this->getFile($filename, false, '', "media/kunena/cache/{$this->name}/css");
 
-		return JFactory::getDocument()->addStyleSheet(JUri::root(true) . "/{$filename}");
+		/** @noinspection PhpDeprecationInspection */
+		return Factory::getDocument()->addStyleSheet(\Joomla\CMS\Uri\Uri::root(true) . "/{$filename}");
 	}
 
 	/**
-	 * @param      $link
-	 * @param      $name
-	 * @param      $scope
-	 * @param      $type
-	 * @param   null $id
+	 * @param        $link
+	 * @param        $name
+	 * @param        $scope
+	 * @param        $type
+	 * @param   null $id id
 	 *
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getButton($link, $name, $scope, $type, $id = null)
 	{
@@ -210,7 +242,7 @@ EOF;
 		if (in_array($name, $buttonsDropdown))
 		{
 			return <<<HTML
-				<a $id style="" href="{$link}" rel="nofollow" title="{$title}">
+				<a {$id} style="" href="{$link}" rel="nofollow" title="{$title}">
 				{$text}
 				</a>
 HTML;
@@ -218,7 +250,7 @@ HTML;
 		else
 		{
 			return <<<HTML
-				<a $id style="" href="{$link}" rel="nofollow" title="{$title}">
+				<a {$id} style="" href="{$link}" rel="nofollow" title="{$title}">
 				<span class="{$name}"></span>
 				{$text}
 				</a>
@@ -227,10 +259,11 @@ HTML;
 	}
 
 	/**
-	 * @param        $name
-	 * @param   string $title
+	 * @param          $name
+	 * @param   string $title title
 	 *
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getIcon($name, $title = '')
 	{
@@ -238,10 +271,11 @@ HTML;
 	}
 
 	/**
-	 * @param        $image
-	 * @param   string $alt
+	 * @param          $image
+	 * @param   string $alt alt
 	 *
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getImage($image, $alt = '')
 	{

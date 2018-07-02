@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Models
+ * @package         Kunena.Site
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * User Model for Kunena
@@ -19,7 +21,8 @@ defined('_JEXEC') or die();
 class KunenaModelUser extends KunenaModel
 {
 	/**
-	 *
+	 * @since Kunena
+	 * @throws Exception
 	 */
 	protected function populateState()
 	{
@@ -75,6 +78,8 @@ class KunenaModelUser extends KunenaModel
 
 	/**
 	 * @return string
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getQueryWhere()
 	{
@@ -83,7 +88,7 @@ class KunenaModelUser extends KunenaModel
 		// Hide super admins from the list
 		if (KunenaFactory::getConfig()->superadmin_userlist)
 		{
-			$db    = JFactory::getDBO();
+			$db    = Factory::getDBO();
 			$query = $db->getQuery(true);
 			$query->select($db->quoteName('user_id'))->from($db->quoteName('#__user_usergroup_map'))->where($db->quoteName('group_id') . ' = 8');
 			$db->setQuery($query);
@@ -121,6 +126,7 @@ class KunenaModelUser extends KunenaModel
 
 	/**
 	 * @return array|string
+	 * @since Kunena
 	 */
 	public function getQuerySearch()
 	{
@@ -130,7 +136,7 @@ class KunenaModelUser extends KunenaModel
 
 		if ($search)
 		{
-			$db = JFactory::getDBO();
+			$db = Factory::getDBO();
 
 			if ($this->config->username)
 			{
@@ -153,6 +159,8 @@ class KunenaModelUser extends KunenaModel
 
 	/**
 	 * @return mixed
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getTotal()
 	{
@@ -160,7 +168,7 @@ class KunenaModelUser extends KunenaModel
 
 		if ($total === false)
 		{
-			$db    = JFactory::getDBO();
+			$db    = Factory::getDBO();
 			$where = $this->getQueryWhere();
 			$query = $db->getQuery(true);
 			$query->select('COUNT(*)')->from($db->quoteName('#__users', 'u')->where("{$where}"));
@@ -180,6 +188,8 @@ class KunenaModelUser extends KunenaModel
 
 	/**
 	 * @return mixed
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getCount()
 	{
@@ -187,14 +197,14 @@ class KunenaModelUser extends KunenaModel
 
 		if ($total === false)
 		{
-			$db     = JFactory::getDBO();
+			$db     = Factory::getDBO();
 			$where  = $this->getQueryWhere();
 			$search = $this->getQuerySearch();
 
-			$query  = $db->getQuery(true);
+			$query = $db->getQuery(true);
 			$query->select('COUNT(*)')->from($db->quoteName('#__users', 'u'))
-					->join('left', $db->quoteName('#__kunena_users', 'ku') . ' ON (' . $db->quoteName('ku.userid') . ' = ' . $db->quoteName('u.id') . ')')
-					->where("{$where} {$search}");
+				->join('left', $db->quoteName('#__kunena_users', 'ku') . ' ON (' . $db->quoteName('ku.userid') . ' = ' . $db->quoteName('u.id') . ')')
+				->where("{$where} {$search}");
 			$db->setQuery($query);
 
 			try
@@ -212,6 +222,8 @@ class KunenaModelUser extends KunenaModel
 
 	/**
 	 * @return array|mixed
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getItems()
 	{
@@ -255,7 +267,7 @@ class KunenaModelUser extends KunenaModel
 					$orderby = 'u.username ';
 			}
 
-			$db     = JFactory::getDBO();
+			$db     = Factory::getDBO();
 			$where  = $this->getQueryWhere();
 			$search = $this->getQuerySearch();
 			$query  = $db->getQuery(true);

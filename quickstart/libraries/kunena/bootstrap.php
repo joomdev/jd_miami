@@ -1,12 +1,12 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Framework
- * @subpackage  Integration
+ * @package         Kunena.Framework
+ * @subpackage      Integration
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 
@@ -25,13 +25,13 @@ JLoader::registerPrefix('KunenaCompat', KPATH_FRAMEWORK . '/compat/joomla');
 JLoader::registerPrefix('Kunena', KPATH_FRAMEWORK);
 
 // Give access to all Kunena tables.
-JTable::addIncludePath(KPATH_FRAMEWORK . '/tables');
+\Joomla\CMS\Table\Table::addIncludePath(KPATH_FRAMEWORK . '/tables');
 
 // Give access to all Kunena JHtml functions.
-JHtml::addIncludePath(KPATH_FRAMEWORK . '/html/html');
+Joomla\CMS\HTML\HTMLHelper::addIncludePath(KPATH_FRAMEWORK . '/html/html');
 
 // Give access to all Kunena form fields.
-JForm::addFieldPath(KPATH_FRAMEWORK . '/form/fields');
+\Joomla\CMS\Form\Form::addFieldPath(KPATH_FRAMEWORK . '/form/fields');
 
 // Register classes where the names have been changed to fit the autoloader rules.
 JLoader::register('KunenaAccess', KPATH_FRAMEWORK . '/access.php');

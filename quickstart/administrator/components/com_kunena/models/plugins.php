@@ -9,14 +9,20 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
+
 jimport('joomla.application.component.modellist');
 
-class KunenaAdminModelPlugins extends JModelList
+/**
+ * Class KunenaAdminModelPlugins
+ * @since Kunena
+ */
+class KunenaAdminModelPlugins extends \Joomla\CMS\MVC\Model\ListModel
 {
 	/**
 	 * Constructor.
 	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
+	 * @param   array $config An optional associative array of configuration settings.
 	 *
 	 * @see     JController
 	 * @since   1.6
@@ -44,8 +50,8 @@ class KunenaAdminModelPlugins extends JModelList
 	 *
 	 * Note. Calling getState in this method will result in recursion.
 	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
+	 * @param   string $ordering  An optional ordering field.
+	 * @param   string $direction An optional direction (asc|desc).
 	 *
 	 * @return  void
 	 *
@@ -76,7 +82,7 @@ class KunenaAdminModelPlugins extends JModelList
 		$this->setState('filter.active', !empty($filter_active));
 
 		// Load the parameters.
-		$params = JComponentHelper::getParams('com_plugins');
+		$params = \Joomla\CMS\Component\ComponentHelper::getParams('com_plugins');
 		$this->setState('params', $params);
 
 		// List state information.
@@ -84,36 +90,14 @@ class KunenaAdminModelPlugins extends JModelList
 	}
 
 	/**
-	 * Method to get a store id based on model configuration state.
-	 *
-	 * This is necessary because the model is used by the component and
-	 * different modules that might need different sets of data or different
-	 * ordering requirements.
-	 *
-	 * @param   string  $id  A prefix for the store id.
-	 *
-	 * @return  string    A store id.
-	 */
-	protected function getStoreId($id = '')
-	{
-		// Compile the store id.
-		$id .= ':' . $this->getState('filter.search');
-		$id .= ':' . $this->getState('filter.enabled');
-		$id .= ':' . $this->getState('filter.name');
-		$id .= ':' . $this->getState('filter.element');
-		$id .= ':' . $this->getState('filter.access');
-
-		return parent::getStoreId($id);
-	}
-
-	/**
 	 * Returns an object list
 	 *
-	 * @param   JDatabaseQuery  $query      The query
-	 * @param   int            $limitstart  Offset
+	 * @param   JDatabaseQuery $query      The query
+	 * @param   int            $limitstart Offset
 	 * @param   int            $limit      The number of records
 	 *
 	 * @return  array
+	 * @since Kunena
 	 */
 	protected function _getList($query, $limitstart = 0, $limit = 0)
 	{
@@ -137,7 +121,7 @@ class KunenaAdminModelPlugins extends JModelList
 				}
 			}
 
-			$lang      = JFactory::getLanguage();
+			$lang      = Factory::getLanguage();
 			$direction = ($this->getState('list.direction') == 'desc') ? -1 : 1;
 			Joomla\Utilities\ArrayHelper::sortObjects($result, $ordering, $direction, true, $lang->getLocale());
 
@@ -185,13 +169,14 @@ class KunenaAdminModelPlugins extends JModelList
 	/**
 	 * Translate a list of objects
 	 *
-	 * @param   array  $items  The array of objects
+	 * @param   array $items The array of objects
 	 *
-	 * @return  array The array of translated objects
+	 * @return void The array of translated objects
+	 * @since Kunena
 	 */
 	protected function translate(&$items)
 	{
-		$lang = JFactory::getLanguage();
+		$lang = Factory::getLanguage();
 
 		foreach ($items as &$item)
 		{
@@ -206,9 +191,34 @@ class KunenaAdminModelPlugins extends JModelList
 	}
 
 	/**
+	 * Method to get a store id based on model configuration state.
+	 *
+	 * This is necessary because the model is used by the component and
+	 * different modules that might need different sets of data or different
+	 * ordering requirements.
+	 *
+	 * @param   string $id A prefix for the store id.
+	 *
+	 * @return  string    A store id.
+	 * @since Kunena
+	 */
+	protected function getStoreId($id = '')
+	{
+		// Compile the store id.
+		$id .= ':' . $this->getState('filter.search');
+		$id .= ':' . $this->getState('filter.enabled');
+		$id .= ':' . $this->getState('filter.name');
+		$id .= ':' . $this->getState('filter.element');
+		$id .= ':' . $this->getState('filter.access');
+
+		return parent::getStoreId($id);
+	}
+
+	/**
 	 * Build an SQL query to load the list data.
 	 *
 	 * @return  JDatabaseQuery
+	 * @since Kunena
 	 */
 	protected function getListQuery()
 	{

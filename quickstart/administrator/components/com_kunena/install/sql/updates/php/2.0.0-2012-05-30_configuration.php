@@ -2,11 +2,11 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Installer
+ * @package        Kunena.Installer
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
@@ -15,6 +15,8 @@ defined('_JEXEC') or die();
  * @param $parent
  *
  * @return array
+ * @throws Exception
+ * @since Kunena
  */
 function kunena_200_2012_05_30_configuration($parent)
 {
@@ -100,7 +102,7 @@ function kunena_200_2012_05_30_configuration($parent)
 
 			if ($plugin)
 			{
-				$params            = new JRegistry($plugin->params);
+				$params            = new \Joomla\Registry\Registry($plugin->params);
 				$plugin->params    = $params;
 				$plugins[$cfgname] = $plugin;
 			}

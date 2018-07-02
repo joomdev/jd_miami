@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Controllers
+ * @package         Kunena.Administrator
+ * @subpackage      Controllers
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
-defined('_JEXEC') or die ();
+defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Kunena Ranks Controller
@@ -18,13 +20,18 @@ defined('_JEXEC') or die ();
  */
 class KunenaAdminControllerRanks extends KunenaController
 {
+	/**
+	 * @var null|string
+	 * @since Kunena
+	 */
 	protected $baseurl = null;
 
 	/**
 	 * Construct
 	 *
-	 * @param   array  $config  config
+	 * @param   array $config config
 	 *
+	 * @throws Exception
 	 * @since    2.0
 	 */
 	public function __construct($config = array())
@@ -38,11 +45,13 @@ class KunenaAdminControllerRanks extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function add()
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -61,10 +70,11 @@ class KunenaAdminControllerRanks extends KunenaController
 	 * @throws Exception
 	 *
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function edit()
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -72,7 +82,7 @@ class KunenaAdminControllerRanks extends KunenaController
 			return;
 		}
 
-		$cid = JFactory::getApplication()->input->get('cid', array(), 'post', 'array');
+		$cid = $this->app->input->get('cid', array(), 'post', 'array');
 		Joomla\Utilities\ArrayHelper::toInteger($cid);
 
 		$id = array_shift($cid);
@@ -98,12 +108,14 @@ class KunenaAdminControllerRanks extends KunenaController
 	 * @since    2.0
 	 *
 	 * @throws Exception
+	 * @since    Kunena
+	 * @throws null
 	 */
 	public function save()
 	{
-		$db = JFactory::getDbo();
+		$db = Factory::getDbo();
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -111,11 +123,11 @@ class KunenaAdminControllerRanks extends KunenaController
 			return;
 		}
 
-		$rank_title   = JFactory::getApplication()->input->getString('rank_title');
-		$rank_image   = basename(JFactory::getApplication()->input->getString('rank_image'));
-		$rank_special = JFactory::getApplication()->input->getInt('rank_special');
-		$rank_min     = JFactory::getApplication()->input->getInt('rank_min');
-		$rankid       = JFactory::getApplication()->input->getInt('rankid', 0);
+		$rank_title   = $this->app->input->getString('rank_title');
+		$rank_image   = basename($this->app->input->getString('rank_image'));
+		$rank_special = $this->app->input->getInt('rank_special');
+		$rank_min     = $this->app->input->getInt('rank_min');
+		$rankid       = $this->app->input->getInt('rankid', 0);
 
 		if (!$rankid)
 		{
@@ -123,7 +135,8 @@ class KunenaAdminControllerRanks extends KunenaController
 					rank_title={$db->quote($rank_title)},
 					rank_image={$db->quote($rank_image)},
 					rank_special={$db->quote($rank_special)},
-					rank_min={$db->quote($rank_min)}");
+					rank_min={$db->quote($rank_min)}"
+			);
 
 			try
 			{
@@ -131,7 +144,7 @@ class KunenaAdminControllerRanks extends KunenaController
 			}
 			catch (RuntimeException $e)
 			{
-				JFactory::getApplication()->enqueueMessage($e->getMessage());
+				$this->app->enqueueMessage($e->getMessage());
 
 				return;
 			}
@@ -143,7 +156,8 @@ class KunenaAdminControllerRanks extends KunenaController
 					rank_image={$db->quote($rank_image)},
 					rank_special={$db->quote($rank_special)},
 					rank_min={$db->quote($rank_min)}
-				WHERE rank_id={$db->quote($rankid)}");
+				WHERE rank_id={$db->quote($rankid)}"
+			);
 
 			try
 			{
@@ -151,7 +165,7 @@ class KunenaAdminControllerRanks extends KunenaController
 			}
 			catch (RuntimeException $e)
 			{
-				JFactory::getApplication()->enqueueMessage($e->getMessage());
+				$this->app->enqueueMessage($e->getMessage());
 
 				return;
 			}
@@ -169,10 +183,12 @@ class KunenaAdminControllerRanks extends KunenaController
 	 * @since    2.0
 	 *
 	 * @throws Exception
+	 * @since    Kunena
+	 * @throws null
 	 */
 	public function rankupload()
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -180,7 +196,7 @@ class KunenaAdminControllerRanks extends KunenaController
 			return;
 		}
 
-		$file   = $this->app->input->files->get('Filedata');
+		$file = $this->app->input->files->get('Filedata');
 
 		// TODO : change this part to use other method than KunenaUploadHelper::upload()
 		$upload = KunenaUploadHelper::upload($file, JPATH_ROOT . '/' . KunenaFactory::getTemplate()->getRankPath(), 'html');
@@ -205,12 +221,14 @@ class KunenaAdminControllerRanks extends KunenaController
 	 * @since    2.0
 	 *
 	 * @throws Exception
+	 * @since    Kunena
+	 * @throws null
 	 */
 	public function remove()
 	{
-		$db = JFactory::getDbo();
+		$db = Factory::getDbo();
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -218,7 +236,7 @@ class KunenaAdminControllerRanks extends KunenaController
 			return;
 		}
 
-		$cid = JFactory::getApplication()->input->get('cid', array(), 'post', 'array');
+		$cid = $this->app->input->get('cid', array(), 'post', 'array');
 		Joomla\Utilities\ArrayHelper::toInteger($cid);
 
 		$cids = implode(',', $cid);
@@ -233,7 +251,7 @@ class KunenaAdminControllerRanks extends KunenaController
 			}
 			catch (RuntimeException $e)
 			{
-				JFactory::getApplication()->enqueueMessage($e->getMessage());
+				$this->app->enqueueMessage($e->getMessage());
 
 				return;
 			}
@@ -248,7 +266,9 @@ class KunenaAdminControllerRanks extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since K4.0
+	 * @throws null
 	 */
 	public function cancel()
 	{

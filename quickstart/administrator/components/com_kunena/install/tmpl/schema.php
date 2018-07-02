@@ -2,17 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Installer
- * @subpackage  Template
+ * @package         Kunena.Installer
+ * @subpackage      Template
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
-// @var KunenaViewInstall $this
-$this->document->addStyleSheet(JUri::base(true) . '/components/com_kunena/install/media/install.css');
+$this->document->addStyleSheet(\Joomla\CMS\Uri\Uri::base(true) . '/components/com_kunena/install/media/install.css');
 ?>
 <div id="right">
 	<div id="rightpad">

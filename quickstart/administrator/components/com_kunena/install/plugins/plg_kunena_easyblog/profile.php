@@ -2,15 +2,17 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Easyblog
+ * @package         Kunena.Plugins
+ * @subpackage      Easyblog
  *
  * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 
-defined('_JEXEC') or die ();
+defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 class KunenaProfileEasyblog extends KunenaProfile
 {
@@ -20,6 +22,8 @@ class KunenaProfileEasyblog extends KunenaProfile
 	 * KunenaProfileEasyblog constructor.
 	 *
 	 * @param $params
+	 *
+	 * @since K2.0
 	 */
 	public function __construct($params)
 	{
@@ -27,15 +31,18 @@ class KunenaProfileEasyblog extends KunenaProfile
 	}
 
 	/**
-	 * @param string $action
-	 * @param bool   $xhtml
+	 * @param   string $action action
+	 * @param   bool   $xhtml  xhtml
 	 *
-	 * @return bool
+	 * @return boolean
+	 * @throws Exception
+	 * @since K2.0
+	 * @throws null
 	 */
 	public function getUserListURL($action = '', $xhtml = true)
 	{
 		$config = KunenaFactory::getConfig();
-		$my     = JFactory::getUser();
+		$my     = Factory::getUser();
 
 		if ($config->userlist_allowed == 0 && $my->id == 0)
 		{
@@ -46,11 +53,12 @@ class KunenaProfileEasyblog extends KunenaProfile
 	}
 
 	/**
-	 * @param        $userid
-	 * @param string $task
-	 * @param bool   $xhtml
+	 * @param          $userid
+	 * @param   string $task  task
+	 * @param   bool   $xhtml xhtml
 	 *
-	 * @return bool
+	 * @return boolean
+	 * @since K2.0
 	 */
 	public function getProfileURL($userid, $task = '', $xhtml = true)
 	{
@@ -66,20 +74,22 @@ class KunenaProfileEasyblog extends KunenaProfile
 	/**
 	 * @param $view
 	 * @param $params
+	 *
+	 * @since K2.0
 	 */
 	public function showProfile($view, &$params)
 	{
 	}
 
 	/**
-	 * @param      $userid
-	 * @param bool $xhtml
+	 * @param        $userid
+	 * @param   bool $xhtml xhtml
 	 *
-	 * @return bool
+	 * @return boolean
+	 * @since K2.0
 	 */
 	public function getEditProfileURL($userid, $xhtml = true)
 	{
 		return $this->getProfileURL($userid, 'edit', $xhtml);
 	}
 }
-

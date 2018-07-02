@@ -1,0 +1,129 @@
+a:4:{s:4:"root";s:67:"D:\xampp7\htdocs\jdmiami\templates/jd_miami/less/frontend-edit.less";s:8:"compiled";s:2970:".layout-edit {
+  @import "bootstrap-legacy/variables";
+  @import "bootstrap-legacy/mixins";
+  @import "bootstrap-legacy/forms.less";
+  @import "bootstrap-legacy/wells.less";
+  @import "bootstrap-legacy/accordion.less";
+}
+.layout-edit select.inputbox,
+.layout-edit select {
+  width: 250px;
+  max-width: 100%;
+}
+.layout-edit .btn-toolbar {
+  margin-bottom: 20px;
+}
+.layout-edit .tab-content {
+  padding-top: 20px;
+}
+.layout-edit #editor-xtd-buttons,
+.layout-edit .toggle-editor {
+  margin-top: 20px;
+}
+.layout-edit .btn-group input[type="radio"] {
+  display: none;
+}
+iframe,
+svg {
+  max-width: 100%;
+}
+#sbox-content > iframe {
+  height: 100%;
+}
+.alert.alert-message {
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+  color: #468847;
+}
+.alert.alert-message h4 {
+  color: #468847;
+}
+.manager.thumbnails {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0 -20px;
+}
+.manager.thumbnails li {
+  text-align: center;
+  display: block;
+  float: left;
+  width: 80px;
+  height: 80px;
+  line-height: 18px;
+  border: 1px solid #ddd;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.055);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.055);
+  position: relative;
+}
+.manager.thumbnails li [class^="icon-"],
+.manager.thumbnails li [class*=" icon-"] {
+  font-size: 14px;
+  line-height: 14px;
+  color: #08c;
+  display: inline-block;
+  margin-top: 6px;
+}
+.manager.thumbnails li .height-50 {
+  margin-top: 4px;
+  height: 50px;
+  margin-bottom: 4px;
+}
+.manager.thumbnails li a {
+  text-decoration: none;
+  color: #08c;
+  font-size: 13px;
+}
+.manager.thumbnails li:hover {
+  background: #f7fcff;
+  border-color: rgba(82,168,236,0.8);
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(82,168,236,0.6);
+  -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(82,168,236,0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(82,168,236,0.6);
+  -webkit-transition: all 400ms;
+  transition: all 400ms;
+}
+#mailto-window {
+  margin: 20px;
+}
+#mailto-window >h2 {
+  font-size: 18px;
+  margin-top: 0;
+}
+#mailto-window input[type="text"] {
+  height: auto !important;
+}
+.chzn-container.chzn-container-multi input[type="text"] {
+  min-height: 30px;
+}
+.com-content-adminForm textarea {
+  width: 350px;
+  height: 100px;
+}
+.com-content-adminForm .input-prepend.input-append .media-preview.add-on {
+  height: 34px;
+  line-height: 26px;
+}
+.com-content-adminForm .input-prepend.input-append .modal.btn {
+  position: relative;
+  background: #ccc;
+}
+.com-config .form-horizontal .accordion-body {
+  overflow: hidden;
+}
+.com-config .form-horizontal .accordion-body.in:hover {
+  overflow: visible;
+}
+.com-config .form-horizontal .accordion-body .input-prepend.input-append .media-preview.add-on {
+  height: 34px;
+  line-height: 26px;
+}
+.com-config .form-horizontal .accordion-body .input-prepend.input-append .btn {
+  position: relative;
+  cursor: pointer;
+  color: #333;
+  border: 1px solid #bbb;
+}
+";s:5:"files";a:24:{s:70:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\bootstrap.less";i:1513871892;s:70:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\variables.less";i:1513871892;s:67:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\mixins.less";i:1513871892;s:65:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\grid.less";i:1513871892;s:66:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\forms.less";i:1513871892;s:66:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\wells.less";i:1513871892;s:70:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\accordion.less";i:1513871892;s:88:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\responsive-767px-max.joomla.less";i:1513871892;s:60:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\master.less";i:1515558334;s:63:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\variables.less";i:1513871892;s:60:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\mixins.less";i:1513871892;s:61:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\icomoon.less";i:1513871892;s:58:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\menu.less";i:1513871892;s:59:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\theme.less";i:1513871892;s:63:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\jd-custom.less";i:1515558314;s:56:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\k2.less";i:1515558390;s:64:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\typography.less";i:1515558558;s:64:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\virtuemart.less";i:1515558498;s:62:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\hikashop.less";i:1513871892;s:61:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\jevents.less";i:1515558412;s:60:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\kunena.less";i:1515558476;s:67:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\jd-responsive.less";i:1515558452;s:61:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\presets.less";i:1513871892;s:67:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\frontend-edit.less";i:1513871892;}s:7:"updated";i:1530566208;}

@@ -1,14 +1,17 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Topic
+ * @package         Kunena.Site
+ * @subpackage      Controller.Topic
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * Class ComponentKunenaControllerTopicFormCreateDisplay
@@ -17,8 +20,16 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerTopicFormCreateDisplay extends KunenaControllerDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'Topic/Edit';
 
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $captchaHtml = null;
 
 	/**
@@ -26,7 +37,9 @@ class ComponentKunenaControllerTopicFormCreateDisplay extends KunenaControllerDi
 	 *
 	 * @return boolean
 	 *
-	 * @throws RuntimeException
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function before()
 	{
@@ -35,70 +48,100 @@ class ComponentKunenaControllerTopicFormCreateDisplay extends KunenaControllerDi
 		$catid = $this->input->getInt('catid', 0);
 		$saved = $this->app->getUserState('com_kunena.postfields');
 
-		$this->me = KunenaUserHelper::getMyself();
+		$Itemid = Factory::getApplication()->input->getCmd('Itemid');
+		$format = Factory::getApplication()->input->getCmd('format');
+
+		if (!$Itemid && $format != 'feed' && KunenaConfig::getInstance()->sef_redirect)
+		{
+			if (KunenaConfig::getInstance()->search_id)
+			{
+				$itemidfix = KunenaConfig::getInstance()->search_id;
+			}
+			else
+			{
+				$menu      = $this->app->getMenu();
+				$getid     = $menu->getItem(KunenaRoute::getItemID("index.php?option=com_kunena&view=topic&layout=create"));
+				$itemidfix = $getid->id;
+			}
+
+			if (!$itemidfix)
+			{
+				$itemidfix = KunenaRoute::fixMissingItemID();
+			}
+
+			$controller = JControllerLegacy::getInstance("kunena");
+
+			if ($catid)
+			{
+				$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=topic&layout=create&catid={$catid}&Itemid={$itemidfix}", false));
+			}
+			else
+			{
+				$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=topic&layout=create&Itemid={$itemidfix}", false));
+			}
+
+			$controller->redirect();
+		}
+
+		$this->me       = KunenaUserHelper::getMyself();
 		$this->template = KunenaFactory::getTemplate();
 
-		$categories = KunenaForumCategoryHelper::getCategories();
+		$categories        = KunenaForumCategoryHelper::getCategories();
 		$arrayanynomousbox = array();
-		$arraypollcatid = array();
+		$arraypollcatid    = array();
 
 		foreach ($categories as $category)
 		{
 			if (!$category->isSection() && $category->allow_anonymous)
 			{
-				$arrayanynomousbox[] = '"' . $category->id . '":' . $category->post_anonymous;
+				$arrayanynomousbox[$category->id] = $category->post_anonymous;
 			}
 
 			if ($this->config->pollenabled)
 			{
 				if (!$category->isSection() && $category->allow_polls)
 				{
-					$arraypollcatid[] = '"' . $category->id . '":1';
+					$arraypollcatid[$category->id] = 1;
 				}
 			}
 		}
-
 
 		if ($this->config->read_only)
 		{
 			throw new KunenaExceptionAuthorise(JText::_('COM_KUNENA_NO_ACCESS'), '401');
 		}
 
-		$arrayanynomousbox = implode(',', $arrayanynomousbox);
-		$arraypollcatid = implode(',', $arraypollcatid);
-
 		// FIXME: We need to proxy this...
-		$this->document = JFactory::getDocument();
-		$this->document->addScriptDeclaration('var arrayanynomousbox={' . $arrayanynomousbox . '}');
-		$this->document->addScriptDeclaration('var pollcategoriesid = {' . $arraypollcatid . '};');
+		$this->document = Factory::getDocument();
+		$this->document->addScriptOptions('com_kunena.arrayanynomousbox', json_encode($arrayanynomousbox));
+		$this->document->addScriptOptions('com_kunena.pollcategoriesid', json_encode($arraypollcatid));
 
 		$this->category = KunenaForumCategoryHelper::get($catid);
-		list ($this->topic, $this->message) = $this->category->newTopic($saved);
+		list($this->topic, $this->message) = $this->category->newTopic($saved);
 
 		$this->template->setCategoryIconset($this->topic->getCategory()->iconset);
 
 		// Get topic icons if they are enabled.
 		if ($this->config->topicicons)
 		{
-			$this->topicIcons = $this->template->getTopicIcons(false, $saved ? $saved['icon_id'] : 0, $this->topic->getCategory()->iconset);
+			$this->topicIcons = $this->template->getTopicIcons(false, $saved ? $saved['icon_id'] : 0);
 		}
 
 		if ($this->topic->isAuthorised('create') && $this->me->canDoCaptcha())
 		{
-			if (JPluginHelper::isEnabled('captcha'))
+			if (\Joomla\CMS\Plugin\PluginHelper::isEnabled('captcha'))
 			{
-				$plugin = JPluginHelper::getPlugin('captcha');
-				$params = new JRegistry($plugin[0]->params);
+				$plugin         = \Joomla\CMS\Plugin\PluginHelper::getPlugin('captcha');
+				$params         = new \Joomla\Registry\Registry($plugin[0]->params);
 				$captcha_pubkey = $params->get('public_key');
 				$catcha_privkey = $params->get('private_key');
 
 				if (!empty($captcha_pubkey) && !empty($catcha_privkey))
 				{
-					JPluginHelper::importPlugin('captcha');
-					$dispatcher = JEventDispatcher::getInstance();
-					$result = $dispatcher->trigger('onInit', 'dynamic_recaptcha_1');
-					$output = $dispatcher->trigger('onDisplay', array(null, 'dynamic_recaptcha_1', 'class="controls g-recaptcha" data-sitekey="'
-						. $captcha_pubkey . '" data-theme="light"'));
+					\Joomla\CMS\Plugin\PluginHelper::importPlugin('captcha');
+					$result               = Factory::getApplication()->triggerEvent('onInit', array('dynamic_recaptcha_1'));
+					$output               = Factory::getApplication()->triggerEvent('onDisplay', array(null, 'dynamic_recaptcha_1', 'class="controls g-recaptcha" data-sitekey="'
+						. $captcha_pubkey . '" data-theme="light"',));
 					$this->captchaDisplay = $output[0];
 					$this->captchaEnabled = $result[0];
 				}
@@ -115,13 +158,13 @@ class ComponentKunenaControllerTopicFormCreateDisplay extends KunenaControllerDi
 				$this->topic->getError()), $this->me->exists() ? 403 : 401);
 		}
 
-		$options = array();
+		$options  = array();
 		$selected = $this->topic->category_id;
 
 		if ($this->config->pickup_category)
 		{
-			$options[] = JHtml::_('select.option', '', JText::_('COM_KUNENA_SELECT_CATEGORY'), 'value', 'text');
-			$selected = '';
+			$options[] = HTMLHelper::_('select.option', '', JText::_('COM_KUNENA_SELECT_CATEGORY'), 'value', 'text');
+			$selected  = '';
 		}
 
 		if ($saved)
@@ -129,16 +172,16 @@ class ComponentKunenaControllerTopicFormCreateDisplay extends KunenaControllerDi
 			$selected = $saved['catid'];
 		}
 
-		$cat_params = array (
-			'ordering' => 'ordering',
-			'toplevel' => 0,
-			'sections' => 0,
-			'direction' => 1,
+		$cat_params = array(
+			'ordering'    => 'ordering',
+			'toplevel'    => 0,
+			'sections'    => 0,
+			'direction'   => 1,
 			'hide_lonely' => 1,
-			'action' => 'topic.create'
+			'action'      => 'topic.create',
 		);
 
-		$this->selectcatlist = JHtml::_(
+		$this->selectcatlist = HTMLHelper::_(
 			'kunenaforum.categorylist', 'catid', $catid, $options, $cat_params,
 			'class="form-control inputbox required"', 'value', 'text', $selected, 'postcatid');
 
@@ -151,7 +194,7 @@ class ComponentKunenaControllerTopicFormCreateDisplay extends KunenaControllerDi
 			$this->poll = $this->topic->getPoll();
 		}
 
-		$this->post_anonymous = $saved ? $saved['anonymous'] : ! empty($this->category->post_anonymous);
+		$this->post_anonymous       = $saved ? $saved['anonymous'] : !empty($this->category->post_anonymous);
 		$this->subscriptionschecked = $saved ? $saved['subscribe'] : $this->config->subscriptionschecked == 1;
 		$this->app->setUserState('com_kunena.postfields', null);
 
@@ -166,13 +209,15 @@ class ComponentKunenaControllerTopicFormCreateDisplay extends KunenaControllerDi
 	 * Prepare document.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function prepareDocument()
 	{
-		$app = JFactory::getApplication();
-		$menu_item   = $app->getMenu()->getActive();
+		$app       = Factory::getApplication();
+		$menu_item = $app->getMenu()->getActive();
 
-		$doc = JFactory::getDocument();
+		$doc = Factory::getDocument();
 		$doc->setMetaData('robots', 'nofollow, noindex');
 
 		if ($menu_item)
@@ -225,11 +270,13 @@ class ComponentKunenaControllerTopicFormCreateDisplay extends KunenaControllerDi
 	 * Can user subscribe to the topic?
 	 *
 	 * @return boolean
+	 * @since Kunena
 	 */
 	protected function canSubscribe()
 	{
-		if (! $this->me->userid || !$this->config->allowsubscriptions
-			|| $this->config->topic_subscriptions == 'disabled')
+		if (!$this->me->userid || !$this->config->allowsubscriptions
+			|| $this->config->topic_subscriptions == 'disabled'
+		)
 		{
 			return false;
 		}

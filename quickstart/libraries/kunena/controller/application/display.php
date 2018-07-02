@@ -1,79 +1,71 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Controller
+ * @package       Kunena.Framework
+ * @subpackage    Controller
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+
+/**
+ * Class KunenaControllerApplicationDisplay
+ * @since Kunena
+ */
 class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 {
 	/**
-	 * @var KunenaLayout
-	 */
-	protected $page;
-	/**
-	 * @var KunenaLayout
-	 */
-	protected $content;
-	/**
-	 * @var JPathway
-	 */
-	protected $breadcrumb;
-	/**
-	 * @var KunenaUser
-	 */
-	protected $me;
-	/**
 	 * @var KunenaConfig
+	 * @since Kunena
 	 */
 	public $config;
+
+	/**
+	 * @var KunenaLayout
+	 * @since Kunena
+	 */
+	protected $page;
+
+	/**
+	 * @var KunenaLayout
+	 * @since Kunena
+	 */
+	protected $content;
+
+	/**
+	 * @var \Joomla\CMS\Pathway\Pathway
+	 * @since Kunena
+	 */
+	protected $breadcrumb;
+
+	/**
+	 * @var KunenaUser
+	 * @since Kunena
+	 */
+	protected $me;
+
 	/**
 	 * @var KunenaTemplate
+	 * @since Kunena
 	 */
 	protected $template;
+
 	/**
-	 * @var JDocument
+	 * @var \Joomla\CMS\Document\Document
+	 * @since Kunena
 	 */
 	protected $document;
 
 	/**
-	 * @return boolean
-	 */
-	public function exists()
-	{
-		if ($this->input->getWord('format', 'html') != 'html')
-		{
-			// TODO: we need to deal with other formats in the future.
-			return false;
-		}
-
-		$name = "{$this->input->getWord('view')}/{$this->input->getWord('layout', 'default')}";
-		$this->page = KunenaLayoutPage::factory($name);
-
-		return (bool) $this->page->getPath();
-	}
-
-	/**
-	 * @return KunenaLayout
-	 */
-	protected function display()
-	{
-		// Display layout with given parameters.
-		$this->page
-			->set('input', $this->input)
-			->setLayout($this->input->getWord('layout', 'default'))
-			->setOptions($this->getOptions());
-
-		return $this->page;
-	}
-
-	/**
-	 * @return JLayoutBase
+	 * @return \Joomla\CMS\Layout\BaseLayout
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function execute()
 	{
@@ -119,15 +111,15 @@ class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 			try
 			{
 				// Split into two lines for exception handling.
-				$content = $this->display()->set('breadcrumb', $this->breadcrumb);
+				$content       = $this->display()->set('breadcrumb', $this->breadcrumb);
 				$this->content = $content->render();
 			}
 			catch (KunenaExceptionAuthorise $e)
 			{
-				$banned = KunenaUserHelper::getMyself()->banned;
-				$userid =  $this->input->getInt('userid');
+				$banned = KunenaUserHelper::getMyself()->isBanned();
+				$userid = $this->input->getInt('userid');
 
-				if (JFactory::getUser()->guest && KunenaUserHelper::get($userid)->exists())
+				if (Factory::getUser()->guest && KunenaUserHelper::get($userid)->exists())
 				{
 					$this->setResponseStatus($e->getResponseCode());
 					$this->output->setLayout('login');
@@ -146,16 +138,14 @@ class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 					$this->content = KunenaLayout::factory('Widget/Custom')
 						->set('header', JText::_('COM_KUNENA_POST_ERROR_USER_BANNED_NOACCESS'))
 						->set('body', JText::sprintf('COM_KUNENA_POST_ERROR_USER_BANNED_NOACCESS_EXPIRY',
-							KunenaDate::getInstance($bannedtime->getExpirationDate())->toKunena('date_today')));
+							KunenaDate::getInstance($bannedtime->getExpirationDate())->toKunena('date_today')
+						)
+						);
 					$this->document->setMetaData('robots', 'noindex, follow');
 				}
 				elseif (!KunenaUserHelper::get($userid)->exists())
 				{
-					$this->setResponseStatus($e->getResponseCode());
-					$this->document->setTitle($e->getResponseStatus());
-
-					$this->content = KunenaLayout::factory('Widget/Error')
-					->set('header', $e->getResponseStatus());
+					$this->content = KunenaLayout::factory('Widget/Login/Login')->setLayout('login');
 				}
 				else
 				{
@@ -165,20 +155,19 @@ class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 
 					$this->content = KunenaLayout::factory('Widget/Error')
 						->set('header', $e->getResponseStatus());
-					$this->document->setMetaData('robots', 'noindex, follow');
 				}
 			}
 			catch (Exception $e)
 			{
 				if (!($e instanceof KunenaExceptionAuthorise))
 				{
-					$header = 'Error while rendering layout';
+					$header  = 'Error while rendering layout';
 					$content = isset($content) ? $content->renderError($e) : $this->content->renderError($e);
-					$e = new KunenaExceptionAuthorise($e->getMessage(), $e->getCode(), $e);
+					$e       = new KunenaExceptionAuthorise($e->getMessage(), $e->getCode(), $e);
 				}
 				else
 				{
-					$header = $e->getResponseStatus();
+					$header  = $e->getResponseStatus();
 					$content = $e->getMessage();
 				}
 
@@ -206,7 +195,10 @@ class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @throws Exception
+	 * @throws null
+	 * @return void
 	 */
 	protected function before()
 	{
@@ -224,9 +216,9 @@ class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 		KunenaFactory::loadLanguage('com_kunena.models');
 		KunenaFactory::loadLanguage('com_kunena.views');
 
-		$this->me = KunenaUserHelper::getMyself();
-		$this->config = KunenaConfig::getInstance();
-		$this->document = JFactory::getDocument();
+		$this->me       = KunenaUserHelper::getMyself();
+		$this->config   = KunenaConfig::getInstance();
+		$this->document = Factory::getDocument();
 		$this->template = KunenaFactory::getTemplate();
 		$this->template->initialize();
 
@@ -257,9 +249,11 @@ class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 			if (!$banned->isLifetime())
 			{
 				$this->app->enqueueMessage(
-     JText::sprintf(
-	 'COM_KUNENA_POST_ERROR_USER_BANNED_NOACCESS_EXPIRY',
-	KunenaDate::getInstance($banned->expiration)->toKunena('date_today')), 'notice');
+					JText::sprintf(
+						'COM_KUNENA_POST_ERROR_USER_BANNED_NOACCESS_EXPIRY',
+						KunenaDate::getInstance($banned->expiration)->toKunena('date_today')
+					), 'notice'
+				);
 			}
 			else
 			{
@@ -269,8 +263,8 @@ class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 
 		// Remove base and add canonical link.
 		$this->document->setBase('');
-		$jinput = JFactory::getApplication()->input;
-		$limitstart = $jinput->getInt('limitstart', 'limitstart', 0);
+		$kinput     = Factory::getApplication()->input;
+		$limitstart = $kinput->getInt('limitstart', 0);
 
 		if (!$limitstart)
 		{
@@ -284,17 +278,87 @@ class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 	}
 
 	/**
+	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function exists()
+	{
+		if ($this->input->getWord('format', 'html') != 'html')
+		{
+			return false;
+		}
+
+		$name       = "{$this->input->getWord('view')}/{$this->input->getWord('layout', 'default')}";
+		$this->page = KunenaLayoutPage::factory($name);
+
+		return (bool) $this->page->getPath();
+	}
+
+	/**
+	 * @param   int $code code
 	 *
+	 * @throws Exception
+	 * @since Kunena
+	 * @return void
+	 */
+	public function setResponseStatus($code = 404)
+	{
+		switch ((int) $code)
+		{
+			case 400:
+				Factory::getApplication()->setHeader('Status', '400 Bad Request', true);
+				break;
+			case 401:
+				Factory::getApplication()->setHeader('Status', '401 Unauthorized', true);
+				break;
+			case 403:
+				Factory::getApplication()->setHeader('Status', '403 Forbidden', true);
+				break;
+			case 404:
+				Factory::getApplication()->setHeader('Status', '404 Not Found', true);
+				break;
+			case 410:
+				Factory::getApplication()->setHeader('Status', '410 Gone', true);
+				break;
+			case 503:
+				Factory::getApplication()->setHeader('Status', '503 Service Temporarily Unavailable', true);
+				break;
+			case 500:
+			default:
+				Factory::getApplication()->setHeader('Status', '500 Internal Server Error', true);
+		}
+	}
+
+	/**
+	 * @return KunenaLayout
+	 * @since Kunena
+	 */
+	protected function display()
+	{
+		// Display layout with given parameters.
+		$this->page
+			->set('input', $this->input)
+			->setLayout($this->input->getWord('layout', 'default'))
+			->setOptions($this->getOptions());
+
+		return $this->page;
+	}
+
+	/**
+	 * @since Kunena
+	 * @throws Exception
+	 * @return void
 	 */
 	protected function after()
 	{
 		KUNENA_PROFILER ? KunenaProfiler::instance()->start('function ' . get_class($this) . '::' . __FUNCTION__ . '()') : null;
 
 		// Use our own browser side cache settings.
-		JFactory::getApplication()->allowCache(false);
-		JFactory::getApplication()->setHeader('Expires', 'Mon, 1 Jan 2001 00:00:00 GMT', true);
-		JFactory::getApplication()->setHeader('Last-Modified', gmdate("D, d M Y H:i:s") . ' GMT', true);
-		JFactory::getApplication()->setHeader('Cache-Control', 'no-store, must-revalidate, post-check=0, pre-check=0', true);
+		Factory::getApplication()->allowCache(false);
+		Factory::getApplication()->setHeader('Expires', 'Mon, 1 Jan 2001 00:00:00 GMT', true);
+		Factory::getApplication()->setHeader('Last-Modified', gmdate("D, d M Y H:i:s") . ' GMT', true);
+		Factory::getApplication()->setHeader('Cache-Control', 'no-store, must-revalidate, post-check=0, pre-check=0', true);
 
 		if ($this->config->get('credits', 1))
 		{
@@ -305,63 +369,33 @@ class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 	}
 
 	/**
-	 * @param   int $code
-	 *
-	 * @throws Exception
-	 */
-	public function setResponseStatus($code = 404)
-	{
-		switch ((int) $code)
-		{
-			case 400:
-				JFactory::getApplication()->setHeader('Status', '400 Bad Request', true);
-				break;
-			case 401:
-				JFactory::getApplication()->setHeader('Status', '401 Unauthorized', true);
-				break;
-			case 403:
-				JFactory::getApplication()->setHeader('Status', '403 Forbidden', true);
-				break;
-			case 404:
-				JFactory::getApplication()->setHeader('Status', '404 Not Found', true);
-				break;
-			case 410:
-				JFactory::getApplication()->setHeader('Status', '410 Gone', true);
-				break;
-			case 503:
-				JFactory::getApplication()->setHeader('Status', '503 Service Temporarily Unavailable', true);
-				break;
-			case 500:
-			default:
-				JFactory::getApplication()->setHeader('Status', '500 Internal Server Error', true);
-		}
-	}
-
-	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	final public function poweredBy()
 	{
 		$templateText = (string) $this->template->params->get('templatebyText');
 		$templateName = (string) $this->template->params->get('templatebyName');
 		$templateLink = (string) $this->template->params->get('templatebyLink');
-		$credits = '<div style="text-align:center">';
-		$credits .= JHtml::_(
-	'kunenaforum.link', 'index.php?option=com_kunena&view=credits',
+		$credits      = '<div style="text-align:center;">';
+		$credits      .= HTMLHelper::_(
+			'kunenaforum.link', 'index.php?option=com_kunena&view=credits',
 			JText::_('COM_KUNENA_POWEREDBY'), '', '', '',
-	array('style' => 'display: inline; visibility: visible; text-decoration: none;'));
-		$credits .= ' <a href="https://www.kunena.org"
-			target="_blank" rel="noopener noreferrer" style="display: inline; visibility: visible; text-decoration: none;">'
+			array('style' => 'display: inline !important; visibility: visible !important; text-decoration: none !important;')
+		);
+		$credits      .= ' <a href="https://www.kunena.org"
+			target="_blank" rel="noopener noreferrer" style="display: inline !important; visibility: visible !important; text-decoration: none !important;">'
 			. JText::_('COM_KUNENA') . '</a>';
-		if (trim($templateText)) {
+
+		if (trim($templateText))
+		{
 			$credits .= ' :: <a href ="' . $templateLink . '" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">'
 				. $templateText . ' ' . $templateName . '</a>';
 		}
 
 		$credits .= '</div>';
 
-		$powered = JPluginHelper::isEnabled('kunena', 'powered');
-		if ($powered)
+		if (\Joomla\CMS\Plugin\PluginHelper::isEnabled('kunena', 'powered'))
 		{
 			$credits = '';
 		}
@@ -372,10 +406,10 @@ class KunenaControllerApplicationDisplay extends KunenaControllerDisplay
 		#kunena + div { display: block !important;}
 EOF;
 
-
-			$document = JFactory::getDocument();
+			$document = Factory::getDocument();
 			$document->addStyleDeclaration($styles);
 		}
+
 		return $credits;
 	}
 }

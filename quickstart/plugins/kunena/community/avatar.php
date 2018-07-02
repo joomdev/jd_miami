@@ -2,23 +2,33 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Community
+ * @package         Kunena.Plugins
+ * @subpackage      Community
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+/**
+ * Class KunenaAvatarCommunity
+ * @since Kunena
+ */
 class KunenaAvatarCommunity extends KunenaAvatar
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $params = null;
 
 	/**
 	 * KunenaAvatarCommunity constructor.
 	 *
 	 * @param $params
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($params)
 	{
@@ -27,6 +37,8 @@ class KunenaAvatarCommunity extends KunenaAvatar
 
 	/**
 	 * @param $userlist
+	 *
+	 * @since Kunena
 	 */
 	public function load($userlist)
 	{
@@ -42,6 +54,7 @@ class KunenaAvatarCommunity extends KunenaAvatar
 
 	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getEditURL()
 	{
@@ -54,6 +67,8 @@ class KunenaAvatarCommunity extends KunenaAvatar
 	 * @param $sizey
 	 *
 	 * @return string
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function _getURL($user, $sizex, $sizey)
 	{
@@ -64,7 +79,7 @@ class KunenaAvatarCommunity extends KunenaAvatar
 
 		if ($kuser->userid == 0)
 		{
-			$avatar = str_replace(JUri::root(true), '', COMMUNITY_PATH_ASSETS) . "user-Male.png";
+			$avatar = str_replace(\Joomla\CMS\Uri\Uri::root(true), '', COMMUNITY_PATH_ASSETS) . "user-Male.png";
 		}
 		elseif ($sizex <= 90)
 		{

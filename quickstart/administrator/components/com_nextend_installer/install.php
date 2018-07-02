@@ -14,29 +14,32 @@ if (!function_exists('NextendSS3DeleteExtensionFolder')) {
             @JFolder::delete($pkg_path . '/modules');
             @JFolder::delete($pkg_path . '/plugins');
             @JFolder::delete($pkg_path . '/libraries');
+            @JFolder::delete($pkg_path . '/media/n2/n');
+            @JFolder::delete($pkg_path . '/media/n2/ss3');
         }
         $db = JFactory::getDBO();
-        $db->setQuery("DELETE FROM #__menu WHERE title LIKE 'com_nextend_installer'");
-        $db->query();
-        $db->setQuery("DELETE FROM #__extensions WHERE name LIKE 'nextend_installer'");
-        $db->query();
+        $db->setQuery("DELETE FROM #__menu WHERE title LIKE 'com_nextend_installer'")
+           ->execute();
+        $db->setQuery("DELETE FROM #__extensions WHERE name LIKE 'nextend_installer'")
+           ->execute();
     }
 
     function com_install() {
         register_shutdown_function("NextendSS3DeleteExtensionFolder");
         $installer = new Installer();
         $installer->install();
+
         return true;
     }
 
     function com_uninstall() {
         $installer = new Installer();
         $installer->uninstall();
+
         return true;
     }
 
-    class Installer extends JObject
-    {
+    class Installer extends JObject {
 
         var $name = 'Nextend Installer';
         var $com = 'com_nextend_installer';
@@ -52,6 +55,16 @@ if (!function_exists('NextendSS3DeleteExtensionFolder')) {
                 }
                 JFolder::copy($pkg_path . 'libraries/nextend2', $target, '', true);
                 JFolder::delete($pkg_path . 'libraries');
+            }
+
+            if (JFolder::exists($pkg_path . 'media/n2')) {
+                $librariesPath = JPATH_SITE . DIRECTORY_SEPARATOR . 'media';
+                $target        = $librariesPath . DIRECTORY_SEPARATOR . 'n2';
+                if (JFolder::exists($target)) {
+                    JFolder::delete($target);
+                }
+                JFolder::copy($pkg_path . 'media/n2', $target, '', true);
+                JFolder::delete($pkg_path . 'media');
             }
 
 
@@ -70,7 +83,7 @@ if (!function_exists('NextendSS3DeleteExtensionFolder')) {
                             <td><font size="2"><b><?php echo $msgtext; ?></b></font></td>
                         </tr>
                     </table>
-                <?php
+                    <?php
                 }
                 if ($success && file_exists($path . "/install.php")) {
                     require_once $path . "/install.php";
@@ -80,8 +93,21 @@ if (!function_exists('NextendSS3DeleteExtensionFolder')) {
                 }
             }
             $db = JFactory::getDBO();
-            $db->setQuery("UPDATE #__extensions SET enabled=1 WHERE (name LIKE '%nextend%' OR name LIKE '%smartslider3%')  AND type='plugin'");
-            $db->query();
+            $db->setQuery("UPDATE #__extensions SET enabled=1 WHERE (name LIKE '%nextend%' OR name LIKE '%smartslider3%')  AND type='plugin'")
+               ->execute();
+            $proInvert = 1;
+        
+
+            // We must delete the stucked update sites if upgrade to pro or downgrade to free
+            $update_site_id_to_remove = $db->setQuery("SELECT update_site_id FROM #__update_sites WHERE location LIKE 'https://secure.nextendweb.com/api/api.php?action=joomla_version&platform=joomla&product=smartslider3&pro=" . $proInvert . "'")
+                                           ->loadResult();
+
+            if ($update_site_id_to_remove) {
+                $db->setQuery("DELETE FROM #__update_sites_extensions WHERE update_site_id = '" . $update_site_id_to_remove . "'")
+                   ->execute();
+                $db->setQuery("DELETE FROM #__update_sites WHERE update_site_id = '" . $update_site_id_to_remove . "'")
+                   ->execute();
+            }
         }
 
         function uninstall() {
@@ -89,8 +115,7 @@ if (!function_exists('NextendSS3DeleteExtensionFolder')) {
 
     }
 
-    class com_nextend_installerInstallerScript
-    {
+    class com_nextend_installerInstallerScript {
 
         function install($parent) {
             com_install();

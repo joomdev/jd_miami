@@ -1,6 +1,6 @@
 /**
  * @package         Tabs
- * @version         7.1.8
+ * @version         7.4.0
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -106,7 +106,10 @@ var RegularLabsTabs = null;
 			this.updateActiveClassesOnTabLinks($el);
 
 			if (!slideshow) {
-				$el.focus();
+				// For some reason Chrome 67 throws an error when not using a small delay
+				setTimeout(function() {
+					$el[0].focus();
+				}, 10);
 			}
 		},
 
@@ -114,7 +117,7 @@ var RegularLabsTabs = null;
 
 			var self = this;
 
-			// If tab is already open, do scroll immediatly
+			// If tab is already open, do scroll immediately
 			if ($el.parent().hasClass('in') || $el.parent().hasClass('active')) {
 				self.scrollOnLoad();
 				return;
@@ -559,8 +562,13 @@ var RegularLabsTabs = null;
 
 
 		initIframeReloading: function() {
+			// Mark iframes in active tabs as reloaded
 			$('.tab-pane.active iframe').each(function() {
 				$(this).attr('reloaded', true);
+			});
+			// Undo marking of iframes as reloaded in non-active tabs
+			$('.tab-pane:not(.active) iframe').each(function() {
+				$(this).attr('reloaded', false);
 			});
 
 			$('a.rl_tabs-toggle').on('show.bs.tab', function(e) {
@@ -572,10 +580,12 @@ var RegularLabsTabs = null;
 				var $el = $('#' + $(this).attr('data-id'));
 
 				$el.find('iframe').each(function() {
-					if (this.src && !$(this).attr('reloaded')) {
-						this.src += '';
-						$(this).attr('reloaded', true);
+					if (!this.src || $(this).attr('reloaded') == 'true') {
+						return;
 					}
+
+					this.src += '';
+					$(this).attr('reloaded', true);
 				});
 			});
 

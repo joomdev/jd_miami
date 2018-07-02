@@ -1,12 +1,12 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Template.Crypsis
- * @subpackage  Layout.Widget
+ * @package         Kunena.Template.Crypsis
+ * @subpackage      Layout.Widget
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 ?>
@@ -14,15 +14,21 @@ defined('_JEXEC') or die;
 <div class="kfrontend">
 	<div class="btn-toolbar pull-right">
 		<div class="btn-group">
-			<div class="btn btn-default btn-sm <?php echo KunenaIcons::collapse();?>" data-toggle="collapse" data-target="#kstats"></div>
+			<div class="btn btn-default btn-sm" data-toggle="collapse"
+			     data-target="#kstats"><?php echo KunenaIcons::collapse(); ?></div>
 		</div>
 	</div>
 	<h2 class="btn-link">
-		<?php if ($this->statisticsUrl) : ?>
+		<?php if ($this->statisticsUrl)
+			:
+			?>
 			<a href="<?php echo $this->statisticsUrl; ?>">
 				<?php echo JText::_('COM_KUNENA_STATISTICS'); ?>
 			</a>
-		<?php else : ?>
+		<?php else
+
+			:
+			?>
 			<?php echo JText::_('COM_KUNENA_STATISTICS'); ?>
 		<?php endif; ?>
 	</h2>

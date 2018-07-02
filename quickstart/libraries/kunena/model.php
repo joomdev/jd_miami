@@ -1,81 +1,95 @@
 <?php
 /**
  * Kunena Component
- * @package    Kunena.Framework
+ * @package        Kunena.Framework
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Model for Kunena
  *
  * @since  2.0
  */
-class KunenaModel extends JModelLegacy
+class KunenaModel extends \Joomla\CMS\MVC\Model\BaseDatabaseModel
 {
 	/**
-	 * @var JSite|JAdministrator
+	 * @var  string JSite|JAdministrator
+	 * @since Kunena
 	 */
 	public $app = null;
 
 	/**
 	 * @var KunenaUser
+	 * @since Kunena
 	 */
 	public $me = null;
 
 	/**
 	 * @var KunenaConfig
+	 * @since Kunena
 	 */
 	public $config = null;
 
 	/**
-	 * @var JRegistry
+	 * @var string \Joomla\Registry\Registry
+	 * @since Kunena
 	 */
 	public $params = null;
 
 	/**
-	 * @var JInput
+	 * @var \Joomla\Input\Input
+	 * @since Kunena
 	 */
 	protected $input = null;
 
 	/**
-	 * @var JFilterInput
+	 * @var \Joomla\CMS\Filter\InputFilter
+	 * @since Kunena
 	 */
 	protected $filter = null;
 
 	/**
 	 * @var JObject
+	 * @since Kunena
 	 */
 	protected $state = null;
 
 	/**
-	 * @var bool
+	 * @var boolean
+	 * @since Kunena
 	 */
 	protected $embedded = false;
 
 	/**
-	 * @param   array  $config
-	 * @param   JInput $input
+	 * @param   array               $config config
+	 * @param   \Joomla\Input\Input $input  input
 	 *
 	 * @throws Exception
+	 * @since Kunena
 	 */
-	public function __construct($config = array(), JInput $input = null)
+	public function __construct($config = array(), Joomla\Input\Input $input = null)
 	{
 		$this->option = 'com_kunena';
 		parent::__construct($config);
 
-		$this->app = JFactory::getApplication();
-		$this->me = KunenaUserHelper::getMyself();
+		$this->app    = Factory::getApplication();
+		$this->me     = KunenaUserHelper::getMyself();
 		$this->config = KunenaFactory::getConfig();
-		$this->input = $input ? $input : $this->app->input;
+		$this->input  = $input ? $input : $this->app->input;
 	}
 
 	/**
-	 * @param   array $params
-	 * @param   bool  $embedded
+	 * @param   array $params   params
+	 * @param   bool  $embedded embedded
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public function initialize($params = array(), $embedded = true)
 	{
@@ -83,21 +97,22 @@ class KunenaModel extends JModelLegacy
 		{
 			$this->embedded = true;
 			$this->setState('embedded', true);
-			$this->filter = JFilterInput::getInstance();
+			$this->filter = \Joomla\CMS\Filter\InputFilter::getInstance();
 		}
 
-		if ($params instanceof JRegistry)
+		if ($params instanceof \Joomla\Registry\Registry)
 		{
 			$this->params = $params;
 		}
 		else
 		{
-			$this->params = new JRegistry($params);
+			$this->params = new \Joomla\Registry\Registry($params);
 		}
 	}
 
 	/**
 	 * @return integer
+	 * @since Kunena
 	 */
 	public function getItemid()
 	{
@@ -116,7 +131,9 @@ class KunenaModel extends JModelLegacy
 	 * Escapes a value for output in a view script.
 	 *
 	 * @param   mixed $var The output to escape.
+	 *
 	 * @return mixed The escaped value.
+	 * @since Kunena
 	 */
 	public function escape($var)
 	{
@@ -124,7 +141,8 @@ class KunenaModel extends JModelLegacy
 	}
 
 	/**
-	 * @return JRegistry
+	 * @return \Joomla\Registry\Registry
+	 * @since Kunena
 	 */
 	protected function getParameters()
 	{
@@ -137,12 +155,13 @@ class KunenaModel extends JModelLegacy
 	}
 
 	/**
-	 * @param        $key
-	 * @param        $request
-	 * @param   null   $default
-	 * @param   string $type
+	 * @param   string $key     key
+	 * @param   string $request request
+	 * @param   null   $default default
+	 * @param   string $type    type
 	 *
 	 * @return mixed|object
+	 * @since Kunena
 	 */
 	protected function getUserStateFromRequest($key, $request, $default = null, $type = 'none')
 	{
@@ -157,12 +176,13 @@ class KunenaModel extends JModelLegacy
 	}
 
 	/**
-	 * @param        $name
-	 * @param   null   $default
-	 * @param   string $hash
-	 * @param   string $type
+	 * @param   string $name    name
+	 * @param   null   $default default
+	 * @param   string $hash    hash
+	 * @param   string $type    type
 	 *
 	 * @return mixed
+	 * @since Kunena
 	 */
 	protected function getVar($name, $default = null, $hash = 'request', $type = 'none')
 	{
@@ -183,11 +203,12 @@ class KunenaModel extends JModelLegacy
 	}
 
 	/**
-	 * @param        $name
-	 * @param   bool   $default
-	 * @param   string $hash
+	 * @param   string $name    name
+	 * @param   bool   $default default
+	 * @param   string $hash    hash
 	 *
 	 * @return mixed
+	 * @since Kunena
 	 */
 	protected function getBool($name, $default = false, $hash = 'request')
 	{
@@ -195,11 +216,12 @@ class KunenaModel extends JModelLegacy
 	}
 
 	/**
-	 * @param        $name
-	 * @param   string $default
-	 * @param   string $hash
+	 * @param   string $name    name
+	 * @param   string $default default
+	 * @param   string $hash    hash
 	 *
 	 * @return mixed
+	 * @since Kunena
 	 */
 	protected function getCmd($name, $default = '', $hash = 'request')
 	{
@@ -207,11 +229,12 @@ class KunenaModel extends JModelLegacy
 	}
 
 	/**
-	 * @param        $name
-	 * @param   float  $default
-	 * @param   string $hash
+	 * @param   string $name    name
+	 * @param   float  $default default
+	 * @param   string $hash    hash
 	 *
 	 * @return mixed
+	 * @since Kunena
 	 */
 	protected function getFloat($name, $default = 0.0, $hash = 'request')
 	{
@@ -219,11 +242,12 @@ class KunenaModel extends JModelLegacy
 	}
 
 	/**
-	 * @param        $name
-	 * @param   int    $default
-	 * @param   string $hash
+	 * @param   string $name    name
+	 * @param   int    $default default
+	 * @param   string $hash    hash
 	 *
 	 * @return mixed
+	 * @since Kunena
 	 */
 	protected function getInt($name, $default = 0, $hash = 'request')
 	{
@@ -231,11 +255,12 @@ class KunenaModel extends JModelLegacy
 	}
 
 	/**
-	 * @param        $name
-	 * @param   string $default
-	 * @param   string $hash
+	 * @param   string $name    name
+	 * @param   string $default default
+	 * @param   string $hash    hash
 	 *
 	 * @return mixed
+	 * @since Kunena
 	 */
 	protected function getString($name, $default = '', $hash = 'request')
 	{
@@ -243,11 +268,12 @@ class KunenaModel extends JModelLegacy
 	}
 
 	/**
-	 * @param        $name
-	 * @param   string $default
-	 * @param   string $hash
+	 * @param   string $name    name
+	 * @param   string $default default
+	 * @param   string $hash    hash
 	 *
 	 * @return mixed
+	 * @since Kunena
 	 */
 	protected function getWord($name, $default = '', $hash = 'request')
 	{

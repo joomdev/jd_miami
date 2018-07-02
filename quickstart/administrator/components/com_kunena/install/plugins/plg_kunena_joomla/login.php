@@ -2,21 +2,33 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Joomla
+ * @package         Kunena.Plugins
+ * @subpackage      Joomla
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
+/**
+ * Class KunenaLoginJoomla
+ * @since Kunena
+ */
 class KunenaLoginJoomla
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $params = null;
 
 	/**
 	 * @param $params
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($params)
 	{
@@ -33,6 +45,8 @@ class KunenaLoginJoomla
 	 * @param   string  $secretkey  The secretkey given by user when TFA is enabled
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function loginUser($username, $password, $rememberme, $secretkey = null)
 	{
@@ -44,7 +58,7 @@ class KunenaLoginJoomla
 		}
 
 		$options = array('remember' => $rememberme);
-		$error   = JFactory::getApplication()->login($credentials, $options);
+		$error   = Factory::getApplication()->login($credentials, $options);
 
 		return is_bool($error) ? '' : $error;
 	}
@@ -52,24 +66,27 @@ class KunenaLoginJoomla
 	/**
 	 * @return boolean|string
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function logoutUser()
 	{
-		$error = JFactory::getApplication()->logout();
+		$error = Factory::getApplication()->logout();
 
 		return is_bool($error) ? '' : $error;
 	}
 
 	/**
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function getRememberMe()
 	{
-		return (bool) JPluginHelper::isEnabled('system', 'remember');
+		return (bool) \Joomla\CMS\Plugin\PluginHelper::isEnabled('system', 'remember');
 	}
 
 	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getLoginURL()
 	{
@@ -80,6 +97,7 @@ class KunenaLoginJoomla
 
 	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getLogoutURL()
 	{
@@ -90,10 +108,12 @@ class KunenaLoginJoomla
 
 	/**
 	 * @return null|string
+	 * @since Kunena
 	 */
 	public function getRegistrationURL()
 	{
-		$usersConfig = JComponentHelper::getParams('com_users');
+		$usersConfig = \Joomla\CMS\Component\ComponentHelper::getParams('com_users');
+
 		if ($usersConfig->get('allowUserRegistration'))
 		{
 			$Itemid = UsersHelperRoute::getRegistrationRoute();
@@ -101,11 +121,12 @@ class KunenaLoginJoomla
 			return JRoute::_('index.php?option=com_users&view=registration' . ($Itemid ? "&Itemid={$Itemid}" : ''));
 		}
 
-		return null;
+		return;
 	}
 
 	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getResetURL()
 	{
@@ -116,6 +137,7 @@ class KunenaLoginJoomla
 
 	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getRemindURL()
 	{

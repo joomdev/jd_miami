@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Modals
- * @version         9.7.1
+ * @version         9.12.0
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2017 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2018 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -130,10 +130,10 @@ class Replace
 		foreach ($matches as $match)
 		{
 			// get the link attributes
-			$attributes = Link::getLinkAttributeList($match['0']);
+			$attributes = Link::getAttributeList($match[0]);
 
 			// ignore if the link has no href or is an anchor or has a target
-			if (empty($attributes->href) || $attributes->href['0'] == '#' || isset($attributes->target))
+			if (empty($attributes->href) || $attributes->href[0] == '#' || isset($attributes->target))
 			{
 				continue;
 			}
@@ -167,7 +167,7 @@ class Replace
 		{
 			$content = trim($match['image_pre'] . $match['text'] . $match['image_post']);
 
-			list($link, $extra) = Link::getLink($match['data'], $match['link_start'], $content);
+			list($link, $extra) = Link::get($match['data'], $match['link_start'], $content);
 			$link .= '</a>';
 
 			if ($params->place_comments)
@@ -175,7 +175,7 @@ class Replace
 				$link = Protect::wrapInCommentTags($link);
 			}
 
-			self::replaceOnce($match['0'], $link, $string, $extra);
+			self::replaceOnce($match[0], $link, $string, $extra);
 		}
 	}
 
@@ -210,7 +210,7 @@ class Replace
 				['p']
 			);
 
-			list($link, $extra) = Link::getLink($match['data'], '', trim($tags['pre'] . $match['text'] . $tags['post']));
+			list($link, $extra) = Link::get($match['data'], '', trim($tags['pre'] . $match['text'] . $tags['post']));
 
 			$link = $link . '</a>';
 
@@ -223,7 +223,7 @@ class Replace
 				. $link
 				. $tags['end_pre'] . $match['end_post'];
 
-			self::replaceOnce($match['0'], $html, $string, $extra);
+			self::replaceOnce($match[0], $html, $string, $extra);
 		}
 	}
 
@@ -259,7 +259,7 @@ class Replace
 	private static function replaceLink(&$string, $match)
 	{
 		// get the link attributes
-		$attributes = Link::getLinkAttributeList($match['0']);
+		$attributes = Link::getAttributeList($match[0]);
 
 		if ( ! Pass::passLinkChecks($attributes))
 		{
@@ -295,16 +295,63 @@ class Replace
 		$params = Params::get();
 
 		$attributes->class = ! empty($attributes->class) ? $attributes->class . ' ' . $params->class : $params->class;
-		$link              = Link::buildLink($attributes, $data);
+		$link              = Link::build($attributes, $data);
 
 		if ($params->place_comments)
 		{
 			$link = Protect::wrapInCommentTags($link);
 		}
 
-		self::replaceOnce($match['0'], $link, $string);
+		self::replaceOnce($match[0], $link, $string);
 	}
 
+
+	private static function setImageAttributes(&$data, &$image_attributes, $image)
+	{
+		$params = Params::get();
+
+		$image_texts = Image::getImageTexts((array) $image_attributes, $image);
+
+		if ( ! $image_texts->title && $params->auto_titles)
+		{
+			$image_texts->title = File::getTitle($image->image, $params->title_case);
+		}
+		if ( ! $image_texts->thumbnail_title)
+		{
+			$image_texts->thumbnail_title = $image_texts->title;
+		}
+
+		if (isset($image_attributes->{'data-title'}))
+		{
+			$data['title'] = $image_attributes->{'data-title'};
+		}
+
+		if (isset($image_attributes->{'data-description'}))
+		{
+			$data['description'] = $image_attributes->{'data-description'};
+		}
+
+		if ($params->images_use_title_attribute && isset($image_attributes->title))
+		{
+			$key        = $params->images_use_title_attribute == 'description' ? 'description' : 'title';
+			$data[$key] = isset($data[$key]) ? $data[$key] : $image_attributes->title;
+		}
+
+		if ($params->images_use_alt_attribute && isset($image_attributes->alt))
+		{
+			$key        = $params->images_use_alt_attribute == 'description' ? 'description' : 'title';
+			$data[$key] = isset($data[$key]) ? $data[$key] : $image_attributes->alt;
+		}
+
+		$data['title']       = isset($data['title']) ? $data['title'] : $image_texts->title;
+		$data['alt']         = isset($data['title']) ? $data['title'] : $image_texts->alt;
+		$data['description'] = isset($data['description']) ? $data['description'] : $image_texts->description;
+
+		$image_attributes->title = $image_texts->thumbnail_title;
+		$image_attributes->alt   = $image_texts->thumbnail_alt;
+	}
+
+	/* <<< [PRO] <<< */
 
 	private static function replaceOnce($search, $replace, &$string, $extra = '')
 	{
@@ -319,7 +366,7 @@ class Replace
 
 		// Place the extra div stuff behind the first ending div/p tag
 		$string = RL_String::replaceOnce(
-			$match['0'],
+			$match[0],
 			$replace . $match['post'] . $extra,
 			$string
 		);

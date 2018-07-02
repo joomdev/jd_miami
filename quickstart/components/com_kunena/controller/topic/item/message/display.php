@@ -1,14 +1,17 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Topic
+ * @package         Kunena.Site
+ * @subpackage      Controller.Topic
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * Class ComponentKunenaControllerTopicItemMessageDisplay
@@ -17,20 +20,52 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerTopicItemMessageDisplay extends KunenaControllerDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'Topic/Item/Message';
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $me;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $message;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $topic;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $category;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $profile;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $reportMessageLink;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $ipLink;
 
 	/**
@@ -38,7 +73,9 @@ class ComponentKunenaControllerTopicItemMessageDisplay extends KunenaControllerD
 	 *
 	 * @return void
 	 *
-	 * @throws KunenaExceptionAuthorise
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function before()
 	{
@@ -46,49 +83,48 @@ class ComponentKunenaControllerTopicItemMessageDisplay extends KunenaControllerD
 
 		$mesid = $this->input->getInt('mesid', 0);
 
-		$this->me = KunenaUserHelper::getMyself();
+		$this->me       = KunenaUserHelper::getMyself();
 		$this->location = $this->input->getInt('location', 0);
-		$this->detail = $this->input->get('detail', false);
-		$this->message = KunenaForumMessageHelper::get($mesid);
+		$this->detail   = $this->input->get('detail', false);
+		$this->message  = KunenaForumMessageHelper::get($mesid);
 		$this->message->tryAuthorise();
 
-		$this->topic = $this->message->getTopic();
-		$this->category = $this->topic->getCategory();
-		$this->profile = $this->message->getAuthor();
+		$this->topic     = $this->message->getTopic();
+		$this->category  = $this->topic->getCategory();
+		$this->profile   = $this->message->getAuthor();
 		$this->ktemplate = KunenaFactory::getTemplate();
 
 		if ($this->topic->unread)
 		{
-			$doc = JFactory::getDocument();
+			$doc = Factory::getDocument();
 			$doc->setMetaData('robots', 'noindex, follow');
 		}
 
 		$this->captchaEnabled = false;
 
-		if ($this->message->isAuthorised('reply') && $this->me->canDoCaptcha())
+		if ($this->message->isAuthorised('reply') && $this->me->canDoCaptcha() && KunenaConfig::getInstance()->quickreply)
 		{
-			if (JPluginHelper::isEnabled('captcha'))
+			if (\Joomla\CMS\Plugin\PluginHelper::isEnabled('captcha'))
 			{
-				$plugin = JPluginHelper::getPlugin('captcha');
-				$params = new JRegistry($plugin[0]->params);
+				$plugin = \Joomla\CMS\Plugin\PluginHelper::getPlugin('captcha');
+				$params = new \Joomla\Registry\Registry($plugin[0]->params);
 
 				$captcha_pubkey = $params->get('public_key');
 				$catcha_privkey = $params->get('private_key');
 
 				if (!empty($captcha_pubkey) && !empty($catcha_privkey))
 				{
-					JPluginHelper::importPlugin('captcha');
-					$dispatcher = JDispatcher::getInstance();
-					$result = $dispatcher->trigger('onInit', "dynamic_recaptcha_{$this->message->id}");
+					\Joomla\CMS\Plugin\PluginHelper::importPlugin('captcha');
+					$result               = Factory::getApplication()->triggerEvent('onInit', array("dynamic_recaptcha_{$this->message->id}"));
 					$this->captchaEnabled = $result[0];
 				}
 			}
 		}
 
 		// Thank you info and buttons.
-		$this->thankyou = array();
-		$this->total_thankyou = 0;
-		$this->more_thankyou = 0;
+		$this->thankyou        = array();
+		$this->total_thankyou  = 0;
+		$this->more_thankyou   = 0;
 		$this->thankyou_delete = array();
 
 		if (isset($this->message->thankyou))
@@ -97,23 +133,15 @@ class ComponentKunenaControllerTopicItemMessageDisplay extends KunenaControllerD
 			{
 				$task = "index.php?option=com_kunena&view=topic&task=%s&catid={$this->category->id}"
 					. "&id={$this->topic->id}&mesid={$this->message->id}&"
-					. JSession::getFormToken() . '=1';
+					. \Joomla\CMS\Session\Session::getFormToken() . '=1';
 
-				// Ror normal users, show only limited number of thankyou (config->thankyou_max).
-				if (!$this->me->isAdmin() && !$this->me->isModerator())
+				if (count($this->message->thankyou) > $this->config->thankyou_max)
 				{
-					if (count($this->message->thankyou) > $this->config->thankyou_max)
-					{
-						$this->more_thankyou = count($this->message->thankyou) - $this->config->thankyou_max;
-					}
+					$this->more_thankyou = count($this->message->thankyou) - $this->config->thankyou_max;
+				}
 
-					$this->total_thankyou = count($this->message->thankyou);
-					$thankyous = array_slice($this->message->thankyou, 0, $this->config->thankyou_max, true);
-				}
-				else
-				{
-					$thankyous = $this->message->thankyou;
-				}
+				$this->total_thankyou = count($this->message->thankyou);
+				$thankyous            = array_slice($this->message->thankyou, 0, $this->config->thankyou_max, true);
 
 				$userids_thankyous = array();
 
@@ -126,9 +154,9 @@ class ComponentKunenaControllerTopicItemMessageDisplay extends KunenaControllerD
 
 				foreach ($loaded_users as $userid => $user)
 				{
-					if ($this->message->authorise('unthankyou') && $this->me->isModerator($this->message->getCategory()))
+					if ($this->message->isAuthorised('unthankyou') && $this->me->isModerator($this->message->getCategory()))
 					{
-						$this->thankyou_delete[$userid]  = KunenaRoute::_(sprintf($task, "unthankyou&userid={$userid}"));
+						$this->thankyou_delete[$userid] = KunenaRoute::_(sprintf($task, "unthankyou&userid={$userid}"));
 					}
 
 					$this->thankyou[$userid] = $loaded_users[$userid]->getLink();
@@ -140,7 +168,7 @@ class ComponentKunenaControllerTopicItemMessageDisplay extends KunenaControllerD
 		{
 			if ($this->config->user_report && $this->me->userid == $this->message->userid && !$this->me->isModerator())
 			{
-				$this->reportMessageLink = JHtml::_('kunenaforum.link',
+				$this->reportMessageLink = HTMLHelper::_('kunenaforum.link',
 					'index.php?option=com_kunena&view=topic&layout=report&catid='
 					. intval($this->category->id) . '&id=' . intval($this->message->thread)
 					. '&mesid=' . intval($this->message->id),
@@ -152,11 +180,12 @@ class ComponentKunenaControllerTopicItemMessageDisplay extends KunenaControllerD
 
 		// Show admins the IP address of the user.
 		if ($this->category->isAuthorised('admin')
-			|| ($this->category->isAuthorised('moderate') && !$this->config->hide_ip))
+			|| ($this->category->isAuthorised('moderate') && !$this->config->hide_ip)
+		)
 		{
 			if (!empty($this->message->ip))
 			{
-				$this->ipLink = '<a href="https://whois.domaintools.com/' . $this->message->ip
+				$this->ipLink = '<a href="https://www.geoiptool.com/en/?ip=' . $this->message->ip
 					. '" target="_blank" rel="nofollow noopener noreferrer"> IP: ' . $this->message->ip . '</a>';
 			}
 			else

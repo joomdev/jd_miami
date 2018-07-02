@@ -2,24 +2,36 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Community
+ * @package          Kunena.Plugins
+ * @subpackage       Community
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @copyright   (C)  2008 - 2018 Kunena Team. All rights reserved.
  * @copyright   (C)  2013 - 2014 iJoomla, Inc. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @license          https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link             https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
+/**
+ * Class KunenaProfileCommunity
+ * @since Kunena
+ */
 class KunenaProfileCommunity extends KunenaProfile
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $params = null;
 
 	/**
 	 * KunenaProfileCommunity constructor.
 	 *
 	 * @param $params
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($params)
 	{
@@ -27,15 +39,17 @@ class KunenaProfileCommunity extends KunenaProfile
 	}
 
 	/**
-	 * @param string $action
-	 * @param bool   $xhtml
+	 * @param   string $action action
+	 * @param   bool   $xhtml  xhtml
 	 *
-	 * @return bool|string
+	 * @return boolean|string
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getUserListURL($action = '', $xhtml = true)
 	{
 		$config = KunenaFactory::getConfig();
-		$my     = JFactory::getUser();
+		$my     = Factory::getUser();
 
 		if ($config->userlist_allowed == 0 && $my->id == 0)
 		{
@@ -46,31 +60,15 @@ class KunenaProfileCommunity extends KunenaProfile
 	}
 
 	/**
-	 * @param        $userid
-	 * @param string $task
-	 * @param bool   $xhtml
-	 *
-	 * @return bool|string
-	 */
-	public function getProfileURL($userid, $task = '', $xhtml = true)
-	{
-		// Make sure that user profile exist.
-		if (!$userid || CFactory::getUser($userid) === null)
-		{
-			return false;
-		}
-
-		return CRoute::_('index.php?option=com_community&view=profile&userid=' . (int) $userid, $xhtml);
-	}
-
-	/**
-	 * @param int $limit
+	 * @param   int $limit limit
 	 *
 	 * @return array
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function _getTopHits($limit = 0)
 	{
-		$db    = JFactory::getDBO();
+		$db    = Factory::getDBO();
 		$query = "SELECT cu.userid AS id, cu.view AS count
 			FROM #__community_users AS cu
 			INNER JOIN #__users AS u ON u.id=cu.userid
@@ -84,7 +82,7 @@ class KunenaProfileCommunity extends KunenaProfile
 		}
 		catch (RuntimeException $e)
 		{
-			KunenaError::displayDatabaseError();
+			KunenaError::displayDatabaseError($e);
 		}
 
 		return $top;
@@ -93,19 +91,41 @@ class KunenaProfileCommunity extends KunenaProfile
 	/**
 	 * @param $view
 	 * @param $params
+	 *
+	 * @since Kunena
 	 */
 	public function showProfile($view, &$params)
 	{
 	}
 
 	/**
-	 * @param      $userid
-	 * @param bool $xhtml
+	 * @param        $userid
+	 * @param   bool $xhtml xhtml
 	 *
-	 * @return bool|string
+	 * @return boolean|string
+	 * @since Kunena
 	 */
 	public function getEditProfileURL($userid, $xhtml = true)
 	{
 		return $this->getProfileURL($userid, 'edit', $xhtml);
+	}
+
+	/**
+	 * @param          $userid
+	 * @param   string $task  task
+	 * @param   bool   $xhtml xhtml
+	 *
+	 * @return boolean|string
+	 * @since Kunena
+	 */
+	public function getProfileURL($userid, $task = '', $xhtml = true)
+	{
+		// Make sure that user profile exist.
+		if (!$userid || CFactory::getUser($userid) === null)
+		{
+			return false;
+		}
+
+		return CRoute::_('index.php?option=com_community&view=profile&userid=' . (int) $userid, $xhtml);
 	}
 }

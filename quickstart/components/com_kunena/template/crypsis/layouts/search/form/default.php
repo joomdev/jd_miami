@@ -1,22 +1,25 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Template.Crypsis
- * @subpackage  Layout.Search
+ * @package         Kunena.Template.Crypsis
+ * @subpackage      Layout.Search
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 
 // FIXME: change into JForm.
 
 // TODO: Add generic form version
 
-JHtml::_('behavior.tooltip');
-JHtml::_('behavior.multiselect');
-JHtml::_('dropdown.init');
+HTMLHelper::_('behavior.tooltip');
+HTMLHelper::_('behavior.multiselect');
+HTMLHelper::_('dropdown.init');
 
 // Load caret.js always before atwho.js script and use it for autocomplete, emojiis...
 $this->addScript('assets/js/jquery.caret.js');
@@ -29,11 +32,14 @@ $this->addScript('assets/js/search.js');
 ?>
 
 <form action="<?php echo KunenaRoute::_('index.php?option=com_kunena&view=search'); ?>" method="post">
-	<input type="hidden" name="task" value="results" />
-	<?php if ($this->me->exists()) : ?>
-		<input type="hidden" id="kurl_users" name="kurl_users" value="<?php echo KunenaRoute::_('index.php?option=com_kunena&view=user&layout=listmention&format=raw') ?>" />
+	<input type="hidden" name="task" value="results"/>
+	<?php if ($this->me->exists())
+		:
+		?>
+		<input type="hidden" id="kurl_users" name="kurl_users"
+		       value="<?php echo KunenaRoute::_('index.php?option=com_kunena&view=user&layout=listmention&format=raw') ?>"/>
 	<?php endif; ?>
-	<?php echo JHtml::_('form.token'); ?>
+	<?php echo HTMLHelper::_('form.token'); ?>
 
 	<div class="btn-toolbar pull-right">
 		<div class="btn-group">
@@ -45,7 +51,7 @@ $this->addScript('assets/js/search.js');
 	</h1>
 
 	<div class="collapse in" id="search">
-	<div class="well">
+		<div class="well">
 			<div class="row-fluid">
 				<fieldset class="span6">
 					<legend>
@@ -54,28 +60,34 @@ $this->addScript('assets/js/search.js');
 					<label>
 						<?php echo JText::_('COM_KUNENA_SEARCH_KEYWORDS'); ?>:
 						<input type="text" name="query"
-						       value="<?php echo $this->escape($this->state->get('searchwords')); ?>" />
+						       value="<?php echo $this->escape($this->state->get('searchwords')); ?>"/>
 					</label>
 					<?php $this->displayModeList('mode'); ?>
 				</fieldset>
 
-				<?php if (!$this->config->pubprofile && !JFactory::getUser()->guest || $this->config->pubprofile) : ?>
-				<fieldset class="span6">
-					<legend>
-						<?php echo JText::_('COM_KUNENA_SEARCH_SEARCHBY_USER'); ?>
-					</legend>
-					<label>
-						<?php echo JText::_('COM_KUNENA_SEARCH_UNAME'); ?>:
-						<input id="kusersearch" data-provide="typeahead" type="text" name="searchuser" autocomplete="off"
-						       value="<?php echo $this->escape($this->state->get('query.searchuser')); ?>" />
-					</label>
+				<?php if (!$this->config->pubprofile && !Factory::getUser()->guest || $this->config->pubprofile)
+					:
+					?>
+					<fieldset class="span6">
+						<legend>
+							<?php echo JText::_('COM_KUNENA_SEARCH_SEARCHBY_USER'); ?>
+						</legend>
+						<label>
+							<?php echo JText::_('COM_KUNENA_SEARCH_UNAME'); ?>:
+							<input id="kusersearch" data-provide="typeahead" type="text" name="searchuser"
+							       autocomplete="off"
+							       value="<?php echo $this->escape($this->state->get('query.searchuser')); ?>"/>
+						</label>
 
-					<label>
-						<?php echo JText::_('COM_KUNENA_SEARCH_EXACT'); ?>:
-						<input type="checkbox" name="exactname" value="1"
-							<?php if ($this->state->get('query.exactname')) { echo ' checked="checked" '; } ?> />
-					</label>
-				</fieldset>
+						<label>
+							<?php echo JText::_('COM_KUNENA_SEARCH_EXACT'); ?>:
+							<input type="checkbox" name="exactname" value="1"
+								<?php if ($this->state->get('query.exactname'))
+								{
+									echo ' checked="checked" ';
+								} ?> />
+						</label>
+					</fieldset>
 				<?php endif; ?>
 			</div>
 		</div>
@@ -88,7 +100,7 @@ $this->addScript('assets/js/search.js');
 		<div class="collapse in" id="search-options">
 			<div class="well">
 				<div class="row-fluid">
-					<fieldset class="span6">
+					<fieldset class="span4">
 						<legend>
 							<?php echo JText::_('COM_KUNENA_SEARCH_FIND_POSTS'); ?>
 						</legend>
@@ -96,7 +108,7 @@ $this->addScript('assets/js/search.js');
 						<?php $this->displayBeforeAfterList('beforeafter'); ?>
 					</fieldset>
 
-					<fieldset class="span6">
+					<fieldset class="span4">
 						<legend>
 							<?php echo JText::_('COM_KUNENA_SEARCH_SORTBY'); ?>
 						</legend>
@@ -104,14 +116,15 @@ $this->addScript('assets/js/search.js');
 						<?php $this->displayOrderList('order'); ?>
 					</fieldset>
 
-					<fieldset class="span6">
+					<fieldset class="span4">
 						<legend>
 							<?php echo JText::_('COM_KUNENA_SEARCH_AT_A_SPECIFIC_DATE'); ?>
 						</legend>
 						<div id="searchatdate">
 							<div class="input-append date">
-								<input type="text" name="searchatdate" data-date-format="mm/dd/yyyy" value="">
-								<span class="input-group-addon"><?php echo KunenaIcons::calendar();?></span>
+								<input type="text" name="searchatdate" data-date-format="mm/dd/yyyy"
+								       value="">
+								<span class="input-group-addon"><?php echo KunenaIcons::calendar(); ?></span>
 							</div>
 						</div>
 					</fieldset>
@@ -124,31 +137,42 @@ $this->addScript('assets/js/search.js');
 								<?php echo JText::_('COM_KUNENA_SEARCH_START'); ?>
 							</legend>
 							<input type="text" name="limitstart"
-							       value="<?php echo $this->escape($this->state->get('list.start')); ?>" size="5" />
+							       value="<?php echo $this->escape($this->state->get('list.start')); ?>" size="5"/>
 							<?php $this->displayLimitlist('limit'); ?>
 						</fieldset>
 
-						<?php if ($this->isModerator) : ?>
-						<fieldset>
-							<legend>
-								<?php echo JText::_('COM_KUNENA_SEARCH_SHOW'); ?>
-							</legend>
-							<label class="radio">
-								<input type="radio" name="show" value="0"
-									<?php if ($this->state->get('query.show') == 0) { echo 'checked="checked"'; } ?> />
-								<?php echo JText::_('COM_KUNENA_SEARCH_SHOW_NORMAL'); ?>
-							</label>
-							<label class="radio">
-								<input type="radio" name="show" value="1"
-									<?php if ($this->state->get('query.show') == 1) { echo 'checked="checked"'; } ?> />
-								<?php echo JText::_('COM_KUNENA_SEARCH_SHOW_UNAPPROVED'); ?>
-							</label>
-							<label class="radio">
-								<input type="radio" name="show" value="2"
-									<?php if ($this->state->get('query.show') == 2) { echo 'checked="checked"'; } ?> />
-								<?php echo JText::_('COM_KUNENA_SEARCH_SHOW_TRASHED'); ?>
-							</label>
-						</fieldset>
+						<?php if ($this->isModerator)
+							:
+							?>
+							<fieldset>
+								<legend>
+									<?php echo JText::_('COM_KUNENA_SEARCH_SHOW'); ?>
+								</legend>
+								<label class="radio">
+									<input type="radio" name="show" value="0"
+										<?php if ($this->state->get('query.show') == 0)
+										{
+											echo 'checked="checked"';
+										} ?> />
+									<?php echo JText::_('COM_KUNENA_SEARCH_SHOW_NORMAL'); ?>
+								</label>
+								<label class="radio">
+									<input type="radio" name="show" value="1"
+										<?php if ($this->state->get('query.show') == 1)
+										{
+											echo 'checked="checked"';
+										} ?> />
+									<?php echo JText::_('COM_KUNENA_SEARCH_SHOW_UNAPPROVED'); ?>
+								</label>
+								<label class="radio">
+									<input type="radio" name="show" value="2"
+										<?php if ($this->state->get('query.show') == 2)
+										{
+											echo 'checked="checked"';
+										} ?> />
+									<?php echo JText::_('COM_KUNENA_SEARCH_SHOW_TRASHED'); ?>
+								</label>
+							</fieldset>
 						<?php endif; ?>
 
 					</div>
@@ -160,7 +184,10 @@ $this->addScript('assets/js/search.js');
 						<?php $this->displayCategoryList('categorylist', 'size="10" multiple="multiple"'); ?>
 						<label>
 							<input type="checkbox" name="childforums" value="1"
-								<?php if ($this->state->get('query.childforums')) { echo 'checked="checked"'; } ?> />
+								<?php if ($this->state->get('query.childforums'))
+								{
+									echo 'checked="checked"';
+								} ?> />
 							<?php echo JText::_('COM_KUNENA_SEARCH_SEARCHIN_CHILDREN'); ?>
 						</label>
 					</fieldset>
@@ -170,10 +197,10 @@ $this->addScript('assets/js/search.js');
 
 		<div class="center">
 			<button type="submit" class="btn btn-primary">
-				<?php echo KunenaIcons::search();?><?php echo(' ' . JText::_('COM_KUNENA_SEARCH_SEND') . ' '); ?>
+				<?php echo KunenaIcons::search() . ' ' . JText::_('COM_KUNENA_SEARCH_SEND'); ?>
 			</button>
 			<button type="reset" class="btn" onclick="window.history.back();">
-				<?php echo KunenaIcons::cancel();?><?php echo(' ' . JText::_('COM_KUNENA_CANCEL') . ' '); ?>
+				<?php echo KunenaIcons::cancel() . ' ' . JText::_('COM_KUNENA_CANCEL'); ?>
 			</button>
 		</div>
 	</div>

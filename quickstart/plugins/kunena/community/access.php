@@ -2,29 +2,54 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Community
+ * @package         Kunena.Plugins
+ * @subpackage      Community
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Factory;
+
+/**
+ * Class KunenaAccessCommunity
+ * @since Kunena
+ */
 class KunenaAccessCommunity
 {
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $categories = false;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $groups = false;
 
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	protected $tree = array();
 
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $params = null;
 
 	/**
 	 * KunenaAccessCommunity constructor.
 	 *
 	 * @param $params
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($params)
 	{
@@ -38,6 +63,7 @@ class KunenaAccessCommunity
 	 * Examples: joomla.level, mycomponent.groups, mycomponent.vipusers
 	 *
 	 * @return array    Supported access types.
+	 * @since Kunena
 	 */
 	public function getAccessTypes()
 	{
@@ -52,7 +78,9 @@ class KunenaAccessCommunity
 	 * @param   string $accesstype Access type.
 	 * @param   int    $id         Group id.
 	 *
-	 * @return string|null
+	 * @return boolean|null|string
+	 * @since Kunena
+	 * @throws Exception
 	 */
 	public function getGroupName($accesstype, $id = null)
 	{
@@ -68,7 +96,37 @@ class KunenaAccessCommunity
 			return $this->groups;
 		}
 
-		return null;
+		return;
+	}
+
+	/**
+	 * @since Kunena
+	 * @throws Exception
+	 */
+	protected function loadGroups()
+	{
+		if ($this->groups === false)
+		{
+			$db    = Factory::getDBO();
+			$query = "SELECT id, CONCAT('c', categoryid) AS parent_id, name
+				FROM #__community_groups
+				ORDER BY categoryid, name";
+			$db->setQuery($query);
+
+			try
+			{
+				$this->groups = (array) $db->loadObjectList('id');
+			}
+			catch (RuntimeException $e)
+			{
+				KunenaError::displayDatabaseError($e);
+			}
+
+			if ($this->categories !== false)
+			{
+				$this->tree->add($this->groups);
+			}
+		}
 	}
 
 	/**
@@ -78,6 +136,8 @@ class KunenaAccessCommunity
 	 * @param   int    $category   Group id.
 	 *
 	 * @return array
+	 * @since Kunena
+	 * @throws Exception
 	 */
 	public function getAccessOptions($accesstype, $category)
 	{
@@ -97,17 +157,49 @@ class KunenaAccessCommunity
 					$selected = $item->id;
 				}
 
-				$options[] = JHtml::_('select.option', $item->id, str_repeat('- ', $item->level) . $item->name, 'value', 'text', !is_numeric($item->id));
+				$options[] = HTMLHelper::_('select.option', $item->id, str_repeat('- ', $item->level) . $item->name, 'value', 'text', !is_numeric($item->id));
 			}
 
 			$html ['jomsocial']['access'] = array(
 				'title' => JText::_('PLG_KUNENA_COMMUNITY_ACCESS_GROUP_TITLE'),
 				'desc'  => JText::_('PLG_KUNENA_COMMUNITY_ACCESS_GROUP_DESC'),
-				'input' => JHtml::_('select.genericlist', $options, 'access-jomsocial', 'class="inputbox" size="10"', 'value', 'text', $selected)
+				'input' => HTMLHelper::_('select.genericlist', $options, 'access-jomsocial', 'class="inputbox" size="10"', 'value', 'text', $selected),
 			);
 		}
 
 		return $html;
+	}
+
+	/**
+	 * @since Kunena
+	 * @throws Exception
+	 */
+	protected function loadCategories()
+	{
+		if ($this->categories === false)
+		{
+			$db    = Factory::getDBO();
+			$query = "SELECT CONCAT('c', id) AS id, CONCAT('c', parent) AS parent_id, name
+				FROM #__community_groups_category
+				ORDER BY parent, name";
+			$db->setQuery($query);
+
+			try
+			{
+				$this->categories = (array) $db->loadObjectList('id');
+			}
+			catch (RuntimeException $e)
+			{
+				KunenaError::displayDatabaseError($e);
+			}
+
+			$this->tree = new KunenaTree($this->categories);
+
+			if ($this->groups !== false)
+			{
+				$this->tree->add($this->groups);
+			}
+		}
 	}
 
 	/**
@@ -121,14 +213,16 @@ class KunenaAccessCommunity
 	 * @param   array $categories List of categories, null = all.
 	 *
 	 * @return array(array => u, 'category_id'=>c, 'role'=>r))
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function loadCategoryRoles(array $categories = null)
 	{
-		$db    = JFactory::getDBO();
+		$db    = Factory::getDBO();
 		$query = "SELECT g.memberid AS user_id, c.id AS category_id, " . KunenaForum::ADMINISTRATOR . " AS role
 			FROM #__kunena_categories AS c
 			INNER JOIN #__community_groups_members AS g ON c.accesstype='jomsocial' AND c.access=g.groupid
-			WHERE c.published=1 AND g.approved=1 AND g.permissions={$db->Quote( COMMUNITY_GROUP_ADMIN )}";
+			WHERE c.published=1 AND g.approved=1 AND g.permissions={$db->Quote(COMMUNITY_GROUP_ADMIN)}";
 		$db->setQuery($query);
 
 		try
@@ -155,6 +249,8 @@ class KunenaAccessCommunity
 	 * @param   array $categories List of categories in access type.
 	 *
 	 * @return array, where category ids are in the keys.
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function authoriseCategories($userid, array &$categories)
 	{
@@ -162,7 +258,7 @@ class KunenaAccessCommunity
 
 		if (KunenaFactory::getUser($userid)->exists())
 		{
-			$db    = JFactory::getDBO();
+			$db    = Factory::getDBO();
 			$query = "SELECT c.id FROM #__kunena_categories AS c
 				INNER JOIN #__community_groups_members AS g ON c.accesstype='jomsocial' AND c.access=g.groupid
 				WHERE c.published=1 AND g.approved=1 AND g.memberid={$db->quote($userid)}";
@@ -193,6 +289,8 @@ class KunenaAccessCommunity
 	 * @param   array $userids list(allow, deny).
 	 *
 	 * @return array
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function authoriseUsers(KunenaDatabaseObject $topic, array &$userids)
 	{
@@ -204,7 +302,7 @@ class KunenaAccessCommunity
 		$category = $topic->getCategory();
 		$userlist = implode(',', $userids);
 
-		$db    = JFactory::getDBO();
+		$db    = Factory::getDBO();
 		$query = "SELECT c.id FROM #__kunena_categories AS c
 			INNER JOIN #__community_groups_members AS g ON c.accesstype='jomsocial' AND c.access=g.groupid
 			WHERE c.id={$category->id} AND g.approved=1 AND g.memberid IN ({$userlist})";
@@ -221,65 +319,5 @@ class KunenaAccessCommunity
 		}
 
 		return array($allow, $deny);
-	}
-
-	/**
-	 *
-	 */
-	protected function loadCategories()
-	{
-		if ($this->categories === false)
-		{
-			$db    = JFactory::getDBO();
-			$query = "SELECT CONCAT('c', id) AS id, CONCAT('c', parent) AS parent_id, name
-				FROM #__community_groups_category
-				ORDER BY parent, name";
-			$db->setQuery($query);
-
-			try
-			{
-				$this->categories = (array) $db->loadObjectList('id');
-			}
-			catch (RuntimeException $e)
-			{
-				KunenaError::displayDatabaseError($e);
-			}
-
-			$this->tree = new KunenaTree($this->categories);
-
-			if ($this->groups !== false)
-			{
-				$this->tree->add($this->groups);
-			}
-		}
-	}
-
-	/**
-	 *
-	 */
-	protected function loadGroups()
-	{
-		if ($this->groups === false)
-		{
-			$db    = JFactory::getDBO();
-			$query = "SELECT id, CONCAT('c', categoryid) AS parent_id, name
-				FROM #__community_groups
-				ORDER BY categoryid, name";
-			$db->setQuery($query);
-
-			try
-			{
-				$this->groups = (array) $db->loadObjectList('id');
-			}
-			catch (RuntimeException $e)
-			{
-				KunenaError::displayDatabaseError($e);
-			}
-
-			if ($this->categories !== false)
-			{
-				$this->tree->add($this->groups);
-			}
-		}
 	}
 }

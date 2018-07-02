@@ -1,0 +1,113 @@
+a:4:{s:4:"root";s:61:"D:\xampp7\htdocs\jdmiami\templates/jd_miami/less/presets.less";s:8:"compiled";s:2159:"a {
+  color: #bf434d;
+}
+a:hover {
+  color: #9a353d;
+}
+.sp-megamenu-parent >li.active>a,
+.sp-megamenu-parent >li:hover>a {
+  color: #bf434d;
+}
+.sp-megamenu-parent .sp-dropdown li.sp-menu-item >a:hover {
+  background: #bf434d;
+}
+.sp-megamenu-parent .sp-dropdown li.sp-menu-item.active>a {
+  color: #bf434d;
+}
+#offcanvas-toggler >i {
+  color: #000000;
+}
+#offcanvas-toggler >i:hover {
+  color: #bf434d;
+}
+.btn-primary,
+.sppb-btn-primary {
+  border-color: #aa3a43;
+  background-color: #bf434d;
+}
+.btn-primary:hover,
+.sppb-btn-primary:hover {
+  border-color: #872e35;
+  background-color: #9a353d;
+}
+ul.social-icons >li a:hover {
+  color: #bf434d;
+}
+.sp-page-title {
+  background: #bf434d;
+}
+.layout-boxed .body-innerwrapper {
+  background: #ffffff;
+}
+.sp-module ul >li >a {
+  color: #000000;
+}
+.sp-module ul >li >a:hover {
+  color: #bf434d;
+}
+.sp-module .latestnews >div >a {
+  color: #000000;
+}
+.sp-module .latestnews >div >a:hover {
+  color: #bf434d;
+}
+.sp-module .tagscloud .tag-name:hover {
+  background: #bf434d;
+}
+.sp-simpleportfolio .sp-simpleportfolio-filter > ul > li.active > a,
+.sp-simpleportfolio .sp-simpleportfolio-filter > ul > li > a:hover {
+  background: #bf434d;
+}
+.search .btn-toolbar button {
+  background: #bf434d;
+}
+.post-format {
+  background: #bf434d;
+}
+.voting-symbol span.star.active:before {
+  color: #bf434d;
+}
+.sp-rating span.star:hover:before,
+.sp-rating span.star:hover ~ span.star:before {
+  color: #9a353d;
+}
+.entry-link,
+.entry-quote {
+  background: #bf434d;
+}
+blockquote {
+  border-color: #bf434d;
+}
+.carousel-left:hover,
+.carousel-right:hover {
+  background: #bf434d;
+}
+#sp-footer {
+  background: #bf434d;
+}
+.sp-comingsoon body {
+  background-color: #bf434d;
+}
+.pagination>li>a,
+.pagination>li>span {
+  color: #000000;
+}
+.pagination>li>a:hover,
+.pagination>li>a:focus,
+.pagination>li>span:hover,
+.pagination>li>span:focus {
+  color: #000000;
+}
+.pagination>.active>a,
+.pagination>.active>span {
+  border-color: #bf434d;
+  background-color: #bf434d;
+}
+.pagination>.active>a:hover,
+.pagination>.active>a:focus,
+.pagination>.active>span:hover,
+.pagination>.active>span:focus {
+  border-color: #bf434d;
+  background-color: #bf434d;
+}
+";s:5:"files";a:23:{s:70:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\bootstrap.less";i:1513871892;s:70:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\variables.less";i:1513871892;s:67:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\mixins.less";i:1513871892;s:65:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\grid.less";i:1513871892;s:66:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\forms.less";i:1513871892;s:66:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\wells.less";i:1513871892;s:70:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\accordion.less";i:1513871892;s:88:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\legacy\responsive-767px-max.joomla.less";i:1513871892;s:60:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\master.less";i:1515558334;s:63:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\variables.less";i:1513871892;s:60:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\mixins.less";i:1513871892;s:61:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\icomoon.less";i:1513871892;s:58:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\menu.less";i:1513871892;s:59:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\theme.less";i:1513871892;s:63:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\jd-custom.less";i:1515558314;s:56:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\k2.less";i:1515558390;s:64:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\typography.less";i:1515558558;s:64:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\virtuemart.less";i:1515558498;s:62:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\hikashop.less";i:1513871892;s:61:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\jevents.less";i:1515558412;s:60:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\kunena.less";i:1515558476;s:67:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\jd-responsive.less";i:1515558452;s:61:"D:\xampp7\htdocs\jdmiami\templates\jd_miami\less\presets.less";i:1513871892;}s:7:"updated";i:1530566208;}

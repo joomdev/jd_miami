@@ -1,39 +1,64 @@
 <?php
 /**
  * Kunena Component
- * @package    Kunena.Framework
+ * @package        Kunena.Framework
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Class KunenaError
+ * @since Kunena
  */
 abstract class KunenaError
 {
-	static $enabled = 0;
+	/**
+	 * @var integer
+	 * @since Kunena
+	 */
+	public static $enabled = 0;
 
-	static $handler = false;
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
+	public static $handler = false;
 
-	static $debug = false;
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
+	public static $debug = false;
 
-	static $admin = false;
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
+	public static $admin = false;
 
-	static $format;
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
+	public static $format;
 
 	/**
 	 * @throws Exception
+	 * @since Kunena
+	 * @return void
 	 */
 	public static function initialize()
 	{
 		if (!self::$enabled)
 		{
-			self::$format = JFactory::getApplication()->input->getWord('format', 'html');
-			self::$debug = JDEBUG || KunenaFactory::getConfig()->debug;
-			self::$admin = JFactory::getApplication()->isAdmin();
+			self::$format = Factory::getApplication()->input->getWord('format', 'html');
+			self::$debug  = JDEBUG || KunenaFactory::getConfig()->debug;
+			self::$admin  = Factory::getApplication()->isClient('administrator');
 
 			// Make sure we are able to log fatal errors.
 			class_exists('KunenaLog');
@@ -47,16 +72,21 @@ abstract class KunenaError
 
 			@ini_set('display_errors', 1);
 			self::$handler = true;
-			@error_reporting(E_ALL | E_STRICT);
-			JFactory::getDbo()->setDebug(true);
-			set_error_handler(array('KunenaError', 'errorHandler'));
+
+			if (version_compare(JVERSION, '4.0', '<'))
+			{
+				@error_reporting(E_ALL | E_STRICT);
+				Factory::getDbo()->setDebug(true);
+				set_error_handler(array('KunenaError', 'errorHandler'));
+			}
 
 			self::$enabled++;
 		}
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public static function cleanup()
 	{
@@ -71,31 +101,35 @@ abstract class KunenaError
 	}
 
 	/**
-	 * @param        $msg
-	 * @param   string $where
+	 * @param   string $msg   msg
+	 * @param   string $where where
 	 *
 	 * @throws Exception
+	 * @since Kunena
+	 * @return void
 	 */
-	public static function error($msg, $where='default')
+	public static function error($msg, $where = 'default')
 	{
 		if (self::$debug)
 		{
-			$app = JFactory::getApplication();
+			$app = Factory::getApplication();
 			$app->enqueueMessage(JText::sprintf('COM_KUNENA_ERROR_' . strtoupper($where), $msg), 'error');
 		}
 	}
 
 	/**
-	 * @param        $msg
-	 * @param   string $where
+	 * @param   string $msg   msg
+	 * @param   string $where where
 	 *
 	 * @throws Exception
+	 * @since Kunena
+	 * @return void
 	 */
-	public static function warning($msg, $where='default')
+	public static function warning($msg, $where = 'default')
 	{
 		if (self::$debug)
 		{
-			$app = JFactory::getApplication();
+			$app = Factory::getApplication();
 			$app->enqueueMessage(JText::sprintf('COM_KUNENA_WARNING_' . strtoupper($where), $msg), 'notice');
 		}
 	}
@@ -103,23 +137,30 @@ abstract class KunenaError
 	/**
 	 * Return different error if it's an admin or a simple user
 	 *
-	 * @param $exception
+	 * @param   void $exception exception
 	 *
-	 * @return string
+	 * @return void
+	 * @throws Exception
 	 * @since 5.0
 	 */
 	public static function displayDatabaseError($exception)
 	{
-		$app = JFactory::getApplication();
-		$db = JFactory::getDBO();
+		if (version_compare(JVERSION, '4.0', '>'))
+		{
+			return false;
+		}
 
-		if (JFactory::getApplication()->isAdmin())
+		$app = Factory::getApplication();
+		$db  = Factory::getDBO();
+
+		if (Factory::getApplication()->isClient('administrator'))
 		{
 			$app->enqueueMessage($exception->getMessage(), 'error');
 		}
 		elseif (self::$debug || self::$admin)
 		{
-			$app->enqueueMessage('Kunena ' . JText::sprintf('COM_KUNENA_INTERNAL_ERROR_ADMIN', '<a href="http:://www.kunena.org/">www.kunena.org</a>'), 'error');
+			$app->enqueueMessage('Kunena ' . JText::sprintf('COM_KUNENA_INTERNAL_ERROR_ADMIN',
+					'<a href="https://www.kunena.org/">www.kunena.org</a>'), 'error');
 		}
 		else
 		{
@@ -128,71 +169,13 @@ abstract class KunenaError
 	}
 
 	/**
-	 * Return the error in the database query (deprecated use exception in queries instead)
-	 *
-	 * @deprecated
-	 *
-	 * @return boolean
-	 * @throws Exception
-	 */
-	public static function checkDatabaseError()
-	{
-		$db = JFactory::getDBO();
-
-		if ($db->getErrorNum())
-		{
-			$app = JFactory::getApplication();
-
-			if (JFactory::getApplication()->isAdmin())
-			{
-				$app->enqueueMessage($db->getErrorMsg(), 'error');
-			}
-			elseif (self::$debug || self::$admin)
-			{
-				$app->enqueueMessage('Kunena ' . JText::sprintf('COM_KUNENA_INTERNAL_ERROR_ADMIN', '<a href="http:://www.kunena.org/">www.kunena.org</a>'), 'error');
-			}
-			else
-			{
-				$app->enqueueMessage('Kunena ' . JText::_('COM_KUNENA_INTERNAL_ERROR'), 'error');
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get the last error message from database
-	 *
-	 * @deprecated
-	 *
-	 * @return string
-	 */
-	public static function getDatabaseError()
-	{
-		$db = JFactory::getDBO();
-
-		if ($db->getErrorNum())
-		{
-			if (self::$debug || self::$admin)
-			{
-				return $db->getErrorMsg();
-			}
-			else
-			{
-				return 'Kunena ' . JText::_('COM_KUNENA_INTERNAL_ERROR');
-			}
-		}
-	}
-
-	/**
-	 * @param $errno
-	 * @param $errstr
-	 * @param $errfile
-	 * @param $errline
+	 * @param   string $errno   errorno
+	 * @param   string $errstr  errorstr
+	 * @param   string $errfile errorfile
+	 * @param   string $errline errorline
 	 *
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public static function errorHandler($errno, $errstr, $errfile, $errline)
 	{
@@ -247,11 +230,15 @@ abstract class KunenaError
 	}
 
 	/**
-	 * @param $debug
+	 * @param   mixed $debug debug
+	 *
+	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public static function shutdownHandler($debug)
 	{
-		static $types = array (E_ERROR, E_USER_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_RECOVERABLE_ERROR);
+		static $types = array(E_ERROR, E_USER_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_RECOVERABLE_ERROR);
 
 		$error = error_get_last();
 
@@ -262,15 +249,15 @@ abstract class KunenaError
 			if ($debug)
 			{
 				// Clean up file path (take also care of some symbolic links).
-				$file = strtr($error ['file'], '\\', '/');
-				$file = preg_replace('%' . strtr(JPATH_ROOT, '\\', '/') . '/%', '\\1', $file);
-				$file = preg_replace('%^.*?/((administrator/)?(components|modules|plugins|templates)/)%', '\\1', $file);
+				$file     = strtr($error ['file'], '\\', '/');
+				$file     = preg_replace('%' . strtr(JPATH_ROOT, '\\', '/') . '/%', '\\1', $file);
+				$file     = preg_replace('%^.*?/((administrator/)?(components|modules|plugins|templates)/)%', '\\1', $file);
 				$errorMsg = sprintf(
 					"<p><b>Fatal Error</b>: %s in <b>%s</b> on line <b>%d</b></p>",
 					$error['message'], $file, $error['line']
 				);
-				$parts = explode('/', $file);
-				$dir = (string) array_shift($parts);
+				$parts    = explode('/', $file);
+				$dir      = (string) array_shift($parts);
 
 				if ($dir == 'administrator')
 				{
@@ -288,7 +275,7 @@ abstract class KunenaError
 						$extension = ucwords(substr($extension, 4)) . ' Module';
 						break;
 					case 'plugins';
-						$plugin = preg_replace('/\.php/', '', strtr((string) array_shift($parts), '_', ' '));
+						$plugin    = preg_replace('/\.php/', '', strtr((string) array_shift($parts), '_', ' '));
 						$extension = ucwords($extension) . ' - ' . ucwords($plugin) . ' Plugin';
 						break;
 					case 'templates';
@@ -300,11 +287,13 @@ abstract class KunenaError
 			}
 			else
 			{
-				$errorMsg = 'Internal Server Error';
+				$errorMsg  = 'Internal Server Error';
 				$extension = $file = '';
 			}
 
-			while(@ob_end_clean()) {}
+			while (@ob_end_clean())
+			{
+			}
 
 			ob_start();
 			header('HTTP/1.1 500 Internal Server Error');
@@ -313,16 +302,16 @@ abstract class KunenaError
 			{
 				header('Content-type: application/json');
 
-				// Emulate JResponseJson.
-				$response = new StdClass;
-				$response->success = false;
-				$response->message = '500 ' . $errorMsg;
+				// Emulate \Joomla\CMS\Response\JsonResponse.
+				$response           = new StdClass;
+				$response->success  = false;
+				$response->message  = '500 ' . $errorMsg;
 				$response->messages = null;
 
 				// Build data from exceptions.
 				$exception = array(
-					'code' => 500,
-					'message' => $errorMsg
+					'code'    => 500,
+					'message' => $errorMsg,
 				);
 
 				if (JDEBUG)
@@ -330,7 +319,7 @@ abstract class KunenaError
 					$exception += array(
 						'type' => 'Fatal Error',
 						'file' => $error['file'],
-						'line' => $error['line']
+						'line' => $error['line'],
 					);
 				}
 
@@ -342,8 +331,8 @@ abstract class KunenaError
 				return;
 			}
 
-			echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-	<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb">
+			echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb">
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title>500 Internal Server Error</title>

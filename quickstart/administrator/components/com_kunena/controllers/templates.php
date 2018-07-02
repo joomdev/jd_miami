@@ -2,16 +2,18 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Controllers
+ * @package         Kunena.Administrator
+ * @subpackage      Controllers
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
 jimport('joomla.filesystem.archive');
+
+use Joomla\Archive\Archive;
 
 /**
  * Kunena Backend Templates Controller
@@ -37,8 +39,9 @@ class KunenaAdminControllerTemplates extends KunenaController
 	/**
 	 * Construct
 	 *
-	 * @param   array  $config  config
+	 * @param   array $config config
 	 *
+	 * @throws Exception
 	 * @since    2.0
 	 */
 	public function __construct($config = array())
@@ -52,14 +55,16 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function publish()
 	{
 		$cid = $this->app->input->get('cid', array(), 'method', 'array');
 		$id  = array_shift($cid);
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -85,11 +90,13 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function add()
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -105,7 +112,9 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function edit()
 	{
@@ -137,18 +146,20 @@ class KunenaAdminControllerTemplates extends KunenaController
 	/**
 	 * Install
 	 *
-	 * @return boolean
+	 * @return boolean|void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function install()
 	{
-		$tmp  = JPATH_ROOT . '/tmp/';
+		$tmp        = JPATH_ROOT . '/tmp/';
 		$tmp_kunena = JPATH_ROOT . '/tmp/kinstall/';
-		$dest = KPATH_SITE . '/template/';
-		$file = $this->app->input->files->get('install_package', null, 'raw');
+		$dest       = KPATH_SITE . '/template/';
+		$file       = $this->app->input->files->get('install_package', null, 'raw');
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -171,7 +182,8 @@ class KunenaAdminControllerTemplates extends KunenaController
 			{
 				try
 				{
-					JArchive::extract($tmp . $file ['name'], $tmp_kunena);
+					$archive = new Archive;
+					$archive->extract($tmp . $file ['name'], $tmp_kunena);
 				}
 				catch (Exception $e)
 				{
@@ -206,6 +218,16 @@ class KunenaAdminControllerTemplates extends KunenaController
 								}
 
 								KunenaFile::move($dest . $template->directory . '/config/params.ini', $tmp_kunena . $template->sourcedir . '/params.ini');
+							}
+
+							if (is_file($dest . $template->directory . '/assets/less/custom.less'))
+							{
+								KunenaFile::move($dest . $template->directory . '/assets/less/custom.less', $tmp_kunena . $template->sourcedir . '/assets/less/custom.less');
+							}
+
+							if (is_file($dest . $template->directory . '/assets/css/custom.css'))
+							{
+								KunenaFile::move($dest . $template->directory . '/assets/css/custom.css', $tmp_kunena . $template->sourcedir . '/assets/css/custom.css');
 							}
 
 							KunenaFolder::delete($dest . $template->directory);
@@ -251,7 +273,9 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function uninstall()
 	{
@@ -259,7 +283,7 @@ class KunenaAdminControllerTemplates extends KunenaController
 		$id       = array_shift($cid);
 		$template = $id;
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -319,11 +343,13 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function chooseless()
 	{
-		$template = $this->app->input->getArray(array('cid' => ''));
+		$template     = $this->app->input->getArray(array('cid' => ''));
 		$templatename = array_shift($template['cid']);
 		$this->app->setUserState('kunena.templatename', $templatename);
 
@@ -344,11 +370,13 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function editless()
 	{
-		$template = $this->app->input->getArray(array('cid' => ''));
+		$template     = $this->app->input->getArray(array('cid' => ''));
 		$templatename = array_shift($template['cid']);
 
 		$filename = $this->app->input->get('filename', '', 'method', 'cmd');
@@ -370,11 +398,13 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function choosecss()
 	{
-		$template = $this->app->input->getArray(array('cid' => ''));
+		$template     = $this->app->input->getArray(array('cid' => ''));
 		$templatename = array_shift($template['cid']);
 
 		$this->app->setUserState('kunena.templatename', $templatename);
@@ -387,17 +417,19 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function applyless()
 	{
-		$template = $this->app->input->getArray(array('cid' => ''));
+		$template     = $this->app->input->getArray(array('cid' => ''));
 		$templatename = array_shift($template['cid']);
 
 		$filename    = $this->app->input->get('filename', '', 'post', 'cmd');
 		$filecontent = $this->app->input->post->get('filecontent', '', 'raw');
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -413,7 +445,7 @@ class KunenaAdminControllerTemplates extends KunenaController
 			return;
 		}
 
-		$file = KPATH_SITE . '/template/' . $templatename . '/assets/less/' . $filename;
+		$file   = KPATH_SITE . '/template/' . $templatename . '/assets/less/' . $filename;
 		$return = KunenaFile::write($file, $filecontent);
 
 		if ($return)
@@ -423,7 +455,8 @@ class KunenaAdminControllerTemplates extends KunenaController
 		else
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_A_TEMPLATE_MANAGER_OPERATION_FAILED') . ': '
-				. JText::sprintf('COM_KUNENA_A_TEMPLATE_MANAGER_FAILED_OPEN_FILE.', $file), 'error');
+				. JText::sprintf('COM_KUNENA_A_TEMPLATE_MANAGER_FAILED_OPEN_FILE.', $file), 'error'
+			);
 		}
 	}
 
@@ -432,17 +465,19 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function saveless()
 	{
-		$template = $this->app->input->getArray(array('cid' => ''));
+		$template     = $this->app->input->getArray(array('cid' => ''));
 		$templatename = array_shift($template['cid']);
 
 		$filename    = $this->app->input->get('filename', '', 'post', 'cmd');
 		$filecontent = $this->app->input->get('filecontent', '', 'post', 'string', JREQUEST_ALLOWRAW);
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -453,13 +488,14 @@ class KunenaAdminControllerTemplates extends KunenaController
 		if (!$templatename)
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_A_TEMPLATE_MANAGER_OPERATION_FAILED') . ': '
-				. JText::_('COM_KUNENA_A_TEMPLATE_MANAGER_TEMPLATE_NOT_SPECIFIED.'));
+				. JText::_('COM_KUNENA_A_TEMPLATE_MANAGER_TEMPLATE_NOT_SPECIFIED.')
+			);
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
 
 			return;
 		}
 
-		$file = KPATH_SITE . '/template/' . $templatename . '/assets/less/' . $filename;
+		$file   = KPATH_SITE . '/template/' . $templatename . '/assets/less/' . $filename;
 		$return = KunenaFile::write($file, $filecontent);
 
 		if ($return)
@@ -470,7 +506,8 @@ class KunenaAdminControllerTemplates extends KunenaController
 		else
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_A_TEMPLATE_MANAGER_OPERATION_FAILED') . ': '
-				. JText::sprintf('COM_KUNENA_A_TEMPLATE_MANAGER_FAILED_OPEN_FILE.', $file));
+				. JText::sprintf('COM_KUNENA_A_TEMPLATE_MANAGER_FAILED_OPEN_FILE.', $file)
+			);
 			$this->setRedirect(KunenaRoute::_($this->baseurl . '&layout=chooseless&id=' . $templatename, false));
 		}
 	}
@@ -480,11 +517,13 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function editcss()
 	{
-		$template = $this->app->input->getArray(array('cid' => ''));
+		$template     = $this->app->input->getArray(array('cid' => ''));
 		$templatename = array_shift($template['cid']);
 
 		$filename = $this->app->input->get('filename', '', 'method', 'cmd');
@@ -506,16 +545,18 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function applycss()
 	{
-		$template = $this->app->input->getArray(array('cid' => ''));
+		$template     = $this->app->input->getArray(array('cid' => ''));
 		$templatename = array_shift($template['cid']);
-		$filename    = $this->app->input->get('filename', '', 'post', 'cmd');
-		$filecontent = $this->app->input->get('filecontent', '', 'post', 'string', JREQUEST_ALLOWRAW);
+		$filename     = $this->app->input->get('filename', '', 'post', 'cmd');
+		$filecontent  = $this->app->input->get('filecontent', '', 'post', 'string', JREQUEST_ALLOWRAW);
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -531,7 +572,7 @@ class KunenaAdminControllerTemplates extends KunenaController
 			return;
 		}
 
-		$file = KPATH_SITE . '/template/' . $templatename . '/assets/css/' . $filename;
+		$file   = KPATH_SITE . '/template/' . $templatename . '/assets/css/' . $filename;
 		$return = KunenaFile::write($file, $filecontent);
 
 		if ($return)
@@ -549,16 +590,18 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function savecss()
 	{
-		$template = $this->app->input->getArray(array('cid' => ''));
+		$template     = $this->app->input->getArray(array('cid' => ''));
 		$templatename = array_shift($template['cid']);
-		$filename    = $this->app->input->get('filename', '', 'post', 'cmd');
-		$filecontent = $this->app->input->get('filecontent', '', 'post', 'string', JREQUEST_ALLOWRAW);
+		$filename     = $this->app->input->get('filename', '', 'post', 'cmd');
+		$filecontent  = $this->app->input->get('filecontent', '', 'post', 'string', JREQUEST_ALLOWRAW);
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -574,7 +617,7 @@ class KunenaAdminControllerTemplates extends KunenaController
 			return;
 		}
 
-		$file = KPATH_SITE . '/template/' . $templatename . '/assets/css/' . $filename;
+		$file   = KPATH_SITE . '/template/' . $templatename . '/assets/css/' . $filename;
 		$return = KunenaFile::write($file, $filecontent);
 
 		if ($return)
@@ -594,7 +637,9 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return  void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function apply()
 	{
@@ -602,7 +647,7 @@ class KunenaAdminControllerTemplates extends KunenaController
 		$menus    = $this->app->input->get('selections', array(), 'post', 'array');
 		Joomla\Utilities\ArrayHelper::toInteger($menus);
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -625,11 +670,175 @@ class KunenaAdminControllerTemplates extends KunenaController
 	}
 
 	/**
+	 * Method to save param.ini file on filesystem.
+	 *
+	 * @param   string $template The name of the template.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 * @since  3.0.0
+	 * @throws null
+	 */
+	protected function _saveParamFile($template)
+	{
+		$params = $this->app->input->get('jform', array(), 'post', 'array');
+
+		$params['wysibb'] = '';
+
+		if ($params['bold'])
+		{
+			$params['wysibb'] .= 'bold,';
+		}
+
+		if ($params['italic'])
+		{
+			$params['wysibb'] .= 'italic,';
+		}
+
+		if ($params['underline'])
+		{
+			$params['wysibb'] .= 'underline,';
+		}
+
+		if ($params['wysibb'])
+		{
+			$params['wysibb'] .= 'strike,';
+		}
+
+		if ($params['supscript'])
+		{
+			$params['wysibb'] .= 'sup,';
+		}
+
+		if ($params['subscript'])
+		{
+			$params['wysibb'] .= 'sub,';
+		}
+
+		if ($params['alignleft'])
+		{
+			$params['wysibb'] .= 'justifyleft,';
+		}
+
+		if ($params['center'])
+		{
+			$params['wysibb'] .= 'justifycenter,';
+		}
+
+		if ($params['alignright'])
+		{
+			$params['wysibb'] .= 'justifyright,';
+		}
+
+		if ($params['divider'])
+		{
+			$params['wysibb'] .= '|,';
+		}
+
+		if ($params['picture'])
+		{
+			$params['wysibb'] .= 'img,';
+		}
+
+		if ($params['video'])
+		{
+			$params['wysibb'] .= 'video,';
+		}
+
+		if ($params['link'])
+		{
+			$params['wysibb'] .= 'link,';
+		}
+
+		if ($params['divider'])
+		{
+			$params['wysibb'] .= '|,';
+		}
+
+		if ($params['bulletedlist'])
+		{
+			$params['wysibb'] .= 'bullist,';
+		}
+
+		if ($params['numericlist'])
+		{
+			$params['wysibb'] .= 'numlist,';
+		}
+
+		if ($params['divider'])
+		{
+			$params['wysibb'] .= '|,';
+		}
+
+		if ($params['colors'])
+		{
+			$params['wysibb'] .= 'fontcolor,';
+		}
+
+		if ($params['wysibb'])
+		{
+			$params['wysibb'] .= 'fontsize,';
+		}
+
+		if ($params['wysibb'])
+		{
+			$params['wysibb'] .= 'fontfamily,';
+		}
+
+		if ($params['divider'])
+		{
+			$params['wysibb'] .= '|,';
+		}
+
+		if ($params['quote'])
+		{
+			$params['wysibb'] .= 'quote,';
+		}
+
+		if ($params['code'])
+		{
+			$params['wysibb'] .= 'code,';
+		}
+
+		if ($params['table'])
+		{
+			$params['wysibb'] .= 'table,';
+		}
+
+		if ($params['wysibb'])
+		{
+			$params['wysibb'] .= 'removeFormat';
+		}
+
+		// Set FTP credentials, if given
+		\Joomla\CMS\Client\ClientHelper::setCredentialsFromRequest('ftp');
+		$ftp  = \Joomla\CMS\Client\ClientHelper::getCredentials('ftp');
+		$file = KPATH_SITE . '/template/' . $template . '/config/params.ini';
+
+		if (count($params))
+		{
+			$registry = new \Joomla\Registry\Registry;
+			$registry->loadArray($params);
+			$txt    = $registry->toString('INI');
+			$return = KunenaFile::write($file, $txt);
+
+			if (!$return)
+			{
+				$this->app->enqueueMessage(JText::_('COM_KUNENA_A_TEMPLATE_MANAGER_OPERATION_FAILED') . ': ' . JText::sprintf('COM_KUNENA_A_TEMPLATE_MANAGER_FAILED_WRITE_FILE', $file));
+				$this->app->redirect(KunenaRoute::_($this->baseurl, false));
+			}
+		}
+	}
+
+	/**
 	 * Save
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since    2.0
+	 * @throws null
 	 */
 	public function save()
 	{
@@ -637,7 +846,7 @@ class KunenaAdminControllerTemplates extends KunenaController
 		$menus    = $this->app->input->get('selections', array(), 'post', 'array');
 		Joomla\Utilities\ArrayHelper::toInteger($menus);
 
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -660,36 +869,29 @@ class KunenaAdminControllerTemplates extends KunenaController
 	}
 
 	/**
-	 * Method to save param.ini file on filesystem.
-	 *
-	 * @param   string  $template  The name of the template.
+	 * Method to restore the default settings of the template selected
 	 *
 	 * @return void
 	 *
-	 * @since  3.0.0
+	 * @since 5.1
 	 */
-	protected function _saveParamFile($template)
+	public function restore()
 	{
-		$params = $this->app->input->get('jform', array(), 'post', 'array');
+		$template = $this->app->input->get('templatename', '', 'method', 'cmd');
+		$file     = KPATH_SITE . '/template/' . $template . '/config/params.ini';
 
-		// Set FTP credentials, if given
-		JClientHelper::setCredentialsFromRequest('ftp');
-		$ftp  = JClientHelper::getCredentials('ftp');
-		$file = KPATH_SITE . '/template/' . $template . '/config/params.ini';
-
-		if (count($params))
+		if (file_exists($file))
 		{
-			$registry = new JRegistry;
-			$registry->loadArray($params);
-			$txt    = $registry->toString('INI');
-			$return = KunenaFile::write($file, $txt);
+			$result = JFile::delete($file);
 
-			if (!$return)
+			if ($result)
 			{
-				$this->app->enqueueMessage(JText::_('COM_KUNENA_A_TEMPLATE_MANAGER_OPERATION_FAILED') . ': ' . JText::sprintf('COM_KUNENA_A_TEMPLATE_MANAGER_FAILED_WRITE_FILE', $file));
-				$this->app->redirect(KunenaRoute::_($this->baseurl, false));
+				KunenaFile::write($file, '');
 			}
 		}
+
+		$this->app->enqueueMessage(JText::_('COM_KUNENA_TEMPLATES_SETTINGS_RESTORED_SUCCESSFULLY'));
+		$this->setRedirect(KunenaRoute::_($this->baseurl, false));
 	}
 
 	/**
@@ -697,11 +899,12 @@ class KunenaAdminControllerTemplates extends KunenaController
 	 *
 	 * @return void
 	 *
+	 * @throws Exception
 	 * @since 3.0.5
+	 * @throws null
 	 */
 	public function cancel()
 	{
 		$this->app->redirect(KunenaRoute::_($this->baseurl, false));
 	}
 }
-

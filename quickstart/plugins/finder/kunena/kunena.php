@@ -2,14 +2,16 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Finder
+ * @package         Kunena.Plugins
+ * @subpackage      Finder
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die('');
+
+use Joomla\CMS\Factory;
 
 jimport('joomla.application.component.helper');
 
@@ -18,6 +20,7 @@ require_once JPATH_ADMINISTRATOR . '/components/com_finder/helpers/indexer/adapt
 
 /**
  * Finder adapter for com_kunena.
+ * @since Kunena
  */
 class plgFinderKunena extends FinderIndexerAdapter
 {
@@ -74,9 +77,9 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 * This event is fired before the data is actually saved so we are going
 	 * to queue the item to be indexed later.
 	 *
-	 * @param   string  $context The context of the content passed to the plugin.
-	 * @param   JTable  $row     A JTable object
-	 * @param   boolean $isNew   If the content is just about to be created
+	 * @param   string                  $context The context of the content passed to the plugin.
+	 * @param   \Joomla\CMS\Table\Table $row     A \Joomla\CMS\Table\Table object
+	 * @param   boolean                 $isNew   If the content is just about to be created
 	 *
 	 * @return  boolean  True on success.
 	 *
@@ -88,7 +91,7 @@ class plgFinderKunena extends FinderIndexerAdapter
 		// If a category will be change, we want to see, if the accesstype and access level has changed
 		if (($row instanceof TableKunenaCategories) && !$isNew)
 		{
-			$old_table = clone($row);
+			$old_table = clone $row;
 			$old_table->load();
 			$this->old_cataccess     = $old_table->access;
 			$this->old_cataccesstype = $old_table->accesstype;
@@ -100,14 +103,15 @@ class plgFinderKunena extends FinderIndexerAdapter
 	/**
 	 * Method to determine if the access level of an item changed.
 	 *
-	 * @param   string  $context The context of the content passed to the plugin.
-	 * @param   JTable  $row     A JTable object
-	 * @param   boolean $isNew   If the content has just been created
+	 * @param   string                  $context The context of the content passed to the plugin.
+	 * @param   \Joomla\CMS\Table\Table $row     A \Joomla\CMS\Table\Table object
+	 * @param   boolean                 $isNew   If the content has just been created
 	 *
 	 * @return  boolean  True on success.
 	 *
 	 * @since   2.5
 	 * @throws  Exception on database error.
+	 * @throws null
 	 */
 	public function onFinderAfterSave($context, $row, $isNew)
 	{
@@ -153,13 +157,14 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 * Since Messages are getting deleted in process of deleting categories or messages, we
 	 * delete the finderresults before those objects are deleted.
 	 *
-	 * @param   string $context The context of the action being performed.
-	 * @param   JTable $table   A JTable object containing the record to be deleted
+	 * @param   string                  $context The context of the action being performed.
+	 * @param   \Joomla\CMS\Table\Table $table   A \Joomla\CMS\Table\Table object containing the record to be deleted
 	 *
 	 * @return  boolean  True on success.
 	 *
 	 * @since   2.5
 	 * @throws  Exception on database error.
+	 * @throws null
 	 */
 	public function onFinderBeforeDelete($context, $table)
 	{
@@ -177,6 +182,7 @@ class plgFinderKunena extends FinderIndexerAdapter
 		elseif ($table instanceof TableKunenaTopics)
 		{
 			$messages = $this->getMessagesByTopic($table->id);
+
 			foreach ($messages as $message)
 			{
 				$this->remove($message->id);
@@ -191,8 +197,8 @@ class plgFinderKunena extends FinderIndexerAdapter
 	/**
 	 * Method to remove the link information for items that have been deleted.
 	 *
-	 * @param   string $context The context of the action being performed.
-	 * @param   JTable $table   A JTable object containing the record to be deleted
+	 * @param   string                  $context The context of the action being performed.
+	 * @param   \Joomla\CMS\Table\Table $table   A \Joomla\CMS\Table\Table object containing the record to be deleted
 	 *
 	 * @return  boolean  True on success.
 	 *
@@ -223,10 +229,11 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 *
 	 * @since   2.5
 	 * @throws  Exception on error.
+	 * @throws null
 	 */
 	public function onBuildIndex()
 	{
-		JLog::add('FinderIndexerAdapter::onBuildIndex', JLog::INFO);
+		\Joomla\CMS\Log\Log::add('FinderIndexerAdapter::onBuildIndex', \Joomla\CMS\Log\Log::INFO);
 
 		// Get the indexer and adapter state.
 		$iState = FinderIndexer::getState();
@@ -257,7 +264,7 @@ class plgFinderKunena extends FinderIndexerAdapter
 		{
 			// Adjust the offsets.
 			$iState->batchOffset = $iState->batchSize;
-			$iState->totalItems -= $item->id - $offset;
+			$iState->totalItems  -= $item->id - $offset;
 
 			// Update the indexer state.
 			$aState['offset']                    = $item->id;
@@ -278,11 +285,12 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 * @return  void
 	 *
 	 * @throws  Exception on database error.
+	 * @since Kunena
 	 */
 	protected function index(FinderIndexerResult $item)
 	{
 		// Check if the extension is enabled
-		if (JComponentHelper::isEnabled($this->extension) == false)
+		if (\Joomla\CMS\Component\ComponentHelper::isEnabled($this->extension) == false)
 		{
 			return;
 		}
@@ -318,6 +326,7 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 * @return  boolean  True on success.
 	 *
 	 * @since   2.5
+	 * @throws Exception
 	 */
 	protected function setup()
 	{
@@ -350,7 +359,7 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 */
 	protected function getContentCount()
 	{
-		JLog::add('FinderIndexerAdapter::getContentCount', JLog::INFO);
+		\Joomla\CMS\Log\Log::add('FinderIndexerAdapter::getContentCount', \Joomla\CMS\Log\Log::INFO);
 
 		// Get the list query.
 		$sql = $this->db->getQuery(true);
@@ -358,13 +367,14 @@ class plgFinderKunena extends FinderIndexerAdapter
 
 		// Get the total number of content items to index.
 		$this->db->setQuery($sql);
-		$return = (int) $this->db->loadResult();
 
-		// Check for a database error.
-		if ($this->db->getErrorNum())
+		try
 		{
-			// Throw database error exception.
-			throw new Exception($this->db->getErrorMsg(), 500);
+			$return = (int) $this->db->loadResult();
+		}
+		catch (Exception $e)
+		{
+			KunenaError::displayDatabaseError($e);
 		}
 
 		return $return;
@@ -379,10 +389,11 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 *
 	 * @since   2.5
 	 * @throws  Exception on database error.
+	 * @throws null
 	 */
 	protected function getItem($id)
 	{
-		JLog::add('FinderIndexerAdapter::getItem', JLog::INFO);
+		\Joomla\CMS\Log\Log::add('FinderIndexerAdapter::getItem', \Joomla\CMS\Log\Log::INFO);
 
 		$message = KunenaForumMessageHelper::get($id);
 
@@ -405,12 +416,13 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 *
 	 * @return  array  An array of FinderIndexerResult objects.
 	 *
+	 * @throws Exception on database error.
+	 * @throws null
 	 * @since   2.5
-	 * @throws  Exception on database error.
 	 */
 	protected function getItems($offset, $limit, $sql = null)
 	{
-		JLog::add("FinderIndexerAdapter::getItems({$offset}, {$limit})", JLog::INFO);
+		\Joomla\CMS\Log\Log::add("FinderIndexerAdapter::getItems({$offset}, {$limit})", \Joomla\CMS\Log\Log::INFO);
 
 		// Get the list query.
 		$sql = $this->db->getQuery(true);
@@ -418,14 +430,14 @@ class plgFinderKunena extends FinderIndexerAdapter
 
 		// Get the content items to index.
 		$this->db->setQuery($sql, 0, $limit);
-		$ids = $this->db->loadColumn();
 
-		// Check for a database error.
-
-		if ($this->db->getErrorNum())
+		try
 		{
-			// Throw database error exception.
-			throw new Exception($this->db->getErrorMsg(), 500);
+			$ids = $this->db->loadColumn();
+		}
+		catch (Exception $e)
+		{
+			KunenaError::displayDatabaseError($e);
 		}
 
 		// Convert the items to result objects.
@@ -447,6 +459,9 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 * @param $message
 	 *
 	 * @return FinderIndexerResult
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	protected function createIndexerResult($message)
 	{
@@ -470,13 +485,11 @@ class plgFinderKunena extends FinderIndexerAdapter
 
 		// Set other information.
 		$item->published = intval($message->hold == 0);
-		// TODO: add topic state
-		//$item->state = intval($message->getCategory()->published == 1);
-		$item->state    = $item->published;
-		$item->language = '*';
+		$item->state     = intval($message->getCategory()->published == 1);
+		$item->language  = '*';
 
 		// TODO: add access control
-		$item->access = $this->getAccessLevel($item);
+		$item->access = $this->getAccessLevel($item->catid);
 
 		// Set the item type.
 		$item->type_id = $this->type_id;
@@ -499,6 +512,7 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 * @param   string $view      View name.
 	 *
 	 * @return    string        The URL of the item.
+	 * @since Kunena
 	 */
 	protected function getUrl($id, $extension, $view)
 	{
@@ -537,6 +551,9 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 * @param $cat_id
 	 *
 	 * @return mixed
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function getMessagesByCategory($cat_id)
 	{
@@ -544,7 +561,7 @@ class plgFinderKunena extends FinderIndexerAdapter
 
 		if (!$messages[$cat_id])
 		{
-			$db    = JFactory::getDbo();
+			$db    = Factory::getDbo();
 			$query = $db->getQuery(true);
 			$query->select('m.id');
 			$query->from('#__kunena_messages as m');
@@ -562,6 +579,7 @@ class plgFinderKunena extends FinderIndexerAdapter
 	 * @param $topic_id
 	 *
 	 * @return mixed
+	 * @since Kunena
 	 */
 	protected function getMessagesByTopic($topic_id)
 	{
@@ -569,7 +587,7 @@ class plgFinderKunena extends FinderIndexerAdapter
 
 		if (!$messages[$topic_id])
 		{
-			$db    = JFactory::getDbo();
+			$db    = Factory::getDbo();
 			$query = $db->getQuery(true);
 			$query->select('m.*, t.message');
 			$query->from('#__kunena_messages AS m');
@@ -593,37 +611,43 @@ class plgFinderKunena extends FinderIndexerAdapter
 	/**
 	 * @param $item
 	 *
-	 * @return int
+	 * @return integer
+	 * @since Kunena
 	 */
 	protected function getAccessLevel($item)
 	{
-		if (($item instanceof KunenaForumMessage) || ($item instanceof FinderIndexerResult) || ($item instanceof TableKunenaMessages))
+		$category = KunenaForumCategoryHelper::get($item);
+		$user     = Factory::getUser(0);
+
+		// WORKAROUND: Joomla! 2.5.6 bug returning NULL if $userid = 0 and session is corrupted.
+		if (!($user instanceof \Joomla\CMS\User\User))
 		{
-			if (!$item->catid)
-			{
-				return 0;
-			}
-
-			$category = KunenaForumCategoryHelper::get($item->catid);
-
-			// TODO We can't quite handle access restrictions by joomla group or other plugins yet. So we set the access level to 0
-			if ($category->accesstype != 'joomla.level')
-			{
-				return 0;
-			}
-
-			return $category->access;
+			$user = \Joomla\CMS\User\User::getInstance();
 		}
-		elseif (($item instanceof TableKunenaCategories) || ($item instanceof KunenaForumCategory))
+
+		$accesslevels = (array) $user->getAuthorisedViewLevels();
+		$groups_r     = (array) \Joomla\CMS\Access\Access::getGroupsByUser($user->id, true);
+		$groups       = (array) \Joomla\CMS\Access\Access::getGroupsByUser($user->id, false);
+
+		$catlist = array();
+
+		// Check against Joomla access level
+		if ($category->accesstype == 'joomla.level')
 		{
-			$category = KunenaForumCategoryHelper::get($item->id);
-
-			if ($category->accesstype != 'joomla.level')
+			if (in_array($category->access, $accesslevels))
 			{
-				return 0;
+				return 1;
 			}
+		}
+		// Check against Joomla user group
+		elseif ($category->accesstype == 'joomla.group')
+		{
+			$pub_access = in_array($category->pub_access, $category->pub_recurse ? $groups_r : $groups);
 
-			return $category->access;
+			if ($pub_access)
+			{
+				return 1;
+			}
 		}
 
 		return 0;

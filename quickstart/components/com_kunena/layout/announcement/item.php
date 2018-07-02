@@ -2,12 +2,12 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Layout.Announcement.List
+ * @package         Kunena.Site
+ * @subpackage      Layout.Announcement.List
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 
@@ -15,27 +15,33 @@ defined('_JEXEC') or die;
  * KunenaLayoutAnnouncementItem
  *
  * @since  K4.0
- *
  */
 class KunenaLayoutAnnouncementItem extends KunenaLayout
 {
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $buttons;
 
 	/**
 	 * Method to get moderation actions for announcements
 	 *
-	 * @return string
+	 * @return array
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getActions()
 	{
 		$this->buttons = array();
 
-		if ($this->announcement->authorise('edit'))
+		if ($this->announcement->isAuthorised('edit'))
 		{
 			$this->buttons['edit'] = $this->getButton($this->announcement->getUri('edit'), 'edit', 'announcement', 'moderation');
 		}
 
-		if ($this->announcement->authorise('delete'))
+		if ($this->announcement->isAuthorised('delete'))
 		{
 			$this->buttons['delete'] = $this->getButton($this->announcement->getTaskUri('delete'), 'delete', 'announcement', 'permanent');
 		}
@@ -58,7 +64,10 @@ class KunenaLayoutAnnouncementItem extends KunenaLayout
 	 * @param   int    $id     Id of the button.
 	 * @param   bool   $normal Define if the button will have the class btn or btn-small
 	 *
-	 * @return  string
+	 * @return KunenaLayout|KunenaLayoutBase
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getButton($url, $name, $scope, $type, $id = null, $normal = true)
 	{

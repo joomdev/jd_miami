@@ -2,19 +2,23 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Installer
+ * @package        Kunena.Installer
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 // Kunena 2.0.0: Create category aliases (all that K1.7 accepts)
 /**
  * @param $parent
  *
  * @return array
+ * @throws Exception
+ * @since Kunena
  */
 function kunena_200_2011_12_14_aliases($parent)
 {
@@ -49,7 +53,7 @@ function kunena_200_2011_12_14_aliases($parent)
 
 		// Create SEF names
 		$aliasUtf[$category->id] = kStringURLSafe($category->name);
-		$aliasLit[$category->id] = JFilterOutput::stringURLSafe($category->name);
+		$aliasLit[$category->id] = \Joomla\CMS\Filter\OutputFilter::stringURLSafe($category->name);
 	}
 
 	// Sort aliases by category id (oldest ID accepts also sefcat format..
@@ -110,25 +114,26 @@ function kunena_200_2011_12_14_aliases($parent)
 }
 
 /**
- * @param     $type
- * @param     $item
- * @param     $alias
- * @param int $state
+ * @param       $type
+ * @param       $item
+ * @param       $alias
+ * @param   int $state state
  *
- * @return bool
+ * @return boolean
+ * @since Kunena
  */
 function kCreateAlias($type, $item, $alias, $state = 0)
 {
 	$state = (int) $state;
-	$db    = JFactory::getDbo();
-	$query = "INSERT IGNORE INTO #__kunena_aliases (alias, type, item, state) VALUES ({$db->Quote($alias)},{$db->Quote($type)},{$db->Quote($item)},{$db->Quote($state)})";
+	$db    = Factory::getDbo();
+	$query = "INSERT IGNORE INTO `#__kunena_aliases` (alias, type, item, state) VALUES ({$db->Quote($alias)},{$db->Quote($type)},{$db->Quote($item)},{$db->Quote($state)})";
 	$db->setQuery($query);
 	$success = $db->execute() && $db->getAffectedRows();
 
 	if ($success && $state)
 	{
 		// There can be only one primary alias
-		$query = "UPDATE #__kunena_aliases SET state=0 WHERE type={$db->Quote($type)} AND item={$db->Quote($item)} AND alias!={$db->Quote($alias)} AND state=1";
+		$query = "UPDATE `#__kunena_aliases` SET state=0 WHERE type={$db->Quote($type)} AND item={$db->Quote($item)} AND alias!={$db->Quote($alias)} AND state=1";
 		$db->setQuery($query);
 		$db->execute();
 	}
@@ -137,24 +142,25 @@ function kCreateAlias($type, $item, $alias, $state = 0)
 }
 
 /**
- * @param     $category
- * @param     $alias
- * @param int $state
+ * @param       $category
+ * @param       $alias
+ * @param   int $state state
  *
- * @return bool
+ * @return boolean
+ * @since Kunena
  */
 function kCreateCategoryAlias($category, $alias, $state = 0)
 {
 	$state = (int) $state;
-	$db    = JFactory::getDbo();
-	$query = "INSERT IGNORE INTO #__kunena_aliases (alias, type, item) VALUES ({$db->Quote($alias)},'catid',{$db->Quote($category->id)})";
+	$db    = Factory::getDbo();
+	$query = "INSERT IGNORE INTO `#__kunena_aliases` (alias, type, item) VALUES ({$db->Quote($alias)},'catid',{$db->Quote($category->id)})";
 	$db->setQuery($query);
 	$success = $db->execute() && $db->getAffectedRows();
 
 	if ($success && $state)
 	{
 		// Update primary alias into category table
-		$query = "UPDATE #__kunena_categories SET alias={$db->Quote($alias)} WHERE id={$db->Quote($category->id)}";
+		$query = "UPDATE `#__kunena_categories` SET alias={$db->Quote($alias)} WHERE id={$db->Quote($category->id)}";
 		$db->setQuery($query);
 		$db->execute();
 	}
@@ -166,6 +172,7 @@ function kCreateCategoryAlias($category, $alias, $state = 0)
  * @param $str
  *
  * @return string
+ * @since Kunena
  */
 function kStringURLSafe($str)
 {

@@ -2,21 +2,27 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Kunena
+ * @package         Kunena.Plugins
+ * @subpackage      Kunena
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
-class PlgKunenaKunena extends JPlugin
+/**
+ * Class PlgKunenaKunena
+ * @since Kunena
+ */
+class PlgKunenaKunena extends \Joomla\CMS\Plugin\CMSPlugin
 {
 	/**
-	 * @param   object &$subject
+	 * @param   object &$subject $subject
 	 *
-	 * @param   array  $config
+	 * @param   array  $config   config
+	 *
+	 * @since Kunena
 	 */
 	public function __construct(&$subject, $config)
 	{
@@ -28,24 +34,18 @@ class PlgKunenaKunena extends JPlugin
 
 		parent::__construct($subject, $config);
 
-
-		$method = method_exists(get_class(new KunenaControllerApplicationDisplay), 'poweredBy');
-		if (!$method)
-		{
-			JFactory::getApplication()->enqueueMessage('Please Buy Official powered by remover plugin on: https://www.kunena.org/downloads', 'notice');
-		}
-
 		$this->loadLanguage('plg_kunena_kunena.sys', JPATH_ADMINISTRATOR) || $this->loadLanguage('plg_kunena_kunena.sys', KPATH_ADMIN);
 	}
 
 	/**
 	 * @return KunenaAvatarKunena|null
+	 * @since Kunena
 	 */
 	public function onKunenaGetAvatar()
 	{
 		if (!$this->params->get('avatar', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/avatar.php";
@@ -55,12 +55,13 @@ class PlgKunenaKunena extends JPlugin
 
 	/**
 	 * @return KunenaProfileKunena|null
+	 * @since Kunena
 	 */
 	public function onKunenaGetProfile()
 	{
 		if (!$this->params->get('profile', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/profile.php";

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         18.1.7274
+ * @version         18.5.26647
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -252,7 +252,7 @@ class Field
 
 		foreach ($list as $item)
 		{
-			$item->treename = Form::prepareSelectItem($item->treename, $item->published, '', 1);
+			$item->treename = Form::prepareSelectItem($item->treename, isset($item->published) ? $item->published : 1, '', 1);
 
 			$options[] = JHtml::_('select.option', $item->id, $item->treename, 'value', 'text', 0);
 		}

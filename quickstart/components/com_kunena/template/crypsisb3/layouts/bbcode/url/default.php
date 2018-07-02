@@ -1,12 +1,12 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Template.Crypsis
- * @subpackage  Layout.BBCode
+ * @package         Kunena.Template.Crypsis
+ * @subpackage      Layout.BBCode
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 
@@ -14,10 +14,13 @@ defined('_JEXEC') or die;
 
 // Display URL.
 $target = ' target="' . $this->escape($this->target) . '"';
+
 if (strpos($this->escape($this->url), '/index.php') !== 0)
 {
 	$rel = 'rel="nofollow noopener noreferrer"';
-} else {
+}
+else
+{
 	$rel = '';
 }
 ?>

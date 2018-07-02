@@ -2,23 +2,29 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Easyblog
+ * @package         Kunena.Plugins
+ * @subpackage      Easyblog
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 
-defined('_JEXEC') or die ();
+defined('_JEXEC') or die();
 
-class plgKunenaEasyblog extends JPlugin
+/**
+ * Class plgKunenaEasyblog
+ * @since Kunena
+ */
+class plgKunenaEasyblog extends \Joomla\CMS\Plugin\CMSPlugin
 {
 	/**
 	 * plgKunenaEasyblog constructor.
 	 *
 	 * @param $subject
 	 * @param $config
+	 *
+	 * @since Kunena
 	 */
 	public function __construct(&$subject, $config)
 	{
@@ -33,10 +39,23 @@ class plgKunenaEasyblog extends JPlugin
 
 		if (!is_file($path))
 		{
+			if (\Joomla\CMS\Plugin\PluginHelper::isEnabled('kunena', 'easyblog'))
+			{
+				$db = JFactory::getDBO();
+				$query = $db->getQuery(true);
+				$query->update('`#__extensions`');
+				$query->where($db->quoteName('element') . ' = ' . $db->quote('easyblog'));
+				$query->where($db->quoteName('type') . ' = ' . $db->quote('plugin'));
+				$query->where($db->quoteName('folder') . '= ' . $db->quote('kunena'));
+				$query->set($db->quoteName('enabled') . '=0');
+				$db->setQuery($query);
+				$db->execute();
+			}
+
 			return;
 		}
 
-		include_once($path);
+		include_once $path;
 
 		parent::__construct($subject, $config);
 
@@ -47,12 +66,13 @@ class plgKunenaEasyblog extends JPlugin
 	 * Get Kunena avatar integration object.
 	 *
 	 * @return \KunenaAvatarEasyblog|null
+	 * @since Kunena
 	 */
 	public function onKunenaGetAvatar()
 	{
 		if (!$this->params->get('avatar', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/avatar.php";
@@ -64,12 +84,13 @@ class plgKunenaEasyblog extends JPlugin
 	 * Get Kunena profile integration object.
 	 *
 	 * @return \KunenaProfileEasyblog|null
+	 * @since Kunena
 	 */
 	public function onKunenaGetProfile()
 	{
 		if (!$this->params->get('profile', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/profile.php";

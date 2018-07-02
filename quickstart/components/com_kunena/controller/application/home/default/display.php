@@ -21,6 +21,8 @@ class ComponentKunenaControllerApplicationHomeDefaultDisplay extends KunenaContr
 	 * Return true if layout exists.
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function exists()
 	{
@@ -30,9 +32,11 @@ class ComponentKunenaControllerApplicationHomeDefaultDisplay extends KunenaContr
 	/**
 	 * Redirect to home page.
 	 *
-	 * @return KunenaLayout
+	 * @return \Joomla\CMS\Layout\BaseLayout|KunenaLayout
 	 *
-	 * @throws KunenaExceptionAuthorise
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function execute()
 	{
@@ -110,14 +114,18 @@ class ComponentKunenaControllerApplicationHomeDefaultDisplay extends KunenaContr
 	/**
 	 * Get default menu item to be shown up.
 	 *
-	 * @param   JMenuSite  $menu     Joomla menu.
+	 * @param   \Joomla\CMS\Menu\SiteMenu $menu    Joomla menu.
 	 * @param   object     $active   Active menu item.
 	 * @param   array      $visited  Already visited menu items.
 	 *
 	 * @return object|null
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	protected function getDefaultMenuItem(JMenuSite $menu, $active, $visited = array())
+	protected function getDefaultMenuItem(\Joomla\CMS\Menu\SiteMenu $menu, $active, $visited = array())
 	{
+		KunenaFactory::loadLanguage('com_kunena.controllers');
+
 		if (empty($active->query['defaultmenu']) || $active->id == $active->query['defaultmenu'])
 		{
 			// There is no highlighted menu item!

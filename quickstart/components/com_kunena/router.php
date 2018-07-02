@@ -2,13 +2,15 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Site
+ * @package        Kunena.Site
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 jimport('joomla.error.profiler');
 
@@ -29,13 +31,15 @@ jimport('joomla.error.profiler');
  * @param $query
  *
  * @return array Segments
+ * @throws Exception
+ * @since Kunena
  */
 function KunenaBuildRoute(&$query)
 {
 	$segments = array();
 
 	// If Kunena Forum isn't installed or SEF is not enabled, do nothing
-	if (!class_exists('KunenaForum') || !KunenaForum::isCompatible('4.0') || !KunenaForum::installed() || !KunenaRoute::$config->sef)
+	if (!class_exists('KunenaForum') || !KunenaForum::isCompatible('4.0') || !KunenaForum::installed() || !KunenaConfig::getInstance()->sef)
 	{
 		return $segments;
 	}
@@ -52,7 +56,7 @@ function KunenaBuildRoute(&$query)
 
 		if (!isset($menuitems[$Itemid]))
 		{
-			$menuitems[$Itemid] = JFactory::getApplication()->getMenu()->getItem($Itemid);
+			$menuitems[$Itemid] = Factory::getApplication()->getMenu()->getItem($Itemid);
 
 			if (!$menuitems[$Itemid])
 			{
@@ -260,7 +264,7 @@ function KunenaBuildRoute(&$query)
 		}
 	}
 
-	if (isset($query['start']) && $query['start'] == '@')
+	if (isset($query['start']) && $query['start'] == '@' && $query['start'] !== 0)
 	{
 		$query['start'] = '%' . ++$pos . '$d';
 	}
@@ -275,6 +279,7 @@ function KunenaBuildRoute(&$query)
  *
  * @return array
  * @throws Exception
+ * @since Kunena
  */
 function KunenaParseRoute($segments)
 {
@@ -284,12 +289,12 @@ function KunenaParseRoute($segments)
 		return array();
 	}
 
-	$profiler = JProfiler::getInstance('Application');
+	$profiler = \Joomla\CMS\Profiler\Profiler::getInstance('Application');
 	KUNENA_PROFILER ? $profiler->mark('kunenaRoute') : null;
-	$starttime = $profiler->getmicrotime();
+	$starttime = microtime(true);
 
 	// Get current menu item and get query variables from it
-	$active = JFactory::getApplication()->getMenu()->getActive();
+	$active = Factory::getApplication()->getMenu()->getActive();
 	$vars   = isset($active->query) ? $active->query : array('view' => 'home');
 
 	if (empty($vars['view']) || $vars['view'] == 'home' || $vars['view'] == 'entrypage')
@@ -424,7 +429,7 @@ function KunenaParseRoute($segments)
 		$vars ['layout'] = 'default';
 	}
 
-	KunenaRoute::$time = $profiler->getmicrotime() - $starttime;
+	KunenaRoute::$time = microtime(true) - $starttime;
 
 	foreach ($vars as $var => $value)
 	{

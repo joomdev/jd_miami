@@ -2,32 +2,49 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Installer
+ * @package        Kunena.Installer
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * The Kunena Installer Controller
  *
  * @since  1.6
  */
-class KunenaControllerInstall extends JControllerLegacy
+class KunenaControllerInstall extends \Joomla\CMS\MVC\Controller\BaseController
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $step = null;
 
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $steps = null;
 
+	/**
+	 * @var bool|\Joomla\CMS\MVC\Model\BaseDatabaseModel|null
+	 * @since Kunena
+	 */
 	protected $model = null;
 
 	/**
-	 *
+	 * @since Kunena
 	 */
 	public function __construct()
 	{
+		// Disable error_reporting improves more successfully install.
+		error_reporting(0);
+
 		parent::__construct();
 		require_once __DIR__ . '/model.php';
 		$this->model = $this->getModel('Install');
@@ -36,12 +53,13 @@ class KunenaControllerInstall extends JControllerLegacy
 	}
 
 	/**
-	 * @param   bool $cachable
-	 * @param   bool $urlparams
+	 * @param   bool $cachable  cachable
+	 * @param   bool $urlparams urlparams
 	 *
-	 * @return JControllerLegacy|void
+	 * @return \Joomla\CMS\MVC\Controller\BaseController|void
 	 *
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function display($cachable = false, $urlparams = false)
 	{
@@ -52,8 +70,8 @@ class KunenaControllerInstall extends JControllerLegacy
 		{
 			$view->addTemplatePath(__DIR__ . '/tmpl');
 			$view->setModel($this->model, true);
-			$view->setLayout(JFactory::getApplication()->input->getWord('layout', 'default'));
-			$view->document = JFactory::getDocument();
+			$view->setLayout(Factory::getApplication()->input->getWord('layout', 'default'));
+			$view->document = Factory::getDocument();
 			$view->display();
 
 			// Display Toolbar. View must have setToolBar method
@@ -66,10 +84,11 @@ class KunenaControllerInstall extends JControllerLegacy
 
 	/**
 	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function run()
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			echo json_encode(array('success' => false, 'html' => 'Invalid token!'));
 
@@ -79,7 +98,7 @@ class KunenaControllerInstall extends JControllerLegacy
 		set_exception_handler(array(__CLASS__, 'exceptionHandler'));
 		set_error_handler(array(__CLASS__, 'errorHandler'));
 
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 
 		$this->model->checkTimeout();
 		$action = $this->model->getAction();
@@ -124,7 +143,7 @@ class KunenaControllerInstall extends JControllerLegacy
 		// Store queued messages so that they won't get lost
 		$session->set('kunena.queue', array_merge((array) $session->get('kunena.queue'), (array) $session->get('kunena.newqueue')));
 		$newqueue = array();
-		$app      = JFactory::getApplication();
+		$app      = Factory::getApplication();
 
 		foreach ($app->getMessageQueue() as $item)
 		{
@@ -142,8 +161,8 @@ class KunenaControllerInstall extends JControllerLegacy
 		$log = ob_get_contents();
 		ob_end_clean();
 
-		JFactory::getDocument()->setMimeEncoding('application/json');
-		JFactory::getApplication()->setHeader('Content-Disposition', 'attachment;filename="kunena-install.json"');
+		Factory::getDocument()->setMimeEncoding('application/json');
+		Factory::getApplication()->setHeader('Content-Disposition', 'attachment;filename="kunena-install.json"');
 
 		$percent = intval(99 * $this->step / count($this->steps));
 
@@ -161,15 +180,16 @@ class KunenaControllerInstall extends JControllerLegacy
 			echo json_encode(array('success' => true, 'status' => '100%', 'current' => JText::_('COM_KUNENA_CONTROLLER_INSTALL_INSTALLATION_COMPLETE'), 'log' => $log));
 		}
 
-		JFactory::getApplication()->close();
+		Factory::getApplication()->close();
 	}
 
 	/**
 	 * @throws Exception
+	 * @since Kunena
 	 */
-	function uninstall()
+	public function uninstall()
 	{
-		if (!JSession::checkToken('get'))
+		if (!\Joomla\CMS\Session\Session::checkToken('get'))
 		{
 			$this->setRedirect('index.php?option=com_kunena');
 
@@ -178,7 +198,7 @@ class KunenaControllerInstall extends JControllerLegacy
 
 		$this->model->setAction('uninstall');
 		$this->model->deleteTables('kunena_');
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 		$app->enqueueMessage(JText::_('COM_KUNENA_INSTALL_REMOVED'));
 
 		if (class_exists('KunenaForum') && !KunenaForum::isDev())
@@ -187,8 +207,8 @@ class KunenaControllerInstall extends JControllerLegacy
 			jimport('joomla.filesystem.folder');
 			jimport('joomla.filesystem.file');
 
-			$installer = new JInstaller;
-			$component = JComponentHelper::getComponent('com_kunena');
+			$installer = new \Joomla\CMS\Installer\Installer;
+			$component = \Joomla\CMS\Component\ComponentHelper::getComponent('com_kunena');
 			$installer->uninstall('component', $component->id);
 
 			if (JFolder::exists(KPATH_MEDIA))
@@ -216,13 +236,13 @@ class KunenaControllerInstall extends JControllerLegacy
 
 	/**
 	 * @return mixed|null
-	 *
+	 * @since Kunena
 	 */
-	function runStep()
+	public function runStep()
 	{
 		if (empty($this->steps[$this->step]['step']))
 		{
-			return null;
+			return;
 		}
 
 		return call_user_func(array($this->model, "step" . $this->steps[$this->step]['step']));
@@ -231,10 +251,12 @@ class KunenaControllerInstall extends JControllerLegacy
 	/**
 	 * @param $type
 	 * @param $errstr
+	 *
+	 * @since Kunena
 	 */
-	static public function error($type, $errstr)
+	public static function error($type, $errstr)
 	{
-		$model = JModelLegacy::getInstance('Install', 'KunenaModel');
+		$model = \Joomla\CMS\MVC\Model\BaseDatabaseModel::getInstance('Install', 'KunenaModel');
 		$model->addStatus($type, false, $errstr);
 		echo json_encode(array('success' => false, 'html' => $errstr));
 	}
@@ -243,9 +265,9 @@ class KunenaControllerInstall extends JControllerLegacy
 	 * @param $exception
 	 *
 	 * @return boolean
-	 *
+	 * @since Kunena
 	 */
-	static public function exceptionHandler($exception)
+	public static function exceptionHandler($exception)
 	{
 		self::error('', 'Uncaught Exception: ' . $exception->getMessage());
 
@@ -259,9 +281,9 @@ class KunenaControllerInstall extends JControllerLegacy
 	 * @param $errline
 	 *
 	 * @return boolean
-	 *
+	 * @since Kunena
 	 */
-	static public function errorHandler($errno, $errstr, $errfile, $errline)
+	public static function errorHandler($errno, $errstr, $errfile, $errline)
 	{
 		// Self::error('', "Fatal Error: $errstr in $errfile on line $errline");
 		switch ($errno)

@@ -2,21 +2,23 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Site
+ * @package        Kunena.Site
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
-defined('_JEXEC') or die ();
+defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 // Display offline message if Kunena hasn't been fully installed.
 if (!class_exists('KunenaForum') || !KunenaForum::isCompatible('4.0') || !KunenaForum::installed())
 {
-	$lang = JFactory::getLanguage();
+	$lang = Factory::getLanguage();
 	$lang->load('com_kunena.install', JPATH_ADMINISTRATOR . '/components/com_kunena', 'en-GB');
 	$lang->load('com_kunena.install', JPATH_ADMINISTRATOR . '/components/com_kunena');
-	JFactory::getApplication()->sendHeaders('Status', '503 Service Temporarily Unavailable', true);
+	Factory::getApplication()->sendHeaders('Status', '503 Service Temporarily Unavailable', true);
 	?>
 	<h2><?php echo JText::_('COM_KUNENA_INSTALL_OFFLINE_TOPIC') ?></h2>
 	<div><?php echo JText::_('COM_KUNENA_INSTALL_OFFLINE_DESC') ?></div>
@@ -32,18 +34,18 @@ KUNENA_PROFILER ? $kunena_profiler->mark('afterLoad') : null;
 // Prevent direct access to the component if the option has been disabled.
 if (!KunenaConfig::getInstance()->get('access_component', 1))
 {
-	$active = JFactory::getApplication()->getMenu()->getActive();
+	$active = Factory::getApplication()->getMenu()->getActive();
 
 	if (!$active)
 	{
 		// Prevent access without using a menu item.
-		JLog::add("Kunena: Direct access denied: " . JUri::getInstance()->toString(array('path', 'query')), JLog::WARNING, 'kunena');
+		\Joomla\CMS\Log\Log::add("Kunena: Direct access denied: " . \Joomla\CMS\Uri\Uri::getInstance()->toString(array('path', 'query')), \Joomla\CMS\Log\Log::WARNING, 'kunena');
 		throw new Exception(JText::_('JLIB_APPLICATION_ERROR_COMPONENT_NOT_FOUND'), 404);
 	}
 	elseif ($active->type != 'component' || $active->component != 'com_kunena')
 	{
 		// Prevent spoofed access by using random menu item.
-		JLog::add("Kunena: spoofed access denied: " . JUri::getInstance()->toString(array('path', 'query')), JLog::WARNING, 'kunena');
+		\Joomla\CMS\Log\Log::add("Kunena: spoofed access denied: " . \Joomla\CMS\Uri\Uri::getInstance()->toString(array('path', 'query')), \Joomla\CMS\Log\Log::WARNING, 'kunena');
 		throw new Exception(JText::_('JLIB_APPLICATION_ERROR_COMPONENT_NOT_FOUND'), 404);
 	}
 }
@@ -69,15 +71,16 @@ if ($ksession->userid > 0)
 	{
 		$kuser->save();
 	}
+
 	// Save session
 	if (!$ksession->save())
 	{
-		JFactory::getApplication()->enqueueMessage(JText::_('COM_KUNENA_ERROR_SESSION_SAVE_FAILED'), 'error');
+		Factory::getApplication()->enqueueMessage(JText::_('COM_KUNENA_ERROR_SESSION_SAVE_FAILED'), 'error');
 	}
 }
 
 // Support legacy urls (they need to be redirected).
-$app   = JFactory::getApplication();
+$app   = Factory::getApplication();
 $input = $app->input;
 $input->set('limitstart', $input->getInt('limitstart', $input->getInt('start')));
 $view    = $input->getWord('func', $input->getWord('view', 'home'));
@@ -85,7 +88,7 @@ $subview = $input->getWord('layout', 'default');
 $task    = $input->getCmd('task', 'display');
 
 // Import plugins and event listeners.
-JPluginHelper::importPlugin('kunena');
+\Joomla\CMS\Plugin\PluginHelper::importPlugin('kunena');
 
 // Get HMVC controller and if exists, execute it.
 $controller = KunenaControllerApplication::getInstance($view, $subview, $task, $input, $app);
@@ -95,7 +98,6 @@ if ($controller)
 	KunenaRoute::cacheLoad();
 	$contents = $controller->execute();
 	KunenaRoute::cacheStore();
-
 }
 elseif (is_file(KPATH_SITE . "/controllers/{$view}.php"))
 {
@@ -117,7 +119,7 @@ else
 	if ($uri)
 	{
 		// FIXME: using wrong Itemid
-		JFactory::getApplication()->redirect(KunenaRoute::_($uri, false));
+		Factory::getApplication()->redirect(KunenaRoute::_($uri, false));
 	}
 	else
 	{
@@ -126,10 +128,15 @@ else
 }
 
 // Prepare and display the output.
-$dispatcher = JEventDispatcher::getInstance();
-$dispatcher->trigger('onKunenaBeforeRender', array("com_kunena.{$view}", &$contents));
+$params       = new stdClass;
+$params->text = '';
+$topics       = new stdClass;
+$topics->text = '';
+JPluginHelper::importPlugin('content');
+Factory::getApplication()->triggerEvent('onContentPrepare', array("com_kunena.{$view}", &$topics, &$params, 0));
+Factory::getApplication()->triggerEvent('onKunenaBeforeRender', array("com_kunena.{$view}", &$contents));
 $contents = (string) $contents;
-$dispatcher->trigger('onKunenaAfterRender', array("com_kunena.{$view}", &$contents));
+Factory::getApplication()->triggerEvent('onKunenaAfterRender', array("com_kunena.{$view}", &$contents));
 echo $contents;
 
 // Remove custom error handlers.
@@ -146,7 +153,8 @@ if (KUNENA_PROFILER)
 	foreach ($kunena_profiler->getAll() as $item)
 	{
 		echo sprintf("Kunena %s: %0.3f / %0.3f seconds (%d calls)<br/>", $item->name, $item->getInternalTime(),
-			$item->getTotalTime(), $item->calls);
+			$item->getTotalTime(), $item->calls
+		);
 	}
 
 	echo '</div>';

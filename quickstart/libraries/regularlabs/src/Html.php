@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         18.1.7274
+ * @version         18.5.26647
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -593,7 +593,7 @@ class Html
 		}
 
 		$p_start_tag   = '<p(?: [^>]*)?>';
-		$optional_tags = '\s*(?:<\!-- [^>]*-->|&nbsp;|&\#160;)*\s*';
+		$optional_tags = '\s*(?:<\!--.*?-->|&nbsp;|&\#160;)*\s*';
 		RegEx::matchAll('(' . $p_start_tag . ')(' . $optional_tags . ')(' . $p_start_tag . ')', $string, $tags);
 
 		if (empty($tags))
@@ -790,5 +790,31 @@ class Html
 		$post = substr($post, strlen($match[0]));
 
 		$string .= $match[0];
+	}
+
+	/**
+	 * Removes html tags from string
+	 *
+	 * @param string $string
+	 *
+	 * @return string
+	 */
+	public static function removeHtmlTags($string)
+	{
+		// remove pagenavcounter
+		$string = RegEx::replace('(<div class="pagenavcounter">.*?</div>)', ' ', $string);
+		// remove pagenavbar
+		$string = RegEx::replace('(<div class="pagenavbar">(<div>.*?</div>)*</div>)', ' ', $string);
+		// remove inline scripts
+		$string = RegEx::replace('(<script[^a-z0-9].*?</script>)', ' ', $string);
+		$string = RegEx::replace('(<noscript[^a-z0-9].*?</noscript>)', ' ', $string);
+		// remove inline styles
+		$string = RegEx::replace('(<style[^a-z0-9].*?</style>)', ' ', $string);
+		// remove other tags
+		$string = RegEx::replace('(</?[a-z][a-z0-9]?.*?>)', ' ', $string);
+		// remove double whitespace
+		$string = trim(RegEx::replace('(\s)[ ]+', '\1', $string));
+
+		return $string;
 	}
 }

@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Views
+ * @package         Kunena.Administrator
+ * @subpackage      Views
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * About view for Kunena cpanel
@@ -19,21 +21,21 @@ defined('_JEXEC') or die();
 class KunenaAdminViewCpanel extends KunenaView
 {
 	/**
-	 *
+	 * @since Kunena
 	 */
-	function displayDefault()
+	public function displayDefault()
 	{
-		$help_url  = 'https://docs.kunena.org/en/';
-		JToolBarHelper::help('COM_KUNENA', false, $help_url);
-		JToolBarHelper::title(JText::_('COM_KUNENA') . ': ' . JText::_('COM_KUNENA_DASHBOARD'), 'dashboard');
-		JToolBarHelper::link('https://www.kunena.org/bugs/changelog', JText::_('Changelog'));
-		JToolBarHelper::link('https://www.kunena.org/forum', JText::_('Get Support'));
+		$help_url = 'https://docs.kunena.org/en/';
+		JToolbarHelper::help('COM_KUNENA', false, $help_url);
+		JToolbarHelper::title(JText::_('COM_KUNENA') . ': ' . JText::_('COM_KUNENA_DASHBOARD'), 'dashboard');
+		JToolbarHelper::link('https://www.kunena.org/bugs/changelog', JText::_('Changelog'));
+		JToolbarHelper::link('https://www.kunena.org/forum', JText::_('Get Support'));
 
-		if (JFactory::getUser()->authorise('core.admin', 'com_kunena'))
+		if (Factory::getUser()->authorise('core.admin', 'com_kunena'))
 		{
-			JToolBarHelper::spacer();
-			JToolBarHelper::preferences('com_kunena');
-			JToolBarHelper::spacer();
+			JToolbarHelper::spacer();
+			JToolbarHelper::preferences('com_kunena');
+			JToolbarHelper::spacer();
 		}
 
 		$this->display();

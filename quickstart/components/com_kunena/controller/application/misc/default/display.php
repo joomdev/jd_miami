@@ -1,14 +1,16 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Application
+ * @package         Kunena.Site
+ * @subpackage      Controller.Application
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * Class ComponentKunenaControllerApplicationMiscDisplay
@@ -17,24 +19,34 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerApplicationMiscDefaultDisplay extends KunenaControllerApplicationDisplay
 {
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $header;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $body;
 
 	/**
 	 * Return custom display layout.
 	 *
 	 * @return KunenaLayout
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function display()
 	{
-		$app       = JFactory::getApplication();
+		$app       = Factory::getApplication();
 		$menu_item = $app->getMenu()->getActive();
 
-		$doc = JFactory::getDocument();
-		$config = JFactory::getApplication('site');
+		$doc             = Factory::getDocument();
+		$config          = Factory::getApplication('site');
 		$componentParams = $config->getParams('com_config');
-		$robots = $componentParams->get('robots');
+		$robots          = $componentParams->get('robots');
 
 		if ($robots == '')
 		{
@@ -113,15 +125,42 @@ class ComponentKunenaControllerApplicationMiscDefaultDisplay extends KunenaContr
 	 * Prepare custom text output.
 	 *
 	 * @return void
+	 * @since Kunena
+	 * @throws Exception
+	 * @throws null
 	 */
 	protected function before()
 	{
 		parent::before();
 
-		$params = $this->app->getParams('com_kunena');
+		$params       = $this->app->getParams('com_kunena');
 		$this->header = $params->get('page_title');
+		$Itemid       = $this->input->getInt('Itemid');
 
-		$body = $params->get('body');
+		if (!$Itemid)
+		{
+			if (KunenaConfig::getInstance()->custom_id)
+			{
+				$itemidfix = KunenaConfig::getInstance()->custom_id;
+			}
+			else
+			{
+				$menu      = $this->app->getMenu();
+				$getid     = $menu->getItem(KunenaRoute::getItemID("index.php?option=com_kunena&view=misc"));
+				$itemidfix = $getid->id;
+			}
+
+			if (!$itemidfix)
+			{
+				$itemidfix = KunenaRoute::fixMissingItemID();
+			}
+
+			$controller = JControllerLegacy::getInstance("kunena");
+			$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=misc&Itemid={$itemidfix}", false));
+			$controller->redirect();
+		}
+
+		$body   = $params->get('body');
 		$format = $params->get('body_format');
 
 		$this->header = htmlspecialchars($this->header, ENT_COMPAT, 'UTF-8');
@@ -141,12 +180,10 @@ class ComponentKunenaControllerApplicationMiscDefaultDisplay extends KunenaContr
 		{
 			$this->body = function () use ($body) {
 
-				// @var JCache|JCacheControllerCallback $cache
-
-				$cache = JFactory::getCache('com_kunena', 'callback');
+				$cache = Factory::getCache('com_kunena', 'callback');
 				$cache->setLifeTime(180);
 
-				return $cache->call(array('KunenaHtmlParser','parseBBCode'), $body);
+				return $cache->call(array('KunenaHtmlParser', 'parseBBCode'), $body);
 			};
 		}
 	}

@@ -1,14 +1,16 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Application
+ * @package         Kunena.Site
+ * @subpackage      Controller.Application
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * Class ComponentKunenaControllerApplicationAttachmentDefaultDisplay
@@ -23,6 +25,7 @@ class ComponentKunenaControllerApplicationAttachmentDefaultDisplay extends Kunen
 	 * Return true if layout exists.
 	 *
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function exists()
 	{
@@ -36,6 +39,8 @@ class ComponentKunenaControllerApplicationAttachmentDefaultDisplay extends Kunen
 	 *
 	 * @throws RuntimeException
 	 * @throws KunenaExceptionAuthorise
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function execute()
 	{
@@ -67,16 +72,17 @@ class ComponentKunenaControllerApplicationAttachmentDefaultDisplay extends Kunen
 	 *
 	 * @return void
 	 *
-	 * @throws RuntimeException
-	 * @throws KunenaExceptionAuthorise
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	public function display()
 	{
 		KunenaFactory::loadLanguage('com_kunena');
 
-		$format = $this->input->getWord('format', 'html');
-		$id = $this->input->getInt('id', 0);
-		$thumb = $this->input->getBool('thumb', false);
+		$format   = $this->input->getWord('format', 'html');
+		$id       = $this->input->getInt('id', 0);
+		$thumb    = $this->input->getBool('thumb', false);
 		$download = $this->input->getBool('download', false);
 
 		// Run before executing action.
@@ -192,14 +198,16 @@ class ComponentKunenaControllerApplicationAttachmentDefaultDisplay extends Kunen
 	 * Prepare attachment display.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function before()
 	{
 		// Load language files.
 		KunenaFactory::loadLanguage('com_kunena.sys', 'admin');
 
-		$this->me = KunenaUserHelper::getMyself();
-		$this->config = KunenaConfig::getInstance();
-		$this->document = JFactory::getDocument();
+		$this->me       = KunenaUserHelper::getMyself();
+		$this->config   = KunenaConfig::getInstance();
+		$this->document = Factory::getDocument();
 	}
 }

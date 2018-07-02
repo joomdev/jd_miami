@@ -1,12 +1,12 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Framework
- * @subpackage  File
+ * @package         Kunena.Framework
+ * @subpackage      File
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 
@@ -15,14 +15,16 @@ jimport('joomla.filesystem.file');
 /**
  * Class KunenaFile
  *
- * @see JFile
+ * @see   JFile
+ * @since Kunena
  */
 class KunenaFile extends JFile
 {
 	/**
-	 * @param $file
+	 * @param   string $file file
 	 *
 	 * @return boolean|mixed|string
+	 * @since Kunena
 	 */
 	public static function getMime($file)
 	{

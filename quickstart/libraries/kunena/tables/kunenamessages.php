@@ -1,47 +1,156 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Tables
+ * @package       Kunena.Framework
+ * @subpackage    Tables
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
-require_once(__DIR__ . '/kunena.php');
+use Joomla\CMS\Factory;
+
+require_once __DIR__ . '/kunena.php';
 
 /**
  * Kunena Messages
  * Provides access to the #__kunena_messages table
+ * @since Kunena
  */
 class TableKunenaMessages extends KunenaTable
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $id = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $parent = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $thread = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $catid = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $name = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $userid = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $email = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $subject = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $time = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $ip = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $topic_emoticon = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $locked = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $hold = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $ordering = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $hits = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $moved = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $modified_by = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $modified_time = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $modified_reason = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $params = null;
+
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	public $message = null;
 
 	/**
-	 * @param   string $db
+	 * @param   JDatabaseDriver $db Database driver
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($db)
 	{
@@ -49,24 +158,17 @@ class TableKunenaMessages extends KunenaTable
 	}
 
 	/**
-	 *
-	 */
-	public function reset()
-	{
-		parent::reset();
-		$this->message = null;
-	}
-
-	/**
-	 * @param   null $id
-	 * @param   bool $reset
+	 * @param   null $id    id
+	 * @param   bool $reset reset
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function load($id = null, $reset = true)
 	{
 		$this->_exists = false;
-		$k = $this->_tbl_key;
+		$k             = $this->_tbl_key;
 
 		// Get the id to load.
 		if ($id !== null)
@@ -89,19 +191,27 @@ class TableKunenaMessages extends KunenaTable
 		}
 
 		// Load the user data.
-		$query = "SELECT m.*, t.message FROM #__kunena_messages AS m INNER JOIN #__kunena_messages_text AS t ON m.id=t.mesid WHERE m.id = {$this->$k}";
+		$query = $this->_db->getQuery(true);
+		$query->select(array('m.*', 't.message'));
+		$query->from($this->_db->quoteName('#__kunena_messages', 'm'));
+		$query->innerJoin($this->_db->quoteName('#__kunena_messages_text', 't') .
+			' ON ' . $this->_db->quoteName('m.id') . ' = ' . $this->_db->quoteName('t.mesid')
+		);
+		$query->where($this->_db->quoteName('m.id') . '=' . $this->$k);
 		$this->_db->setQuery($query);
-		$data = $this->_db->loadAssoc();
 
-		// Check for an error message.
-		if ($this->_db->getErrorNum())
+		try
 		{
-			$this->setError($this->_db->getErrorMsg());
+			$data = $this->_db->loadAssoc();
+		}
+		catch (JDatabaseExceptionExecuting $e)
+		{
+			KunenaError::displayDatabaseError($e);
 
 			return false;
 		}
 
-		if(!$data)
+		if (!$data)
 		{
 			$this->$k = 0;
 
@@ -117,7 +227,18 @@ class TableKunenaMessages extends KunenaTable
 	}
 
 	/**
+	 * @since Kunena
+	 * @return void
+	 */
+	public function reset()
+	{
+		parent::reset();
+		$this->message = null;
+	}
+
+	/**
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function check()
 	{
@@ -134,12 +255,14 @@ class TableKunenaMessages extends KunenaTable
 		}
 
 		$this->subject = trim($this->subject);
+
 		if (!$this->subject)
 		{
 			$this->setError(JText::_('COM_KUNENA_LIB_TABLE_MESSAGES_ERROR_NO_SUBJECT'));
 		}
 
 		$this->message = trim($this->message);
+
 		if (!$this->message)
 		{
 			$this->setError(JText::_('COM_KUNENA_LIB_TABLE_MESSAGES_ERROR_NO_MESSAGE'));
@@ -147,23 +270,26 @@ class TableKunenaMessages extends KunenaTable
 
 		if (!$this->time)
 		{
-			$this->time = JFactory::getDate()->toUnix();
+			$this->time = Factory::getDate()->toUnix();
 		}
 
 		$this->modified_reason = trim($this->modified_reason);
 
-		return ($this->getError() == '');
+		return $this->getError() == '';
 	}
 
 	/**
 	 * @param   boolean $updateNulls has no effect.
+	 *
 	 * @return boolean
-	 * @see KunenaTable::store()
+	 * @throws Exception
+	 * @see   KunenaTable::store()
+	 * @since Kunena
 	 */
 	public function store($updateNulls = false)
 	{
-		$k = $this->_tbl_key;
-		$update = $this->_exists;
+		$k       = $this->_tbl_key;
+		$update  = $this->_exists;
 		$message = $this->message;
 		unset($this->message);
 
@@ -173,23 +299,35 @@ class TableKunenaMessages extends KunenaTable
 		}
 
 		$this->message = $message;
+		$query         = $this->_db->getQuery(true);
 
 		if ($update)
 		{
-			$query = "UPDATE #__kunena_messages_text SET message={$this->_db->quote($this->message)} WHERE mesid = {$this->$k}";
+			$query->update($this->_db->quoteName('#__kunena_messages_text'));
+			$query->set($this->_db->quoteName('message') . '=' . $this->_db->quote($this->message));
+			$query->where($this->_db->quoteName('mesid') . '=' . $this->$k);
 		}
 		else
 		{
-			$query = "INSERT INTO #__kunena_messages_text (mesid, message) VALUES ({$this->$k}, {$this->_db->quote($this->message)})";
+			$query->insert('#__kunena_messages_text')
+				->columns(
+					array(
+						$this->_db->quoteName('mesid'),
+						$this->_db->quoteName('message'),
+					)
+				)
+				->values($this->$k . ', ' . $this->_db->quote($this->message));
 		}
 
 		$this->_db->setQuery($query);
-		$this->_db->execute();
 
-		// Check for an error message.
-		if ($this->_db->getErrorNum())
+		try
 		{
-			$this->setError($this->_db->getErrorMsg());
+			$this->_db->execute();
+		}
+		catch (JDatabaseExceptionExecuting $e)
+		{
+			KunenaError::displayDatabaseError($e);
 
 			return false;
 		}

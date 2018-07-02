@@ -1,34 +1,43 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Integration
+ * @package       Kunena.Framework
+ * @subpackage    Integration
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Class KunenaPrivate
+ * @since Kunena
  */
 class KunenaPrivate
 {
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected static $instance = false;
 
 	/**
-	 * @param   null $integration
+	 * @param   null $integration integration
 	 *
 	 * @return boolean|KunenaPrivate
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	static public function getInstance($integration = null)
+	public static function getInstance($integration = null)
 	{
 		if (self::$instance === false)
 		{
-			JPluginHelper::importPlugin('kunena');
-			$dispatcher = JEventDispatcher::getInstance();
-			$classes = $dispatcher->trigger('onKunenaGetPrivate');
+			\Joomla\CMS\Plugin\PluginHelper::importPlugin('kunena');
+
+			$classes = Factory::getApplication()->triggerEvent('onKunenaGetPrivate');
 
 			foreach ($classes as $class)
 			{
@@ -43,7 +52,7 @@ class KunenaPrivate
 
 			if (!self::$instance)
 			{
-				self::$instance = new KunenaPrivate();
+				self::$instance = new KunenaPrivate;
 			}
 		}
 
@@ -51,33 +60,15 @@ class KunenaPrivate
 	}
 
 	/**
-	 * @param $userid
+	 * @param   integer $userid userid
 	 *
 	 * @return string
-	 */
-	protected function getOnClick($userid)
-	{
-		return '';
-	}
-
-	/**
-	 * @param $userid
-	 *
-	 * @return string
-	 */
-	protected function getURL($userid)
-	{
-		return '';
-	}
-
-	/**
-	 * @param $userid
-	 *
-	 * @return string
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function showIcon($userid)
 	{
-		$my = JFactory::getUser();
+		$my = Factory::getUser();
 
 		// Don't send messages from/to anonymous and to yourself
 		if ($my->id == 0 || $userid == 0 || $userid == $my->id)
@@ -116,21 +107,45 @@ class KunenaPrivate
 		}
 
 		// We should offer the user a PM link
-		return '<a class="' . $class . '" href="' . $url . '""' . $onclick . '">' . KunenaIcons::pm() .'</a>';
+		return '<a class="' . $class . '" href="' . $url . '""' . $onclick . '">' . KunenaIcons::pm() . '</a>';
 	}
 
 	/**
-	 * @param        $userid
-	 * @param string $class
-	 * @param string $icon
+	 * @param   integer $userid userid
 	 *
 	 * @return string
+	 * @since Kunena
+	 */
+	protected function getURL($userid)
+	{
+		return '';
+	}
+
+	/**
+	 * @param   integer $userid userid
+	 *
+	 * @return string
+	 * @since Kunena
+	 */
+	protected function getOnClick($userid)
+	{
+		return '';
+	}
+
+	/**
+	 * @param   integer $userid userid
+	 * @param   string  $class  class
+	 * @param   string  $icon   icon
+	 *
+	 * @return string
+	 * @throws Exception
 	 * @internal param $text
+	 * @since    Kunena
 	 */
 	public function shownewIcon($userid, $class = '', $icon = '')
 	{
-		$my = JFactory::getUser();
-		$url = $this->getURL($userid);
+		$my      = Factory::getUser();
+		$url     = $this->getURL($userid);
 		$onclick = $this->getOnClick($userid);
 
 		// No PMS enabled or PM not allowed
@@ -165,23 +180,31 @@ class KunenaPrivate
 		// Don't send messages from/to anonymous and to yourself
 		if ($userid == $my->id)
 		{
-			$this->pmCount = $this->getUnreadCount($my->id);
-			$text = $this->pmCount ? JText::sprintf('COM_KUNENA_PMS_INBOX_NEW', $this->pmCount) : JText::_('COM_KUNENA_PMS_INBOX');
-			$url = $this->getInboxURL();
+			$pmCount = $this->getUnreadCount($my->id);
+			$text    = $pmCount ? JText::sprintf('COM_KUNENA_PMS_INBOX_NEW', $pmCount) : JText::_('COM_KUNENA_PMS_INBOX');
+			$url     = $this->getInboxURL();
+
 			return '<a class="' . $class . '" href="' . $url . '">' . KunenaIcons::pm() . ' ' . $text . '</a>';
 		}
 
 		// We should offer the user a PM link
-		return '<a class="' . $class . '" href="' . $url . '"' . $onclick . '>'. KunenaIcons::pm() . ' ' . JText::_('COM_KUNENA_PM_WRITE') . '</a>';
+		return '<a class="' . $class . '" href="' . $url . '"' . $onclick . '>' . KunenaIcons::pm() . ' ' . JText::_('COM_KUNENA_PM_WRITE') . '</a>';
 	}
 
-	public function getInboxLink($text)
+	/**
+	 * @param   integer $userid userid
+	 *
+	 * @return integer
+	 * @since Kunena
+	 */
+	public function getUnreadCount($userid)
 	{
-		return '';
+		return 0;
 	}
 
 	/**
 	 * @return string
+	 * @since Kunena
 	 */
 	public function getInboxURL()
 	{
@@ -189,12 +212,13 @@ class KunenaPrivate
 	}
 
 	/**
-	 * @param $userid
+	 * @param   string $text text
 	 *
-	 * @return integer
+	 * @return string
+	 * @since Kunena
 	 */
-	public function getUnreadCount($userid)
+	public function getInboxLink($text)
 	{
-		return 0;
+		return '';
 	}
 }

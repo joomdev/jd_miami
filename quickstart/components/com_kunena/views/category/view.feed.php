@@ -2,26 +2,30 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Views
+ * @package         Kunena.Site
+ * @subpackage      Views
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Category View
+ * @since Kunena
  */
 class KunenaViewCategory extends KunenaView
 {
 	/**
-	 * @param   null $tpl
+	 * @param   null $tpl tpl
 	 *
 	 * @throws Exception
+	 * @since Kunena
 	 */
-	function displayDefault($tpl = null)
+	public function displayDefault($tpl = null)
 	{
 		if (!$this->config->enablerss)
 		{
@@ -32,7 +36,7 @@ class KunenaViewCategory extends KunenaView
 
 		$this->category = $this->get('Category');
 
-		if (!$this->category->authorise('read'))
+		if (!$this->category->isAuthorised('read'))
 		{
 			throw new Exception($this->category->getError(), 404);
 		}
@@ -46,7 +50,7 @@ class KunenaViewCategory extends KunenaView
 		$this->document->setDescription($metaDesc);
 
 		// Create image for feed
-		$image                 = new JFeedImage;
+		$image                 = new \Joomla\CMS\Document\Feed\FeedImage;
 		$image->title          = $this->document->getTitle();
 		$image->url            = $this->ktemplate->getImagePath('icons/rss.png');
 		$image->description    = $this->document->getDescription();
@@ -55,7 +59,7 @@ class KunenaViewCategory extends KunenaView
 		foreach ($this->topics as $topic)
 		{
 			$description = $topic->last_post_message;
-			$date        = new JDate($topic->last_post_time);
+			$date        = new \Joomla\CMS\Date\Date($topic->last_post_time);
 			$userid      = $topic->last_post_userid;
 			$username    = KunenaFactory::getUser($userid)->getName($topic->last_post_guest_name);
 
@@ -75,8 +79,11 @@ class KunenaViewCategory extends KunenaView
 	 * @param $date
 	 * @param $userid
 	 * @param $username
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	function createItem($title, $url, $description, $category, $date, $userid, $username)
+	public function createItem($title, $url, $description, $category, $date, $userid, $username)
 	{
 		if ($this->config->rss_author_in_title)
 		{
@@ -99,7 +106,7 @@ class KunenaViewCategory extends KunenaView
 		}
 
 		// Assign values to feed item
-		$item              = new JFeedItem;
+		$item              = new \Joomla\CMS\Document\Feed\FeedItem;
 		$item->title       = $title;
 		$item->link        = $url;
 		$item->description = $description;
@@ -109,7 +116,7 @@ class KunenaViewCategory extends KunenaView
 		// FIXME: inefficient to load users one by one -- also vulnerable to J! 2.5 user is NULL bug
 		if ($this->config->rss_author_format != 'name')
 		{
-			$item->authorEmail = JFactory::getUser($userid)->email;
+			$item->authorEmail = Factory::getUser($userid)->email;
 		}
 
 		$item->category = $category;

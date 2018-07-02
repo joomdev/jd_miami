@@ -2,20 +2,21 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Layout.Announcement.Edit
+ * @package         Kunena.Site
+ * @subpackage      Layout.Announcement.Edit
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * KunenaLayoutAnnouncementEdit
  *
  * @since  K4.0
- *
  */
 class KunenaLayoutAnnouncementEdit extends KunenaLayout
 {
@@ -27,6 +28,7 @@ class KunenaLayoutAnnouncementEdit extends KunenaLayout
 	 * @param   int    $id         Id to be added to the input
 	 *
 	 * @return string
+	 * @since Kunena
 	 */
 	public function displayInput($name, $attributes = '', $id = null)
 	{
@@ -48,16 +50,16 @@ class KunenaLayoutAnnouncementEdit extends KunenaLayout
 				return '<input type="text" class="span12" name="publish_down" data-date-format="yyyy-mm-dd" value="' . $this->escape($this->announcement->publish_down) . '">' . $attributes;
 			case 'showdate':
 				$options   = array();
-				$options[] = JHtml::_('select.option', '0', JText::_('COM_KUNENA_NO'));
-				$options[] = JHtml::_('select.option', '1', JText::_('COM_KUNENA_YES'));
+				$options[] = HTMLHelper::_('select.option', '0', JText::_('COM_KUNENA_NO'));
+				$options[] = HTMLHelper::_('select.option', '1', JText::_('COM_KUNENA_YES'));
 
-				return JHtml::_('select.genericlist', $options, 'showdate', $attributes, 'value', 'text', $this->announcement->showdate, $id);
+				return HTMLHelper::_('select.genericlist', $options, 'showdate', $attributes, 'value', 'text', $this->announcement->showdate, $id);
 			case 'published':
 				$options   = array();
-				$options[] = JHtml::_('select.option', '0', JText::_('COM_KUNENA_NO'));
-				$options[] = JHtml::_('select.option', '1', JText::_('COM_KUNENA_YES'));
+				$options[] = HTMLHelper::_('select.option', '0', JText::_('COM_KUNENA_NO'));
+				$options[] = HTMLHelper::_('select.option', '1', JText::_('COM_KUNENA_YES'));
 
-				return JHtml::_('select.genericlist', $options, 'published', $attributes, 'value', 'text', $this->announcement->published, $id);
+				return HTMLHelper::_('select.genericlist', $options, 'published', $attributes, 'value', 'text', $this->announcement->published, $id);
 		}
 
 		return '';

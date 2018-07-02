@@ -7,7 +7,7 @@
  * https://blueimp.net
  *
  * Licensed under the MIT license:
- * https://opensource.org/licenses/MIT
+ * http://www.opensource.org/licenses/MIT
  */
 
 .fileinput-button {
@@ -15,6 +15,7 @@
 	overflow: hidden;
 	display: inline-block;
 }
+
 .fileinput-button input {
 	position: absolute;
 	top: 0;

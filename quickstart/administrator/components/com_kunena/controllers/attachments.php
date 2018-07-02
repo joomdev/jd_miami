@@ -2,12 +2,12 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Controllers
+ * @package         Kunena.Administrator
+ * @subpackage      Controllers
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
@@ -19,7 +19,6 @@ defined('_JEXEC') or die();
 class KunenaAdminControllerAttachments extends KunenaController
 {
 	/**
-	 *
 	 * @since    2.0.0-BETA2
 	 *
 	 * @var null|string
@@ -29,8 +28,9 @@ class KunenaAdminControllerAttachments extends KunenaController
 	/**
 	 * Constructor
 	 *
-	 * @param   array  $config  Construct
+	 * @param   array $config Construct
 	 *
+	 * @throws Exception
 	 * @since 2.0
 	 */
 	public function __construct($config = array())
@@ -47,10 +47,11 @@ class KunenaAdminControllerAttachments extends KunenaController
 	 * @return void
 	 *
 	 * @since 2.0
+	 * @throws null
 	 */
 	public function delete()
 	{
-		if (!JSession::checkToken('post'))
+		if (!\Joomla\CMS\Session\Session::checkToken('post'))
 		{
 			$this->app->enqueueMessage(JText::_('COM_KUNENA_ERROR_TOKEN'), 'error');
 			$this->setRedirect(KunenaRoute::_($this->baseurl, false));
@@ -58,7 +59,7 @@ class KunenaAdminControllerAttachments extends KunenaController
 			return;
 		}
 
-		$cid = JFactory::getApplication()->input->get('cid', array(), 'post', 'array');
+		$cid = $this->app->input->get('cid', array(), 'post', 'array');
 		Joomla\Utilities\ArrayHelper::toInteger($cid);
 
 		if (!$cid)
@@ -73,10 +74,10 @@ class KunenaAdminControllerAttachments extends KunenaController
 		{
 			$attachment = KunenaAttachmentHelper::get($id);
 
-			$message = $attachment->getMessage();
+			$message     = $attachment->getMessage();
 			$attachments = array($attachment->id, 1);
-			$attach = array();
-			$removeList = array_keys(array_diff_key($attachments, $attach));
+			$attach      = array();
+			$removeList  = array_keys(array_diff_key($attachments, $attach));
 			Joomla\Utilities\ArrayHelper::toInteger($removeList);
 			$message->removeAttachments($removeList);
 			$message->save();

@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Models
+ * @package         Kunena.Administrator
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 jimport('joomla.application.component.modellist');
 
@@ -18,11 +20,12 @@ jimport('joomla.application.component.modellist');
  *
  * @since 3.0
  */
-class KunenaAdminModelRanks extends JModelList
+class KunenaAdminModelRanks extends \Joomla\CMS\MVC\Model\ListModel
 {
-
 	/**
-	 * @param   array $config
+	 * @param   array $config config
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($config = array())
 	{
@@ -43,16 +46,18 @@ class KunenaAdminModelRanks extends JModelList
 	/**
 	 * Method to auto-populate the model state.
 	 *
-	 * @param   string $ordering
-	 * @param   string $direction
+	 * @param   string $ordering  ordering
+	 * @param   string $direction direction
 	 *
 	 * @return    void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
 		$this->context = 'com_kunena.admin.ranks';
 
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 
 		// Adjust the context to support modal layouts.
 		$layout        = $app->input->get('layout');
@@ -86,10 +91,11 @@ class KunenaAdminModelRanks extends JModelList
 	}
 
 	/**
-	 * @param   string  $id
+	 * @param   string $id id
 	 *
 	 * @return string
 	 *
+	 * @since Kunena
 	 */
 	protected function getStoreId($id = '')
 	{
@@ -103,7 +109,7 @@ class KunenaAdminModelRanks extends JModelList
 
 	/**
 	 * @return JDatabaseQuery
-	 *
+	 * @since Kunena
 	 */
 	protected function getListQuery()
 	{

@@ -2,13 +2,15 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Installer
+ * @package        Kunena.Installer
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 // Kunena 1.6.0: Convert attachments table to support new multi file attachments
 /**
@@ -16,10 +18,11 @@ defined('_JEXEC') or die();
  *
  * @return array
  * @throws KunenaInstallerException
+ * @since Kunena
  */
 function kunena_160_2010_05_30_attachments($parent)
 {
-	$db = JFactory::getDbo();
+	$db = Factory::getDbo();
 
 	// First check if attachments table has legacy field
 	$fields = $db->getTableColumns('#__kunena_attachments');
@@ -35,22 +38,28 @@ function kunena_160_2010_05_30_attachments($parent)
 
 	$query = "DROP TABLE IF EXISTS `#__kunena_attachments_bak`";
 	$db->setQuery($query);
-	$db->execute();
 
-	if ($db->getErrorNum())
+	try
 	{
-		throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+		$db->execute();
+	}
+	catch (Exception $e)
+	{
+		throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 	}
 
 	// Attachments table has file location - assume we have to convert attachments
 	// Hash and size commited -> NULL
 	$query = "RENAME TABLE `#__kunena_attachments` TO `#__kunena_attachments_bak`";
 	$db->setQuery($query);
-	$db->execute();
 
-	if ($db->getErrorNum())
+	try
 	{
-		throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+		$db->execute();
+	}
+	catch (Exception $e)
+	{
+		throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 	}
 
 	$collation = $db->getCollation();
@@ -64,7 +73,8 @@ function kunena_160_2010_05_30_attachments($parent)
 	{
 		$str = 'utf8mb4';
 	}
-	else {
+	else
+	{
 		$str = 'utf8';
 	}
 
@@ -84,26 +94,32 @@ function kunena_160_2010_05_30_attachments($parent)
 					KEY `filename` (`filename`) ) DEFAULT CHARACTER SET {$str} COLLATE {$collation};";
 
 	$db->setQuery($query);
-	$db->execute();
 
-	if ($db->getErrorNum())
+	try
 	{
-		throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+		$db->execute();
+	}
+	catch (Exception $e)
+	{
+		throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 	}
 
-	$query = "INSERT INTO #__kunena_attachments (mesid, userid, folder, filetype, filename)
+	$query = "INSERT INTO `#__kunena_attachments` (mesid, userid, folder, filetype, filename)
 				SELECT a.mesid, m.userid,
 					SUBSTRING_INDEX(SUBSTRING_INDEX(a.filelocation, '/', -4), '/', 3) AS folder,
 					SUBSTRING_INDEX(a.filelocation, '.', -1) AS filetype,
 					SUBSTRING_INDEX(a.filelocation, '/', -1) AS filename
-				FROM #__kunena_attachments_bak AS a
-				JOIN #__kunena_messages AS m ON a.mesid = m.id";
+				FROM `#__kunena_attachments_bak` AS a
+				JOIN `#__kunena_messages` AS m ON a.mesid = m.id";
 	$db->setQuery($query);
-	$db->execute();
 
-	if ($db->getErrorNum())
+	try
 	{
-		throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+		$db->execute();
+	}
+	catch (Exception $e)
+	{
+		throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 	}
 
 	// By now the old attachmets table has been converted to the new Kunena 1.6 format

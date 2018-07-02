@@ -1,28 +1,33 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Template
+ * @package       Kunena.Framework
+ * @subpackage    Template
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Class KunenaTemplateLegacy is needed to load support for legacy templates
+ * @since Kunena
  */
 class KunenaTemplateLegacy
 {
 	/**
-	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public static function load()
-{}
+	{
+	}
 }
 
-$app = JFactory::getApplication('Site');
+$app = Factory::getApplication('Site');
 
 if (!defined('DS'))
 {
@@ -63,7 +68,7 @@ define('KUNENA_VERSION_NAME', KunenaForum::versionName());
 define('KUNENA_VERSION_BUILD', 0);
 
 // Joomla URL
-define('KUNENA_JLIVEURL', JUri::base(true) . '/');
+define('KUNENA_JLIVEURL', \Joomla\CMS\Uri\Uri::base(true) . '/');
 
 // Joomla template dir
 define('KUNENA_JTEMPLATEPATH', KUNENA_ROOT_PATH . "/templates/{$app->getTemplate()}");
@@ -87,8 +92,8 @@ define('KUNENA_TMPLTCSSURL', KUNENA_TMPLTURL . 'css/kunena.forum-min.css');
 
 /**
  * Class CKunenaTools is legacy class from Kunena 1.6/1.7
+ * @since Kunena
  */
 class CKunenaTools
 {
-
 }

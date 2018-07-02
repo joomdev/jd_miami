@@ -2,12 +2,12 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Views
+ * @package         Kunena.Administrator
+ * @subpackage      Views
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
@@ -19,9 +19,10 @@ defined('_JEXEC') or die();
 class KunenaAdminViewRank extends KunenaView
 {
 	/**
-	 * @param   null $tpl
+	 * @param   null $tpl tpl
 	 *
 	 * @return mixed|void
+	 * @since Kunena
 	 */
 	public function display($tpl = null)
 	{
@@ -36,16 +37,16 @@ class KunenaAdminViewRank extends KunenaView
 	}
 
 	/**
-	 *
+	 * @since Kunena
 	 */
 	protected function setToolbar()
 	{
-		JToolBarHelper::title(JText::_('COM_KUNENA') . ': ' . JText::_('COM_KUNENA_RANK_MANAGER'), 'ranks');
-		JToolBarHelper::spacer();
-		JToolBarHelper::save('save');
-		JToolBarHelper::spacer();
-		JToolBarHelper::cancel();
-		$help_url  = 'https://docs.kunena.org/en/manual/backend/ranks/edit-rank';
-		JToolBarHelper::help('COM_KUNENA', false, $help_url);
+		JToolbarHelper::title(JText::_('COM_KUNENA') . ': ' . JText::_('COM_KUNENA_RANK_MANAGER'), 'ranks');
+		JToolbarHelper::spacer();
+		JToolbarHelper::save('save');
+		JToolbarHelper::spacer();
+		JToolbarHelper::cancel();
+		$help_url = 'https://docs.kunena.org/en/manual/backend/ranks/edit-rank';
+		JToolbarHelper::help('COM_KUNENA', false, $help_url);
 	}
 }

@@ -2,21 +2,37 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Kunena
+ * @package         Kunena.Plugins
+ * @subpackage      Kunena
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+/**
+ * Class KunenaAvatarKunena
+ * @since Kunena
+ */
 class KunenaAvatarKunena extends KunenaAvatar
 {
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $params = null;
 
 	/**
+	 * @var null
+	 * @since Kunena
+	 */
+	public $css = true;
+
+	/**
 	 * @param $params
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($params)
 	{
@@ -26,6 +42,9 @@ class KunenaAvatarKunena extends KunenaAvatar
 
 	/**
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getEditURL()
 	{
@@ -38,6 +57,8 @@ class KunenaAvatarKunena extends KunenaAvatar
 	 * @param $sizey
 	 *
 	 * @return string
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function _getURL($user, $sizex, $sizey)
 	{
@@ -53,11 +74,11 @@ class KunenaAvatarKunena extends KunenaAvatar
 			// If avatar does not exist use default image.
 			if ($sizex <= 90)
 			{
-				$avatar = 's_nophoto.png';
+				$avatar = KunenaConfig::getInstance()->defaultavatarsmall;
 			}
 			else
 			{
-				$avatar = 'nophoto.png';
+				$avatar = KunenaConfig::getInstance()->defaultavatar;
 			}
 
 			// Search from the template.
@@ -78,14 +99,29 @@ class KunenaAvatarKunena extends KunenaAvatar
 			$resized = "resized/size{$sizex}x{$sizey}/{$dir}";
 		}
 
-		// TODO: make timestamp configurable?
-		$timestamp = '';
+		if ($user->timestamp)
+		{
+			$timestamp = '?' . $user->timestamp;
+		}
+		else
+		{
+			$timestamp = '';
+		}
 
 		if (!is_file("{$path}/{$resized}/{$file}"))
 		{
 			KunenaImageHelper::version($origPath, "{$path}/{$resized}", $file, $sizex,
-				$sizey, intval($config->avatarquality), KunenaImage::SCALE_INSIDE, intval($config->avatarcrop));
-			$timestamp = '?' . round(microtime(true));
+				$sizey, intval($config->avatarquality), KunenaImage::SCALE_INSIDE, intval($config->avatarcrop)
+			);
+
+			if ($user->timestamp)
+			{
+				$timestamp = '?' . $user->timestamp;
+			}
+			else
+			{
+				$timestamp = '?' . round(microtime(true));
+			}
 		}
 
 		return KURL_MEDIA . "avatars/{$resized}/{$file}{$timestamp}";

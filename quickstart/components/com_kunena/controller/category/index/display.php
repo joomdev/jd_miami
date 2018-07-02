@@ -1,14 +1,17 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Category
+ * @package         Kunena.Site
+ * @subpackage      Controller.Category
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * Class ComponentKunenaControllerApplicationMiscDisplay
@@ -17,25 +20,49 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerCategoryIndexDisplay extends KunenaControllerDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'Category/Index';
 
 	/**
 	 * @var KunenaUser
+	 * @since Kunena
 	 */
 	public $me;
 
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	public $sections = array();
 
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	public $categories = array();
 
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	public $pending = array();
 
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	public $more = array();
 
 	/**
 	 * Prepare category index display.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function before()
 	{
@@ -44,11 +71,64 @@ class ComponentKunenaControllerCategoryIndexDisplay extends KunenaControllerDisp
 		$this->me = KunenaUserHelper::getMyself();
 
 		// Get sections to display.
-		$catid = $this->input->getInt('catid', 0);
+		$catid       = $this->input->getInt('catid', 0);
+		$view        = $this->input->getInt('view');
+		$Itemid      = $this->input->getInt('Itemid');
+		$defaultmenu = $this->input->getInt('defaultmenu');
+		$layout      = $this->input->getInt('layout');
 
+		if (!$Itemid && KunenaConfig::getInstance()->sef_redirect)
+		{
+			$controller = JControllerLegacy::getInstance("kunena");
+
+			if (KunenaConfig::getInstance()->index_id)
+			{
+				$itemidfix = KunenaConfig::getInstance()->index_id;
+			}
+			else
+			{
+				$menu = $this->app->getMenu();
+
+				if ($view == 'home')
+				{
+					$getid = $menu->getItem(KunenaRoute::getItemID("index.php?option=com_kunena&view=home&defaultmenu={$defaultmenu}"));
+				}
+				else
+				{
+					$getid = $menu->getItem(KunenaRoute::getItemID("index.php?option=com_kunena&view=category&layout=list"));
+				}
+
+				$itemidfix = $getid->id;
+			}
+
+			if (!$itemidfix)
+			{
+				$itemidfix = KunenaRoute::fixMissingItemID();
+			}
+
+			if ($view == 'home')
+			{
+				if ($defaultmenu)
+				{
+					$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=home&defaultmenu={$defaultmenu}&Itemid={$itemidfix}", false));
+				}
+				else
+				{
+					$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=category&layout=list&Itemid={$itemidfix}", false));
+				}
+			}
+			else
+			{
+				$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=category&layout=list&Itemid={$itemidfix}", false));
+			}
+
+			$controller->redirect();
+		}
 
 		$allowed = md5(serialize(KunenaAccess::getInstance()->getAllowedCategories()));
-		/*$cache   = JFactory::getCache('com_kunena', 'output');
+
+		/*
+		$cache   = Factory::getCache('com_kunena', 'output');
 
 		if ($cache->start("{$this->ktemplate->name}.common.jump.{$allowed}", 'com_kunena.template'))
 		{
@@ -56,9 +136,9 @@ class ComponentKunenaControllerCategoryIndexDisplay extends KunenaControllerDisp
 		}*/
 
 		$options            = array();
-		$options []         = JHtml::_('select.option', '0', JText::_('COM_KUNENA_FORUM_TOP'));
+		$options []         = HTMLHelper::_('select.option', '0', JText::_('COM_KUNENA_FORUM_TOP'));
 		$cat_params         = array('sections' => 1, 'catid' => 0);
-		$this->categorylist = JHtml::_('kunenaforum.categorylist', 'catid', 0, $options, $cat_params, 'class="inputbox fbs" size="1" onchange = "this.form.submit()"', 'value', 'text');
+		$this->categorylist = HTMLHelper::_('kunenaforum.categorylist', 'catid', 0, $options, $cat_params, 'class="inputbox fbs" size="1" onchange = "this.form.submit()"', 'value', 'text');
 
 		if ($catid)
 		{
@@ -215,7 +295,7 @@ class ComponentKunenaControllerCategoryIndexDisplay extends KunenaControllerDisp
 			{
 				// Get pending messages.
 				$catlist = implode(',', array_keys($moderate));
-				$db      = JFactory::getDbo();
+				$db      = Factory::getDbo();
 				$db->setQuery(
 					"SELECT catid, COUNT(*) AS count
 					FROM #__kunena_messages
@@ -257,7 +337,8 @@ class ComponentKunenaControllerCategoryIndexDisplay extends KunenaControllerDisp
 			}
 		}
 
-		$doc = JFactory::getDocument();
+		$doc = Factory::getDocument();
+
 		foreach ($doc->_links as $key => $value)
 		{
 			if (is_array($value))
@@ -266,8 +347,8 @@ class ComponentKunenaControllerCategoryIndexDisplay extends KunenaControllerDisp
 				{
 					if ($value['relation'] == 'canonical')
 					{
-						$canonicalUrl = KunenaRoute::_();
-						$canonicalUrl = str_replace( '?limitstart=0', '', $canonicalUrl);
+						$canonicalUrl               = KunenaRoute::_();
+						$canonicalUrl               = str_replace('?limitstart=0', '', $canonicalUrl);
 						$doc->_links[$canonicalUrl] = $value;
 						unset($doc->_links[$key]);
 						break;
@@ -275,21 +356,31 @@ class ComponentKunenaControllerCategoryIndexDisplay extends KunenaControllerDisp
 				}
 			}
 		}
+
+		KunenaHtmlParser::prepareContent($content, 'index_top');
 	}
 
 	/**
 	 * Prepare document.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function prepareDocument()
 	{
-		$app       = JFactory::getApplication();
+		$app       = Factory::getApplication();
 		$menu_item = $app->getMenu()->getActive();
-		$doc = JFactory::getDocument();
+		$doc       = Factory::getDocument();
 
-		$config = JFactory::getConfig();
+		$config = Factory::getConfig();
 		$robots = $config->get('robots');
+
+		if (JFile::exists(JPATH_SITE . '/' . KunenaConfig::getInstance()->emailheader))
+		{
+			$image = \Joomla\CMS\Uri\Uri::base() . KunenaConfig::getInstance()->emailheader;
+			$doc->setMetaData('og:image', $image, 'property');
+		}
 
 		if ($robots == '')
 		{
@@ -326,6 +417,10 @@ class ComponentKunenaControllerCategoryIndexDisplay extends KunenaControllerDisp
 				$title = JText::_('COM_KUNENA_VIEW_CATEGORIES_DEFAULT');
 				$this->setTitle($title);
 			}
+
+			$doc->setMetaData('og:type', 'article', 'property');
+			$doc->setMetaData('og:description', $title, 'property');
+			$doc->setMetaData('og:title', $title, 'property');
 
 			if (!empty($params_keywords))
 			{

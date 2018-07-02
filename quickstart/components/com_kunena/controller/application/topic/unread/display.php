@@ -1,14 +1,16 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Application
+ * @package         Kunena.Site
+ * @subpackage      Controller.Application
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * Class ComponentKunenaControllerApplicationTopicUnreadDisplay
@@ -21,6 +23,8 @@ class ComponentKunenaControllerApplicationTopicUnreadDisplay extends KunenaContr
 	 * Return true if layout exists.
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function exists()
 	{
@@ -32,12 +36,13 @@ class ComponentKunenaControllerApplicationTopicUnreadDisplay extends KunenaContr
 	 *
 	 * @return void
 	 *
-	 * @throws KunenaExceptionAuthorise
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function before()
 	{
 		$catid = $this->input->getInt('catid', 0);
-		$id = $this->input->getInt('id', 0);
+		$id    = $this->input->getInt('id', 0);
 
 		$category = KunenaForumCategoryHelper::get($catid);
 		$category->tryAuthorise();
@@ -60,10 +65,11 @@ class ComponentKunenaControllerApplicationTopicUnreadDisplay extends KunenaContr
 	 * Prepare document.
 	 *
 	 * @return void
+	 * @since Kunena
 	 */
 	protected function prepareDocument()
 	{
-		$doc = JFactory::getDocument();
+		$doc = Factory::getDocument();
 		$doc->setMetaData('robots', 'follow, noindex');
 	}
 }

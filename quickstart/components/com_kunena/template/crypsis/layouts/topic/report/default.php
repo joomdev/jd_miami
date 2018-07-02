@@ -1,14 +1,17 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Template.Crypsis
- * @subpackage  Layout.Topic
+ * @package         Kunena.Template.Crypsis
+ * @subpackage      Layout.Topic
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\HTML\HTMLHelper;
+
 ?>
 
 <h2>
@@ -16,16 +19,18 @@ defined('_JEXEC') or die;
 </h2>
 
 <form method="post" action="<?php echo KunenaRoute::_('index.php?option=com_kunena'); ?>" class="form-horizontal">
-	<input type="hidden" name="view" value="topic" />
-	<input type="hidden" name="task" value="report" />
-	<input type="hidden" name="catid" value="<?php echo (int) $this->category->id; ?>" />
-	<input type="hidden" name="id" value="<?php echo (int) $this->topic->id; ?>" />
+	<input type="hidden" name="view" value="topic"/>
+	<input type="hidden" name="task" value="report"/>
+	<input type="hidden" name="catid" value="<?php echo (int) $this->category->id; ?>"/>
+	<input type="hidden" name="id" value="<?php echo (int) $this->topic->id; ?>"/>
 
-	<?php if ($this->message) : ?>
-	<input type="hidden" name="mesid" value="<?php echo (int) $this->message->id; ?>" />
+	<?php if ($this->message)
+		:
+		?>
+		<input type="hidden" name="mesid" value="<?php echo (int) $this->message->id; ?>"/>
 	<?php endif; ?>
 
-	<?php echo JHtml::_('form.token'); ?>
+	<?php echo HTMLHelper::_('form.token'); ?>
 
 	<div class="well well-small">
 		<div class="control-group">
@@ -49,7 +54,7 @@ defined('_JEXEC') or die;
 				<input class="btn btn-primary" type="submit" name="Submit"
 				       value="<?php echo JText::_('COM_KUNENA_REPORT_SEND'); ?>"/>
 				<button class="btn" data-dismiss="modal" aria-hidden="true">
-						<?php echo JText::_('COM_KUNENA_REPORT_CLOSEMODAL_LABEL'); ?></button>
+					<?php echo JText::_('COM_KUNENA_REPORT_CLOSEMODAL_LABEL'); ?></button>
 			</div>
 		</div>
 	</div>

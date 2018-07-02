@@ -1,14 +1,16 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Message
+ * @package         Kunena.Site
+ * @subpackage      Controller.Message
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * Class ComponentKunenaControllerMessageListRecentDisplay
@@ -17,10 +19,15 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaControllerTopicListDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'Message/List';
 
 	/**
 	 * @var array|KunenaForumMessage[]
+	 * @since Kunena
 	 */
 	public $messages;
 
@@ -28,6 +35,9 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 	 * Prepare category list display.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	protected function before()
 	{
@@ -36,21 +46,23 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 		require_once KPATH_SITE . '/models/topics.php';
 		$this->model = new KunenaModelTopics(array(), $this->input);
 		$this->model->initialize($this->getOptions(), $this->getOptions()->get('embedded', false));
-		$this->state = $this->model->getState();
-		$this->me = KunenaUserHelper::getMyself();
+		$this->state   = $this->model->getState();
+		$this->me      = KunenaUserHelper::getMyself();
 		$this->moreUri = null;
 
 		$this->embedded = $this->getOptions()->get('embedded', false);
 
 		if ($this->embedded)
 		{
-			$this->moreUri = new JUri('index.php?option=com_kunena&view=topics&layout=posts&mode=' . $this->state->get('list.mode')
-				. '&userid=' . $this->state->get('user') . '&limit=' . $this->state->get('list.limit'));
+			$this->moreUri = new \Joomla\CMS\Uri\Uri('index.php?option=com_kunena&view=topics&layout=posts&mode=' . $this->state->get('list.mode')
+				. '&userid=' . $this->state->get('user') . '&limit=' . $this->state->get('list.limit')
+			);
 			$this->moreUri->setVar('Itemid', KunenaRoute::getItemID($this->moreUri));
 		}
 
 		$start = $this->state->get('list.start');
 		$limit = $this->state->get('list.limit');
+		$view  = $this->state->get('view');
 
 		// Handle &sel=x parameter.
 		$time = $this->state->get('list.time');
@@ -61,11 +73,11 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 		}
 		elseif ($time == 0)
 		{
-			$time = new JDate(KunenaFactory::getSession()->lasttime);
+			$time = new \Joomla\CMS\Date\Date(KunenaFactory::getSession()->lasttime);
 		}
 		else
 		{
-			$time = new JDate(JFactory::getDate()->toUnix() - ($time * 3600));
+			$time = new \Joomla\CMS\Date\Date(Factory::getDate()->toUnix() - ($time * 3600));
 		}
 
 		$userid = $this->state->get('user');
@@ -79,9 +91,9 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 
 		// Get categories for the filter.
 		$categoryIds = $this->state->get('list.categories');
-		$reverse = !$this->state->get('list.categories.in');
-		$authorise = 'read';
-		$order = 'time';
+		$reverse     = !$this->state->get('list.categories.in');
+		$authorise   = 'read';
+		$order       = 'time';
 
 		$finder = new KunenaForumMessageFinder;
 		$finder->filterByTime($time);
@@ -122,7 +134,7 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 
 		$this->pagination = new KunenaPagination($finder->count(), $start, $limit);
 
-		$doc = JFactory::getDocument();
+		$doc = Factory::getDocument();
 
 		if (!$start)
 		{
@@ -134,7 +146,7 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 					{
 						if ($value['relation'] == 'canonical')
 						{
-							$canonicalUrl = KunenaRoute::_();
+							$canonicalUrl               = KunenaRoute::_();
 							$doc->_links[$canonicalUrl] = $value;
 							unset($doc->_links[$key]);
 							break;
@@ -142,6 +154,7 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 					}
 				}
 			}
+
 			$doc->setMetaData('robots', 'follow, noindex');
 		}
 
@@ -149,7 +162,7 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 
 		if ($pagdata->previous->link)
 		{
-			$pagdata->previous->link = str_replace( 'limitstart=0', '', $pagdata->previous->link);
+			$pagdata->previous->link = str_replace('limitstart=0', '', $pagdata->previous->link);
 			$doc->addHeadLink($pagdata->previous->link, 'prev');
 		}
 
@@ -159,6 +172,7 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 		}
 
 		$page = $this->pagination->pagesCurrent;
+
 		if ($page > 1)
 		{
 			foreach ($doc->_links as $key => $value)
@@ -169,7 +183,7 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 					{
 						if ($value['relation'] == 'canonical')
 						{
-							$canonicalUrl = KunenaRoute::_();
+							$canonicalUrl               = KunenaRoute::_();
 							$doc->_links[$canonicalUrl] = $value;
 							unset($doc->_links[$key]);
 							break;
@@ -205,7 +219,7 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 		foreach ($this->messages as $message)
 		{
 			$userIds[(int) $message->userid] = (int) $message->userid;
-			$mesIds[(int) $message->id] = (int) $message->id;
+			$mesIds[(int) $message->id]      = (int) $message->id;
 		}
 
 		if ($this->topics)
@@ -217,23 +231,44 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 		{
 			case 'unapproved':
 				$this->headerText = JText::_('COM_KUNENA_VIEW_TOPICS_POSTS_MODE_UNAPPROVED');
-				$actions = array('approve', 'delete', 'move', 'permdelete');
+				$actions          = array('approve', 'delete', 'move', 'permdelete');
 				break;
 			case 'deleted':
 				$this->headerText = JText::_('COM_KUNENA_VIEW_TOPICS_POSTS_MODE_DELETED');
-				$actions = array('undelete', 'delete', 'permdelete');
+				$actions          = array('undelete', 'delete', 'permdelete');
 				break;
 			case 'mythanks':
 				$this->headerText = JText::_('COM_KUNENA_VIEW_TOPICS_POSTS_MODE_MYTHANKS');
-				$actions = array('approve', 'delete', 'permdelete');
+				$actions          = array('approve', 'delete', 'permdelete');
 				break;
 			case 'thankyou':
 				$this->headerText = JText::_('COM_KUNENA_VIEW_TOPICS_POSTS_MODE_THANKYOU');
-				$actions = array('approve', 'delete', 'permdelete');
+				$actions          = array('approve', 'delete', 'permdelete');
 				break;
 			case 'recent':
 			default:
 				$this->headerText = JText::_('COM_KUNENA_VIEW_TOPICS_POSTS_MODE_DEFAULT');
+
+				$app  = \Joomla\CMS\Factory::getApplication();
+				$view = $app->input->get('view');
+
+				if ($view == 'user')
+				{
+					$userName              = $user->getName();
+					$charMapApostropheOnly = array('s', 'S', 'z', 'Z');
+
+					if (in_array(substr($userName, -1), $charMapApostropheOnly))
+					{
+						$userName2 = "";
+					}
+					else
+					{
+						$userName2 = "'s ";
+					}
+
+					$this->headerText = JText::sprintf(JText::_('COM_KUNENA_VIEW_TOPICS_POSTS_MODE_DEFAULT_NEW'), $userName, $userName2);
+				}
+
 				$actions = array('approve', 'delete', 'move', 'permdelete');
 		}
 
@@ -244,20 +279,23 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 	 * Prepare document.
 	 *
 	 * @return void
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function prepareDocument()
 	{
-		$page = $this->pagination->pagesCurrent;
+		$page  = $this->pagination->pagesCurrent;
 		$total = $this->pagination->pagesTotal;
-		$user = KunenaUserHelper::get($this->state->get('user'));
+		$user  = KunenaUserHelper::get($this->state->get('user'));
 
-		$headerText = $this->headerText . ' ' . JText::_('COM_KUNENA_FROM') . ' ' . $user->getName() . ($total > 1 && $page > 1 ? " - " . JText::_('COM_KUNENA_PAGES') . " {$page}" : '');
-		$doc = JFactory::getDocument();
-		$app = JFactory::getApplication();
-		$menu_item   = $app->getMenu()->getActive();
-		$config = JFactory::getApplication('site');
+		$headerText      = $this->headerText . ' ' . JText::_('COM_KUNENA_FROM') . ' ' . $user->getName() . ($total > 1 && $page > 1 ? " - " . JText::_('COM_KUNENA_PAGES') . " {$page}" : '');
+		$doc             = Factory::getDocument();
+		$app             = Factory::getApplication();
+		$menu_item       = $app->getMenu()->getActive();
+		$config          = Factory::getApplication('site');
 		$componentParams = $config->getParams('com_config');
-		$robots = $componentParams->get('robots');
+		$robots          = $componentParams->get('robots');
 
 		if ($menu_item)
 		{
@@ -267,10 +305,7 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 			$params_description = $params->get('menu-meta_description');
 			$params_robots      = $params->get('robots');
 
-			$list_mode = $this->state->get('list.mode');
-			$user_state = $this->state->get('user');
-
-			if ($list_mode == 'latest' && !empty($user_state))
+			if ($this->state->get('list.mode') == 'latest' && !empty($this->state->get('user')))
 			{
 				$this->setTitle($headerText);
 			}
@@ -285,7 +320,7 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 				$this->setTitle($this->title);
 			}
 
-			if ($list_mode == 'latest' && !empty($user_state))
+			if ($this->state->get('list.mode') == 'latest' && !empty($this->state->get('user')))
 			{
 				$keywords = $this->config->board_title . ', ' . $user->getName();
 				$this->setKeywords($keywords);
@@ -301,7 +336,7 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 				$this->setKeywords($keywords);
 			}
 
-			if ($list_mode == 'latest' && !empty($user_state))
+			if ($this->state->get('list.mode') == 'latest' && !empty($this->state->get('user')))
 			{
 				$this->setDescription($headerText);
 			}
@@ -312,14 +347,14 @@ class ComponentKunenaControllerMessageListRecentDisplay extends ComponentKunenaC
 			}
 			else
 			{
-				$description = $this->headerText  . ' ' . JText::_('COM_KUNENA_ON') . ' ' . $menu_item->title . ': ' . $this->config->board_title . ($total > 1 && $page > 1 ? " - " . JText::_('COM_KUNENA_PAGES') . " {$page}" : '');
+				$description = $this->headerText . ' ' . JText::_('COM_KUNENA_ON') . ' ' . $menu_item->title . ': ' . $this->config->board_title . ($total > 1 && $page > 1 ? " - " . JText::_('COM_KUNENA_PAGES') . " {$page}" : '');
 				$this->setDescription($description);
 			}
 		}
 
-		if ($list_mode == 'latest' && !empty($user_state))
+		if ($this->state->get('list.mode') == 'latest' && !empty($this->state->get('user')))
 		{
-			$doc = JFactory::getDocument();
+			$doc = Factory::getDocument();
 			$doc->setMetaData('robots', 'follow, noindex');
 		}
 		else

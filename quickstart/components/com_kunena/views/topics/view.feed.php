@@ -2,35 +2,40 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Views
+ * @package         Kunena.Site
+ * @subpackage      Views
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Topics View
+ * @since Kunena
  */
 class KunenaViewTopics extends KunenaView
 {
 	/**
-	 * @param   null $tpl
+	 * @param   null $tpl tpl
 	 *
-	 * @return JException
+	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	function displayDefault($tpl = null)
+	public function displayDefault($tpl = null)
 	{
 		if (!$this->config->enablerss)
 		{
-			return new JException(JText::_('COM_KUNENA_RSS_DISABLED'), 401);
+			throw new Exception(JText::_('COM_KUNENA_RSS_DISABLED'), 401);
 		}
 
 		KunenaHtmlParser::$relative = false;
-		$config = KunenaFactory::getConfig();
-		$cache = JFactory::getCache('com_kunena_rss', 'output');
+		$config                     = KunenaFactory::getConfig();
+		$cache                      = Factory::getCache('com_kunena_rss', 'output');
 
 		if (!$config->get('cache'))
 		{
@@ -88,15 +93,17 @@ class KunenaViewTopics extends KunenaView
 	}
 
 	/**
-	 * @param   null $tpl
+	 * @param   null $tpl tpl
 	 *
-	 * @return JException
+	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	function displayUser($tpl = null)
+	public function displayUser($tpl = null)
 	{
 		if (!$this->config->enablerss)
 		{
-			return new JException(JText::_('COM_KUNENA_RSS_DISABLED'), 401);
+			throw new Exception(JText::_('COM_KUNENA_RSS_DISABLED'), 401);
 		}
 
 		$this->layout = 'user';
@@ -131,15 +138,17 @@ class KunenaViewTopics extends KunenaView
 	}
 
 	/**
-	 * @param   null $tpl
+	 * @param   null $tpl tpl
 	 *
-	 * @return JException
+	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	function displayPosts($tpl = null)
+	public function displayPosts($tpl = null)
 	{
 		if (!$this->config->enablerss)
 		{
-			return new JException(JText::_('COM_KUNENA_RSS_DISABLED'), 401);
+			throw new Exception(JText::_('COM_KUNENA_RSS_DISABLED'), 401);
 		}
 
 		$this->layout   = 'posts';
@@ -176,9 +185,10 @@ class KunenaViewTopics extends KunenaView
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @throws Exception
 	 */
-	function displayTopicRows()
+	public function displayTopicRows()
 	{
 		$firstpost = $this->state->get('list.mode') == 'topics';
 
@@ -189,7 +199,7 @@ class KunenaViewTopics extends KunenaView
 				$id          = $topic->first_post_id;
 				$page        = 'first';
 				$description = $topic->first_post_message;
-				$date        = new JDate($topic->first_post_time);
+				$date        = new \Joomla\CMS\Date\Date($topic->first_post_time);
 				$userid      = $topic->first_post_userid;
 				$username    = KunenaFactory::getUser($userid)->getName($topic->first_post_guest_name);
 			}
@@ -207,7 +217,7 @@ class KunenaViewTopics extends KunenaView
 					$description = $topic->last_post_message;
 				}
 
-				$date     = new JDate($topic->last_post_time);
+				$date     = new \Joomla\CMS\Date\Date($topic->last_post_time);
 				$userid   = $topic->last_post_userid;
 				$username = KunenaFactory::getUser($userid)->getName($topic->last_post_guest_name);
 			}
@@ -221,9 +231,10 @@ class KunenaViewTopics extends KunenaView
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @throws Exception
 	 */
-	function displayPostRows()
+	public function displayPostRows()
 	{
 		foreach ($this->messages as $message)
 		{
@@ -247,7 +258,7 @@ class KunenaViewTopics extends KunenaView
 				$description = $message->message;
 			}
 
-			$date     = new JDate($message->time);
+			$date     = new \Joomla\CMS\Date\Date($message->time);
 			$userid   = $message->userid;
 			$username = KunenaFactory::getUser($userid)->getName($message->name);
 
@@ -263,8 +274,11 @@ class KunenaViewTopics extends KunenaView
 	 * @param $date
 	 * @param $userid
 	 * @param $username
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	function createItem($title, $url, $description, $category, $date, $userid, $username)
+	public function createItem($title, $url, $description, $category, $date, $userid, $username)
 	{
 		if ($this->config->rss_author_in_title)
 		{
@@ -287,7 +301,7 @@ class KunenaViewTopics extends KunenaView
 		}
 
 		// Assign values to feed item
-		$item              = new JFeedItem;
+		$item              = new \Joomla\CMS\Document\Feed\FeedItem;
 		$item->title       = $title;
 		$item->link        = $url;
 		$item->description = $description;
@@ -297,7 +311,7 @@ class KunenaViewTopics extends KunenaView
 		// FIXME: inefficient to load users one by one -- also vulnerable to J! 2.5 user is NULL bug
 		if ($this->config->rss_author_format != 'name')
 		{
-			$item->authorEmail = JFactory::getUser($userid)->email;
+			$item->authorEmail = Factory::getUser($userid)->email;
 		}
 
 		$item->category = $category;

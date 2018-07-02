@@ -1,19 +1,24 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Template.Crypsis
- * @subpackage  Layout.Widget
+ * @package         Kunena.Template.Crypsis
+ * @subpackage      Layout.Widget
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 
+if (KunenaUserHelper::getMyself()->socialshare == 0)
+{
+	return false;
+}
+
 $this->ktemplate = KunenaFactory::getTemplate();
-$socialtheme = $this->ktemplate->params->get('socialtheme');
+$socialtheme     = $this->ktemplate->params->get('socialtheme');
 $this->addStyleSheet('assets/css/jssocials.css');
-$this->addStyleSheet('assets/css/jssocials-theme-'.$socialtheme.'.css');
+$this->addStyleSheet('assets/css/jssocials-theme-' . $socialtheme . '.css');
 $this->addScript('assets/js/jssocials.js');
 ?>
 

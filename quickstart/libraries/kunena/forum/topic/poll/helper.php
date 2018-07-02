@@ -1,31 +1,39 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Forum.Topic.Poll
+ * @package       Kunena.Framework
+ * @subpackage    Forum.Topic.Poll
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Class KunenaForumTopicPollHelper
+ * @since Kunena
  */
 abstract class KunenaForumTopicPollHelper
 {
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	protected static $_instances = array();
 
 	/**
 	 * Returns KunenaForumTopic object.
 	 *
-	 * @param   int  $identifier	The poll to load - Can be only an integer.
-	 * @param   bool $reload
+	 * @param   int  $identifier The poll to load - Can be only an integer.
+	 * @param   bool $reload     reload
 	 *
 	 * @return KunenaForumTopicPoll
+	 * @since Kunena
 	 */
-	static public function get($identifier = null, $reload = false)
+	public static function get($identifier = null, $reload = false)
 	{
 		if ($identifier instanceof KunenaForumTopicPoll)
 		{
@@ -36,7 +44,7 @@ abstract class KunenaForumTopicPollHelper
 
 		if ($id < 1)
 		{
-			return new KunenaForumTopicPoll();
+			return new KunenaForumTopicPoll;
 		}
 
 		if ($reload || empty(self::$_instances [$id]))
@@ -48,11 +56,12 @@ abstract class KunenaForumTopicPollHelper
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @return void
 	 */
-	static public function recount()
+	public static function recount()
 	{
-		$db = JFactory::getDbo();
+		$db    = Factory::getDbo();
 		$query = $db->getQuery(true);
 		$query
 			->update('#__kunena_topics AS a')

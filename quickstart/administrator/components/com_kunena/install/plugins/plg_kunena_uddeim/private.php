@@ -2,23 +2,37 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  UddeIM
+ * @package         Kunena.Plugins
+ * @subpackage      UddeIM
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+/**
+ * Class KunenaPrivateUddeIM
+ * @since Kunena
+ */
 class KunenaPrivateUddeIM extends KunenaPrivate
 {
+	/**
+	 * @var null|uddeIMAPI
+	 * @since Kunena
+	 */
 	protected $uddeim = null;
 
+	/**
+	 * @var null
+	 * @since Kunena
+	 */
 	protected $params = null;
 
 	/**
 	 * @param $params
+	 *
+	 * @since Kunena
 	 */
 	public function __construct($params)
 	{
@@ -29,7 +43,7 @@ class KunenaPrivateUddeIM extends KunenaPrivate
 			return;
 		}
 
-		$this->uddeim = new uddeIMAPI();
+		$this->uddeim = new uddeIMAPI;
 
 		if ($this->uddeim->version() < 1)
 		{
@@ -40,7 +54,44 @@ class KunenaPrivateUddeIM extends KunenaPrivate
 	/**
 	 * @param $userid
 	 *
+	 * @return mixed
+	 * @since Kunena
+	 */
+	public function getUnreadCount($userid)
+	{
+		return $this->uddeim->getInboxUnreadMessages($userid);
+	}
+
+	/**
+	 * @param $text
+	 *
 	 * @return string
+	 * @since Kunena
+	 */
+	public function getInboxLink($text)
+	{
+		if (!$text)
+		{
+			$text = JText::_('COM_KUNENA_PMS_INBOX');
+		}
+
+		return '<a href="' . JRoute::_($this->uddeim->getLinkToBox('inbox', false)) . '" rel="follow">' . $text . '</a>';
+	}
+
+	/**
+	 * @return string
+	 * @since Kunena
+	 */
+	public function getInboxURL()
+	{
+		return JRoute::_($this->uddeim->getLinkToBox('inbox', false));
+	}
+
+	/**
+	 * @param $userid
+	 *
+	 * @return string
+	 * @since Kunena
 	 */
 	protected function getURL($userid)
 	{
@@ -66,38 +117,5 @@ class KunenaPrivateUddeIM extends KunenaPrivate
 		}
 
 		return JRoute::_('index.php?option=com_uddeim&task=new&recip=' . (int) $userid . $itemid);
-	}
-
-	/**
-	 * @param $userid
-	 *
-	 * @return mixed
-	 */
-	public function getUnreadCount($userid)
-	{
-		return $this->uddeim->getInboxUnreadMessages($userid);
-	}
-
-	/**
-	 * @param $text
-	 *
-	 * @return string
-	 */
-	public function getInboxLink($text)
-	{
-		if (!$text)
-		{
-			$text = JText::_('COM_KUNENA_PMS_INBOX');
-		}
-
-		return '<a href="' . JRoute::_($this->uddeim->getLinkToBox('inbox', false)) . '" rel="follow">' . $text . '</a>';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getInboxURL()
-	{
-		return JRoute::_($this->uddeim->getLinkToBox('inbox', false));
 	}
 }

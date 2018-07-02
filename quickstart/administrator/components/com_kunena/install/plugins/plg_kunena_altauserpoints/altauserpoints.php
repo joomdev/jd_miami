@@ -2,12 +2,12 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  AltaUserPoints
+ * @package         Kunena.Plugins
+ * @subpackage      AltaUserPoints
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
@@ -16,13 +16,15 @@ defined('_JEXEC') or die();
  *
  * @since  5.0
  */
-class plgKunenaAltaUserPoints extends JPlugin
+class plgKunenaAltaUserPoints extends \Joomla\CMS\Plugin\CMSPlugin
 {
 	/**
 	 * Constructor of plgKunenaAltaUserPoints class
 	 *
-	 * @param   object  &$subject  The object to observe
-	 * @param   array   $config    An optional associative array of configuration settings.
+	 * @param   object &$subject The object to observe
+	 * @param   array  $config   An optional associative array of configuration settings.
+	 *
+	 * @since Kunena
 	 */
 	public function __construct(&$subject, $config)
 	{
@@ -36,6 +38,19 @@ class plgKunenaAltaUserPoints extends JPlugin
 
 		if (!file_exists($aup))
 		{
+			if (\Joomla\CMS\Plugin\PluginHelper::isEnabled('kunena', 'altauserpoints'))
+			{
+				$db = JFactory::getDBO();
+				$query = $db->getQuery(true);
+				$query->update('`#__extensions`');
+				$query->where($db->quoteName('element') . ' = ' . $db->quote('altauserpoints'));
+				$query->where($db->quoteName('type') . ' = ' . $db->quote('plugin'));
+				$query->where($db->quoteName('folder') . '= ' . $db->quote('kunena'));
+				$query->set($db->quoteName('enabled') . '=0');
+				$db->setQuery($query);
+				$db->execute();
+			}
+
 			return;
 		}
 
@@ -50,12 +65,13 @@ class plgKunenaAltaUserPoints extends JPlugin
 	 * Get Kunena avatar integration object.
 	 *
 	 * @return KunenaAvatar
+	 * @since Kunena
 	 */
 	public function onKunenaGetAvatar()
 	{
 		if (!$this->params->get('avatar', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/avatar.php";
@@ -67,12 +83,13 @@ class plgKunenaAltaUserPoints extends JPlugin
 	 * Get Kunena profile integration object.
 	 *
 	 * @return KunenaProfile
+	 * @since Kunena
 	 */
 	public function onKunenaGetProfile()
 	{
 		if (!$this->params->get('profile', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/profile.php";
@@ -84,12 +101,13 @@ class plgKunenaAltaUserPoints extends JPlugin
 	 * Get Kunena activity stream integration object.
 	 *
 	 * @return KunenaActivity
+	 * @since Kunena
 	 */
 	public function onKunenaGetActivity()
 	{
 		if (!$this->params->get('activity', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/activity.php";

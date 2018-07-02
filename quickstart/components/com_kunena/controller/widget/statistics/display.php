@@ -1,12 +1,12 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Widget
+ * @package         Kunena.Site
+ * @subpackage      Controller.Widget
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 
@@ -17,18 +17,37 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerWidgetStatisticsDisplay extends KunenaControllerDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'Widget/Statistics';
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $config;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $latestMemberLink;
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $statisticsUrl;
 
 	/**
 	 * Prepare statistics box display.
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	protected function before()
 	{
@@ -36,7 +55,7 @@ class ComponentKunenaControllerWidgetStatisticsDisplay extends KunenaControllerD
 
 		$this->config = KunenaConfig::getInstance();
 
-		if (!$this->config->get('showstats') || (!$this->config->statslink_allowed && !KunenaUserHelper::get()->exists()))
+		if (!$this->config->get('showstats'))
 		{
 			throw new KunenaExceptionAuthorise(JText::_('COM_KUNENA_NO_ACCESS'), '404');
 		}
@@ -46,7 +65,7 @@ class ComponentKunenaControllerWidgetStatisticsDisplay extends KunenaControllerD
 		$this->setProperties($statistics);
 
 		$this->latestMemberLink = KunenaFactory::getUser(intval($this->lastUserId))->getLink(null, null, '');
-		$this->statisticsUrl = KunenaFactory::getProfile()->getStatisticsURL();
+		$this->statisticsUrl    = KunenaFactory::getProfile()->getStatisticsURL();
 
 		return true;
 	}

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         18.1.7274
+ * @version         18.5.26647
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -128,8 +128,8 @@ abstract class Agent
 		switch (true)
 		{
 			case (stripos($agent, 'Trident') !== false):
-				// Add MSIE to IE11
-				$agent = RegEx::replace('(Trident/[0-9\.]+; rv:([0-9\.]+))', '\1 MSIE \2', $agent);
+				// Add MSIE to IE11 and others missing it
+				$agent = RegEx::replace('(Trident/[0-9\.]+;.*rv[: ]([0-9\.]+))', '\1 MSIE \2', $agent);
 				break;
 
 			case (stripos($agent, 'Chrome') !== false):

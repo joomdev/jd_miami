@@ -1,14 +1,16 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Application
+ * @package         Kunena.Site
+ * @subpackage      Controller.Application
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * Class ComponentKunenaControllerApplicationAjaxDefaultDisplay
@@ -21,6 +23,8 @@ class ComponentKunenaControllerApplicationAjaxDefaultDisplay extends KunenaContr
 	 * Return true if layout exists.
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function exists()
 	{
@@ -32,12 +36,12 @@ class ComponentKunenaControllerApplicationAjaxDefaultDisplay extends KunenaContr
 	 *
 	 * @return string  String in JSON or RAW.
 	 *
-	 * @throws RuntimeException
-	 * @throws KunenaExceptionAuthorise
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function execute()
 	{
-		$format = $this->input->getWord('format', 'html');
+		$format   = $this->input->getWord('format', 'html');
 		$function = 'display' . ucfirst($format);
 
 		if (!method_exists($this, $function))
@@ -53,7 +57,7 @@ class ComponentKunenaControllerApplicationAjaxDefaultDisplay extends KunenaContr
 		{
 			$content = new KunenaExceptionAuthorise(JText::_('COM_KUNENA_NO_ACCESS'), 404);
 		}
-		elseif (!JSession::checkToken())
+		elseif (!\Joomla\CMS\Session\Session::checkToken())
 		{
 			// Invalid access token.
 			$content = new KunenaExceptionAuthorise(JText::_('COM_KUNENA_ERROR_TOKEN'), 403);
@@ -90,6 +94,8 @@ class ComponentKunenaControllerApplicationAjaxDefaultDisplay extends KunenaContr
 	 * Prepare AJAX display.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function before()
 	{
@@ -99,9 +105,9 @@ class ComponentKunenaControllerApplicationAjaxDefaultDisplay extends KunenaContr
 		KunenaFactory::loadLanguage('com_kunena.models');
 		KunenaFactory::loadLanguage('com_kunena.views');
 
-		$this->me = KunenaUserHelper::getMyself();
-		$this->config = KunenaConfig::getInstance();
-		$this->document = JFactory::getDocument();
+		$this->me       = KunenaUserHelper::getMyself();
+		$this->config   = KunenaConfig::getInstance();
+		$this->document = Factory::getDocument();
 		$this->template = KunenaFactory::getTemplate();
 		$this->template->initialize();
 	}
@@ -109,9 +115,11 @@ class ComponentKunenaControllerApplicationAjaxDefaultDisplay extends KunenaContr
 	/**
 	 * Display output as RAW.
 	 *
-	 * @param   mixed  $content  Content to be returned.
+	 * @param   mixed $content Content to be returned.
 	 *
 	 * @return  string
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displayRaw($content)
 	{
@@ -128,9 +136,11 @@ class ComponentKunenaControllerApplicationAjaxDefaultDisplay extends KunenaContr
 	/**
 	 * Display output as JSON.
 	 *
-	 * @param   mixed  $content  Content to be returned.
+	 * @param   mixed $content Content to be returned.
 	 *
-	 * @return  string
+	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function displayJson($content)
 	{
@@ -151,6 +161,6 @@ class ComponentKunenaControllerApplicationAjaxDefaultDisplay extends KunenaContr
 		echo json_encode($response);
 
 		// It's much faster and safer to exit now than let Joomla to send the response.
-		JFactory::getApplication()->close();
+		Factory::getApplication()->close();
 	}
 }

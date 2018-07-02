@@ -2,12 +2,12 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Controllers
+ * @package         Kunena.Site
+ * @subpackage      Controllers
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
@@ -19,7 +19,10 @@ defined('_JEXEC') or die();
 class KunenaControllerSearch extends KunenaController
 {
 	/**
-	 * @param   array $config
+	 * @param   array $config config
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function __construct($config = array())
 	{
@@ -27,14 +30,16 @@ class KunenaControllerSearch extends KunenaController
 	}
 
 	/**
-	 *
+	 * @since Kunena
 	 */
 	public function results()
 	{
 		$model = $this->getModel('Search');
 		$this->setRedirect(
 			$model->getSearchURL(
-			'search', $model->getState('searchwords'),
-			$model->getState('list.start'), $model->getState('list.limit'), $model->getUrlParams(), false));
+				'search', $model->getState('searchwords'),
+				$model->getState('list.start'), $model->getState('list.limit'), $model->getUrlParams(), false
+			)
+		);
 	}
 }

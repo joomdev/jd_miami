@@ -1,35 +1,45 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Forum.Message.Thankyou
+ * @package       Kunena.Framework
+ * @subpackage    Forum.Message.Thankyou
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Class KunenaForumMessageThankyou
  *
- * @property int $postid
- * @property int $userid
- * @property int $targetuserid
+ * @property int    $postid
+ * @property int    $userid
+ * @property int    $targetuserid
  * @property string $time
+ * @since Kunena
  */
 class KunenaForumMessageThankyou extends JObject
 {
 	/**
-	 * @var int
+	 * @var integer
+	 * @since Kunena
 	 */
 	protected $id = 0;
+
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
 	protected $users = array();
 
 	/**
-	 * @param   int $id
+	 * @param   int $id id
 	 *
 	 * @internal
+	 * @since Kunena
 	 */
 	public function __construct($id)
 	{
@@ -37,31 +47,24 @@ class KunenaForumMessageThankyou extends JObject
 	}
 
 	/**
-	 * @param   null $identifier
-	 * @param   bool $reload
+	 * @param   null $identifier identifier
+	 * @param   bool $reload     reload
 	 *
 	 * @return KunenaForumMessageThankyou
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	static public function getInstance($identifier = null, $reload = false)
+	public static function getInstance($identifier = null, $reload = false)
 	{
 		return KunenaForumMessageThankyouHelper::get($identifier, $reload);
 	}
 
 	/**
-	 * Check if the user has already said thank you.
+	 * @param   int    $userid userid
+	 * @param   string $time   time
 	 *
-	 * @param   int $userid
-	 *
-	 * @return boolean
-	 */
-	public function exists($userid)
-	{
-		return isset($this->users[(int) $userid]);
-	}
-
-	/**
-	 * @param   int $userid
-	 * @param   string $time
+	 * @since Kunena
+	 * @return void
 	 */
 	public function _add($userid, $time)
 	{
@@ -71,51 +74,51 @@ class KunenaForumMessageThankyou extends JObject
 	/**
 	 * Save thank you.
 	 *
-	 * @param   mixed $user
+	 * @param   mixed $user user
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function save($user)
 	{
-		$user = KunenaFactory::getUser($user);
+		$user    = KunenaFactory::getUser($user);
 		$message = KunenaForumMessageHelper::get($this->id);
 
 		if (!$user->exists())
 		{
-			$this->setError(JText::_('COM_KUNENA_THANKYOU_LOGIN'));
-			return false;
+			throw new Exception(JText::_('COM_KUNENA_THANKYOU_LOGIN'));
 		}
 
 		if ($user->userid == $message->userid)
 		{
-			$this->setError(JText::_('COM_KUNENA_THANKYOU_NOT_YOURSELF'));
-			return false;
+			throw new Exception(JText::_('COM_KUNENA_THANKYOU_NOT_YOURSELF'));
 		}
 
 		if ($this->exists($user->userid))
 		{
-			$this->setError(JText::_('COM_KUNENA_THANKYOU_ALLREADY'));
-			return false;
+			throw new Exception(JText::_('COM_KUNENA_THANKYOU_ALLREADY'));
 		}
 
 		if ($user->isBanned())
 		{
-			$this->setError(JText::_('COM_KUNENA_POST_ERROR_USER_BANNED_NOACCESS'));
-
-			return false;
+			throw new Exception(JText::_('COM_KUNENA_POST_ERROR_USER_BANNED_NOACCESS'));
 		}
 
-		$db = JFactory::getDBO();
-		$time = JFactory::getDate();
+		$db    = Factory::getDBO();
+		$time  = Factory::getDate();
 		$query = "INSERT INTO #__kunena_thankyou
 			SET postid={$db->quote($this->id)} , userid={$db->quote($user->userid)} , targetuserid={$db->quote($message->userid)}, time={$db->quote($time->toSql())}";
 		$db->setQuery($query);
-		$db->execute();
 
-		// Check for an error message.
-		if ($db->getErrorNum())
+		try
 		{
-			$this->setError($db->getErrorMsg());
+			$db->execute();
+		}
+		catch (JDatabaseExceptionExecuting $e)
+		{
+			KunenaError::displayDatabaseError($e);
+
 			return false;
 		}
 
@@ -125,22 +128,40 @@ class KunenaForumMessageThankyou extends JObject
 	}
 
 	/**
-	 * @param   KunenaForumMessage $message
+	 * Check if the user has already said thank you.
+	 *
+	 * @param   int $userid userid
 	 *
 	 * @return boolean
+	 * @since Kunena
+	 */
+	public function exists($userid)
+	{
+		return isset($this->users[(int) $userid]);
+	}
+
+	/**
+	 * @param   KunenaForumMessage $message message
+	 *
+	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function _savethankyou(KunenaForumMessage $message)
 	{
-		$db = JFactory::getDBO();
+		$db    = Factory::getDBO();
 		$query = "UPDATE #__kunena_users
 				SET thankyou=thankyou+1 WHERE userid={$db->quote($message->userid)}";
 		$db->setQuery($query);
-		$db->execute();
 
-		// Check for an error message.
-		if ($db->getErrorNum())
+		try
 		{
-			$this->setError($db->getErrorMsg());
+			$db->execute();
+		}
+		catch (JDatabaseExceptionExecuting $e)
+		{
+			KunenaError::displayDatabaseError($e);
+
 			return false;
 		}
 
@@ -150,6 +171,7 @@ class KunenaForumMessageThankyou extends JObject
 	/**
 	 * Get all users who have given thank you to this message.
 	 * @return array List of userid=>time.
+	 * @since Kunena
 	 */
 	public function getList()
 	{
@@ -157,42 +179,45 @@ class KunenaForumMessageThankyou extends JObject
 	}
 
 	/**
-	 * Detele thank you from the database.
+	 * Delete thank you from the database.
 	 *
-	 * @param   mixed $user
+	 * @param   mixed $user user
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function delete($user)
 	{
-		$user = KunenaFactory::getUser($user);
+		$user    = KunenaFactory::getUser($user);
 		$message = KunenaForumMessageHelper::get($this->id);
 
 		if (!$user->exists())
 		{
-			$this->setError(JText::_('COM_KUNENA_THANKYOU_LOGIN'));
-			return false;
+			throw new Exception(JText::_('COM_KUNENA_THANKYOU_LOGIN'));
 		}
 
 		if (!$this->exists($user->userid))
 		{
-			$this->setError(JText::_('COM_KUNENA_THANKYOU_NOT_PRESENT'));
-			return false;
+			throw new Exception(JText::_('COM_KUNENA_THANKYOU_NOT_PRESENT'));
 		}
 
-		$db = JFactory::getDBO();
+		$db    = Factory::getDBO();
 		$query = "DELETE FROM #__kunena_thankyou WHERE postid={$db->quote($this->id)} AND userid={$db->quote($user->userid)}";
 		$db->setQuery($query);
 		$db->execute();
 
 		$query = "UPDATE #__kunena_users SET thankyou=thankyou-1 WHERE userid={$db->quote($message->userid)}";
 		$db->setQuery($query);
-		$db->execute();
 
-		// Check for an error message.
-		if ($db->getErrorNum())
+		try
 		{
-			$this->setError($db->getErrorMsg());
+			$db->execute();
+		}
+		catch (JDatabaseExceptionExecuting $e)
+		{
+			KunenaError::displayDatabaseError($e);
+
 			return false;
 		}
 

@@ -2,14 +2,17 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Models
+ * @package         Kunena.Site
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * Topics Model for Kunena
@@ -18,18 +21,38 @@ defined('_JEXEC') or die();
  */
 class KunenaModelTopics extends KunenaModel
 {
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $topics = false;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $messages = false;
 
+	/**
+	 * @var integer
+	 * @since Kunena
+	 */
 	protected $total = 0;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $topicActions = false;
 
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $actionMove = false;
 
 	/**
-	 *
+	 * @since Kunena
 	 */
 	protected function populateState()
 	{
@@ -71,7 +94,6 @@ class KunenaModelTopics extends KunenaModel
 		$this->setState('list.modetype', $modetype);
 
 		$catid = $this->getInt('catid');
-
 		$this->setState('list.categories.exclude', 0);
 
 		if ($catid)
@@ -82,7 +104,7 @@ class KunenaModelTopics extends KunenaModel
 			// Check if the category is in exclued list
 			if (!empty($this->config->rss_excluded_categories))
 			{
-				$cat_exclued = explode(',',$this->config->rss_excluded_categories);
+				$cat_exclued = explode(',', $this->config->rss_excluded_categories);
 
 				if (in_array($catid, $cat_exclued))
 				{
@@ -94,7 +116,7 @@ class KunenaModelTopics extends KunenaModel
 		}
 		else
 		{
-			if (JFactory::getDocument()->getType() != 'feed')
+			if (Factory::getDocument()->getType() != 'feed')
 			{
 				// Get configuration from menu item.
 				$latestcategory    = $params->get('topics_categories', '');
@@ -147,15 +169,17 @@ class KunenaModelTopics extends KunenaModel
 		$this->setState('list.categories.in', $latestcategory_in);
 
 		// Selection time.
-		if (JFactory::getDocument()->getType() != 'feed')
+		if (Factory::getDocument()->getType() != 'feed')
 		{
 			// Selection time from user state / menu item / url parameter / configuration.
-			if (!$this->me->exists() || $this->me->exists() && $this->me->userListtime == -2) {
+			if (!$this->me->exists() || $this->me->exists() && $this->me->userListtime == -2)
+			{
 				$value = $this->getUserStateFromRequest("com_kunena.topics_{$active}_{$layout}_{$mode}_{$userid}_{$catid}_list_time", 'sel', $params->get('topics_time', $this->config->show_list_time), 'int');
 				$this->setState('list.time', (int) $value);
 			}
 
-			if ($this->me->exists() && $this->me->userListtime != -2) {
+			if ($this->me->exists() && $this->me->userListtime != -2)
+			{
 				$value = $this->getUserStateFromRequest("com_kunena.topics_{$active}_{$layout}_{$mode}_{$userid}_{$catid}_list_time", 'sel', $this->me->userListtime, 'int');
 				$this->setState('list.time', (int) $value);
 			}
@@ -168,7 +192,7 @@ class KunenaModelTopics extends KunenaModel
 		}
 
 		// List state information
-		$value = $this->getUserStateFromRequest("com_kunena.topics_{$active}_{$layout}_{$mode}_{$userid}_{$catid}_list_limit", 'limit', 0, 'int');
+		$value        = $this->getUserStateFromRequest("com_kunena.topics_{$active}_{$layout}_{$mode}_{$userid}_{$catid}_list_limit", 'limit', 0, 'int');
 		$defaultlimit = $format != 'feed' ? $this->config->threads_per_page : $this->config->rss_limit;
 
 		if ($value < 1 || $value > 100)
@@ -182,6 +206,7 @@ class KunenaModelTopics extends KunenaModel
 		// $this->setState ( 'list.ordering', $value );
 
 		$value = $this->getUserStateFromRequest("com_kunena.topics_{$active}_{$layout}_{$mode}_{$userid}_{$catid}_list_start", 'limitstart', 0, 'int');
+
 		// $value = $this->getInt ( 'limitstart', 0 );
 		$this->setState('list.start', $value);
 
@@ -197,6 +222,9 @@ class KunenaModelTopics extends KunenaModel
 
 	/**
 	 * @return boolean
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	public function getTopics()
 	{
@@ -214,9 +242,9 @@ class KunenaModelTopics extends KunenaModel
 					$total  = 0;
 					$topics = false;
 
-					JPluginHelper::importPlugin('kunena');
-					$dispatcher = JEventDispatcher::getInstance();
-					$dispatcher->trigger('onKunenaGetTopics', array($layout, $pluginmode, &$topics, &$total, $this));
+					\Joomla\CMS\Plugin\PluginHelper::importPlugin('kunena');
+
+					Factory::getApplication()->triggerEvent('onKunenaGetTopics', array($layout, $pluginmode, &$topics, &$total, $this));
 
 					if (!empty($topics))
 					{
@@ -244,7 +272,9 @@ class KunenaModelTopics extends KunenaModel
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @throws Exception
+	 * @throws null
 	 */
 	protected function getRecentTopics()
 	{
@@ -263,7 +293,7 @@ class KunenaModelTopics extends KunenaModel
 		}
 		else
 		{
-			$time = JFactory::getDate()->toUnix() - ($time * 3600);
+			$time = Factory::getDate()->toUnix() - ($time * 3600);
 		}
 
 		$latestcategory    = $this->getState('list.categories');
@@ -326,15 +356,17 @@ class KunenaModelTopics extends KunenaModel
 			'orderby'   => $lastpost ? 'tt.last_post_time DESC' : 'tt.first_post_time DESC',
 			'starttime' => $time,
 			'hold'      => $hold,
-			'where'     => $where);
+			'where'     => $where,);
 
-		list ($this->total, $this->topics) = KunenaForumTopicHelper::getLatestTopics($latestcategory, $limitstart, $limit, $params);
+		list($this->total, $this->topics) = KunenaForumTopicHelper::getLatestTopics($latestcategory, $limitstart, $limit, $params);
 
 		$this->_common();
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @throws Exception
+	 * @throws null
 	 */
 	protected function getUserTopics()
 	{
@@ -384,15 +416,17 @@ class KunenaModelTopics extends KunenaModel
 			'started'    => $started,
 			'posted'     => $posts,
 			'favorited'  => $favorites,
-			'subscribed' => $subscriptions);
+			'subscribed' => $subscriptions,);
 
-		list ($this->total, $this->topics) = KunenaForumTopicHelper::getLatestTopics($latestcategory, $limitstart, $limit, $params);
+		list($this->total, $this->topics) = KunenaForumTopicHelper::getLatestTopics($latestcategory, $limitstart, $limit, $params);
 
 		$this->_common();
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @throws Exception
+	 * @throws null
 	 */
 	protected function getPosts()
 	{
@@ -409,7 +443,7 @@ class KunenaModelTopics extends KunenaModel
 		$params['reverse']   = !$this->getState('list.categories.in');
 		$params['starttime'] = $time;
 		$params['user']      = $this->getState('user');
-		list ($this->total, $this->messages) = KunenaForumMessageHelper::getLatestMessages($this->getState('list.categories'), $start, $limit, $params);
+		list($this->total, $this->messages) = KunenaForumMessageHelper::getLatestMessages($this->getState('list.categories'), $start, $limit, $params);
 
 		$topicids = array();
 
@@ -444,8 +478,11 @@ class KunenaModelTopics extends KunenaModel
 	}
 
 	/**
-	 * @param   array $userlist
-	 * @param   array $postlist
+	 * @param   array $userlist userlist
+	 * @param   array $postlist postlist
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function _common(array $userlist = array(), array $postlist = array())
 	{
@@ -480,6 +517,9 @@ class KunenaModelTopics extends KunenaModel
 
 	/**
 	 * @return boolean
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	public function getMessages()
 	{
@@ -493,6 +533,9 @@ class KunenaModelTopics extends KunenaModel
 
 	/**
 	 * @return integer
+	 * @since Kunena
+	 * @throws Exception
+	 * @throws null
 	 */
 	public function getTotal()
 	{
@@ -506,6 +549,9 @@ class KunenaModelTopics extends KunenaModel
 
 	/**
 	 * @return array|null
+	 * @since Kunena
+	 * @throws Exception
+	 * @throws null
 	 */
 	public function getTopicActions()
 	{
@@ -518,72 +564,72 @@ class KunenaModelTopics extends KunenaModel
 
 		foreach ($this->topics as $topic)
 		{
-			if (!$delete && $topic->authorise('delete'))
+			if (!$delete && $topic->isAuthorised('delete'))
 			{
 				$delete = true;
 			}
 
-			if (!$approve && $topic->authorise('approve'))
+			if (!$approve && $topic->isAuthorised('approve'))
 			{
 				$approve = true;
 			}
 
-			if (!$undelete && $topic->authorise('undelete'))
+			if (!$undelete && $topic->isAuthorised('undelete'))
 			{
 				$undelete = true;
 			}
 
-			if (!$move && $topic->authorise('move'))
+			if (!$move && $topic->isAuthorised('move'))
 			{
 				$move = $this->actionMove = true;
 			}
 
-			if (!$permdelete && $topic->authorise('permdelete'))
+			if (!$permdelete && $topic->isAuthorised('permdelete'))
 			{
 				$permdelete = true;
 			}
 		}
 
-		$actionDropdown[] = JHtml::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
+		$actionDropdown[] = HTMLHelper::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
 
 		if ($this->getState('list.mode') == 'subscriptions')
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'unsubscribe', JText::_('COM_KUNENA_UNSUBSCRIBE_SELECTED'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'unsubscribe', JText::_('COM_KUNENA_UNSUBSCRIBE_SELECTED'));
 		}
 
 		if ($this->getState('list.mode') == 'favorites')
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'unfavorite', JText::_('COM_KUNENA_UNFAVORITE_SELECTED'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'unfavorite', JText::_('COM_KUNENA_UNFAVORITE_SELECTED'));
 		}
 
 		if ($move)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'move', JText::_('COM_KUNENA_MOVE_SELECTED'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'move', JText::_('COM_KUNENA_MOVE_SELECTED'));
 		}
 
 		if ($approve)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'approve', JText::_('COM_KUNENA_APPROVE_SELECTED'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'approve', JText::_('COM_KUNENA_APPROVE_SELECTED'));
 		}
 
 		if ($delete)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'delete', JText::_('COM_KUNENA_DELETE_SELECTED'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'delete', JText::_('COM_KUNENA_DELETE_SELECTED'));
 		}
 
 		if ($permdelete)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'permdel', JText::_('COM_KUNENA_BUTTON_PERMDELETE_LONG'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'permdel', JText::_('COM_KUNENA_BUTTON_PERMDELETE_LONG'));
 		}
 
 		if ($undelete)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'restore', JText::_('COM_KUNENA_BUTTON_UNDELETE_LONG'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'restore', JText::_('COM_KUNENA_BUTTON_UNDELETE_LONG'));
 		}
 
-		if (count($actionDropdown) == 1)
+		if ($actionDropdown == 1)
 		{
-			return null;
+			return;
 		}
 
 		return $actionDropdown;
@@ -591,6 +637,9 @@ class KunenaModelTopics extends KunenaModel
 
 	/**
 	 * @return array|null
+	 * @throws Exception
+	 * @throws null
+	 * @since Kunena
 	 */
 	public function getPostActions()
 	{
@@ -603,52 +652,52 @@ class KunenaModelTopics extends KunenaModel
 
 		foreach ($this->messages as $message)
 		{
-			if (!$delete && $message->authorise('delete'))
+			if (!$delete && $message->isAuthorised('delete'))
 			{
 				$delete = true;
 			}
 
-			if (!$approve && $message->authorise('approve'))
+			if (!$approve && $message->isAuthorised('approve'))
 			{
 				$approve = true;
 			}
 
-			if (!$undelete && $message->authorise('undelete'))
+			if (!$undelete && $message->isAuthorised('undelete'))
 			{
 				$undelete = true;
 			}
 
-			if (!$permdelete && $message->authorise('permdelete'))
+			if (!$permdelete && $message->isAuthorised('permdelete'))
 			{
 				$permdelete = true;
 			}
 		}
 
-		$actionDropdown[] = JHtml::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
+		$actionDropdown[] = HTMLHelper::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
 
 		if ($approve)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'approve_posts', JText::_('COM_KUNENA_APPROVE_SELECTED'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'approve_posts', JText::_('COM_KUNENA_APPROVE_SELECTED'));
 		}
 
 		if ($delete)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'delete_posts', JText::_('COM_KUNENA_DELETE_SELECTED'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'delete_posts', JText::_('COM_KUNENA_DELETE_SELECTED'));
 		}
 
 		if ($permdelete)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'permdel_posts', JText::_('COM_KUNENA_BUTTON_PERMDELETE_LONG'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'permdel_posts', JText::_('COM_KUNENA_BUTTON_PERMDELETE_LONG'));
 		}
 
 		if ($undelete)
 		{
-			$actionDropdown[] = JHtml::_('select.option', 'restore_posts', JText::_('COM_KUNENA_BUTTON_UNDELETE_LONG'));
+			$actionDropdown[] = HTMLHelper::_('select.option', 'restore_posts', JText::_('COM_KUNENA_BUTTON_UNDELETE_LONG'));
 		}
 
-		if (count($actionDropdown) == 1)
+		if ($actionDropdown == 1)
 		{
-			return null;
+			return;
 		}
 
 		return $actionDropdown;
@@ -656,6 +705,7 @@ class KunenaModelTopics extends KunenaModel
 
 	/**
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function getActionMove()
 	{

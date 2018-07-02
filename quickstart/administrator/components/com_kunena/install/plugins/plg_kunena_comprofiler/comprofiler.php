@@ -2,17 +2,27 @@
 /**
  * Kunena Plugin
  *
- * @package     Kunena.Plugins
- * @subpackage  Comprofiler
+ * @package         Kunena.Plugins
+ * @subpackage      Comprofiler
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
-class plgKunenaComprofiler extends JPlugin
+use Joomla\CMS\Factory;
+
+/**
+ * Class plgKunenaComprofiler
+ * @since Kunena
+ */
+class plgKunenaComprofiler extends \Joomla\CMS\Plugin\CMSPlugin
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	public $minCBVersion = '2.0.0';
 
 	/**
@@ -20,6 +30,9 @@ class plgKunenaComprofiler extends JPlugin
 	 *
 	 * @param $subject
 	 * @param $config
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function __construct(&$subject, $config)
 	{
@@ -31,11 +44,24 @@ class plgKunenaComprofiler extends JPlugin
 			return;
 		}
 
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 
 		// Do not load if CommunityBuilder is not installed
-		if ((!file_exists( JPATH_SITE . '/libraries/CBLib/CBLib/Core/CBLib.php')) || (!file_exists( JPATH_ADMINISTRATOR . '/components/com_comprofiler/plugin.foundation.php')))
+		if ((!file_exists(JPATH_SITE . '/libraries/CBLib/CBLib/Core/CBLib.php')) || (!file_exists(JPATH_ADMINISTRATOR . '/components/com_comprofiler/plugin.foundation.php')))
 		{
+			if (\Joomla\CMS\Plugin\PluginHelper::isEnabled('kunena', 'comprofiler'))
+			{
+				$db = JFactory::getDBO();
+				$query = $db->getQuery(true);
+				$query->update('`#__extensions`');
+				$query->where($db->quoteName('element') . ' = ' . $db->quote('comprofiler'));
+				$query->where($db->quoteName('type') . ' = ' . $db->quote('plugin'));
+				$query->where($db->quoteName('folder') . '= ' . $db->quote('kunena'));
+				$query->set($db->quoteName('enabled') . '=0');
+				$db->setQuery($query);
+				$db->execute();
+			}
+
 			return;
 		}
 
@@ -50,16 +76,19 @@ class plgKunenaComprofiler extends JPlugin
 
 		require_once __DIR__ . "/integration.php";
 
-		if ($app->isAdmin() && (!isset($ueConfig ['version']) || version_compare($ueConfig ['version'], $this->minCBVersion) < 0))
+		if ($app->isClient('administrator') && (!isset($ueConfig ['version']) || version_compare($ueConfig ['version'], $this->minCBVersion) < 0))
 		{
 			$app->enqueueMessage(JText::sprintf('PLG_KUNENA_COMPROFILER_WARN_VERSION', $this->minCBVersion), 'notice');
 		}
 	}
 
 	/**
-	 * @param      $type
-	 * @param null $view
-	 * @param null $params
+	 * @param        $type
+	 * @param   null $view   view
+	 * @param   null $params params
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function onKunenaDisplay($type, $view = null, $params = null)
 	{
@@ -81,10 +110,13 @@ class plgKunenaComprofiler extends JPlugin
 	}
 
 	/**
-	 * @param     $context
-	 * @param     $item
-	 * @param     $params
-	 * @param int $page
+	 * @param       $context
+	 * @param       $item
+	 * @param       $params
+	 * @param   int $page page
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function onKunenaPrepare($context, &$item, &$params, $page = 0)
 	{
@@ -103,13 +135,14 @@ class plgKunenaComprofiler extends JPlugin
 	/**
 	 * Get Kunena access control object.
 	 *
-	 * @return KunenaAccess
+	 * @return KunenaAccess|KunenaAccessComprofiler
+	 * @since Kunena
 	 */
 	public function onKunenaGetAccessControl()
 	{
 		if (!$this->params->get('access', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/access.php";
@@ -120,13 +153,14 @@ class plgKunenaComprofiler extends JPlugin
 	/**
 	 * Get Kunena login integration object.
 	 *
-	 * @return KunenaLogin
+	 * @return KunenaLogin|KunenaLoginComprofiler
+	 * @since Kunena
 	 */
 	public function onKunenaGetLogin()
 	{
 		if (!$this->params->get('login', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/login.php";
@@ -138,12 +172,13 @@ class plgKunenaComprofiler extends JPlugin
 	 * Get Kunena avatar integration object.
 	 *
 	 * @return KunenaAvatar
+	 * @since Kunena
 	 */
 	public function onKunenaGetAvatar()
 	{
 		if (!$this->params->get('avatar', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/avatar.php";
@@ -155,12 +190,13 @@ class plgKunenaComprofiler extends JPlugin
 	 * Get Kunena profile integration object.
 	 *
 	 * @return KunenaProfile
+	 * @since Kunena
 	 */
 	public function onKunenaGetProfile()
 	{
 		if (!$this->params->get('profile', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/profile.php";
@@ -172,12 +208,13 @@ class plgKunenaComprofiler extends JPlugin
 	 * Get Kunena private message integration object.
 	 *
 	 * @return KunenaPrivate
+	 * @since Kunena
 	 */
 	public function onKunenaGetPrivate()
 	{
 		if (!$this->params->get('private', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/private.php";
@@ -189,12 +226,13 @@ class plgKunenaComprofiler extends JPlugin
 	 * Get Kunena activity stream integration object.
 	 *
 	 * @return KunenaActivity
+	 * @since Kunena
 	 */
 	public function onKunenaGetActivity()
 	{
 		if (!$this->params->get('activity', 1))
 		{
-			return null;
+			return;
 		}
 
 		require_once __DIR__ . "/activity.php";

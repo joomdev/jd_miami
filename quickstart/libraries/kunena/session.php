@@ -1,29 +1,51 @@
 <?php
 /**
  * Kunena Component
- * @package    Kunena.Framework
+ * @package        Kunena.Framework
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Class KunenaSession
+ * @since Kunena
  */
 class KunenaSession extends JObject
 {
-	protected $_exists = false;
-
-	protected $_sessiontimeout = false;
-
-	protected $allreadtime;
-
+	/**
+	 * @var mixed
+	 * @since Kunena
+	 */
 	private static $_instance;
 
 	/**
-	 * @param   mixed|null $identifier
+	 * @var boolean
+	 * @since Kunena
+	 */
+	protected $_exists = false;
+
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
+	protected $_sessiontimeout = false;
+
+	/**
+	 * @var int|string
+	 * @since Kunena
+	 */
+	protected $allreadtime;
+
+	/**
+	 * @param   mixed|null $identifier identifier
+	 *
+	 * @since Kunena
+	 * @throws Exception
 	 */
 	public function __construct($identifier)
 	{
@@ -32,82 +54,36 @@ class KunenaSession extends JObject
 		if (!$this->currvisit)
 		{
 			// For new users new indication displays 14 days
-			$now = JFactory::getDate()->toUnix();
-			$this->lasttime = $now - 14 * 24 * 60 * 60; // 14 days ago
+			$now = Factory::getDate()->toUnix();
+
+			// 14 days ago
+			$this->lasttime    = $now - 14 * 24 * 60 * 60;
 			$this->allreadtime = $this->lasttime;
-			$this->currvisit = $now;
-			$this->readtopics = 0;
+			$this->currvisit   = $now;
+			$this->readtopics  = 0;
 		}
 		else
 		{
-			// Deal with users who do not (yet) have all readtime set.
-			$userCategory = KunenaForumCategoryUserHelper::get(0, (int) $identifier);
+			// Deal with users who do not (yet) have all read time set.
+			$userCategory      = KunenaForumCategoryUserHelper::get(0, (int) $identifier);
 			$this->allreadtime = $userCategory->allreadtime ? $userCategory->allreadtime : $this->lasttime;
 		}
 	}
 
 	/**
-	 * @param   bool $update
-	 * @param   null $userid
-	 *
-	 * @return KunenaSession
-	 */
-	public static function getInstance( $update=false, $userid = null )
-	{
-		if (!self::$_instance)
-		{
-			$my = JFactory::getUser();
-			self::$_instance = new KunenaSession($userid !== null ? $userid : $my->id);
-
-			if ($update)
-			{
-				self::$_instance->updateSessionInfo();
-			}
-		}
-
-		return self::$_instance;
-	}
-
-	/**
-	 * Method to get the session table object
-	 *
-	 * This function uses a static variable to store the table name of the session table to
-	 * it instantiates. You can call this function statically to set the table name if
-	 * needed.
-	 *
-	 * @access	public
-	 * @param   string	$type	The session table name to be used
-	 * @param   string	$prefix	The session table prefix to be used
-	 * @return	object	The session table object
-	 * @since	1.5
-	 */
-	public function getTable($type = 'KunenaSessions', $prefix = 'Table')
-	{
-		static $tabletype = null;
-
-		// Set a custom table type is defined
-		if ($tabletype === null || $type != $tabletype['name'] || $prefix != $tabletype['prefix'])
-		{
-			$tabletype['name']		= $type;
-			$tabletype['prefix']	= $prefix;
-		}
-
-		// Create the user table object
-		return JTable::getInstance($tabletype['name'], $tabletype['prefix']);
-	}
-
-	/**
 	 * Method to load a KunenaSession object by userid
 	 *
-	 * @access	public
-	 * @param   int	$userid The user id of the user to load
-	 * @return	boolean			True on success
-	 * @since 1.5
+	 * @access    public
+	 *
+	 * @param   int $userid The user id of the user to load
+	 *
+	 * @return    boolean            True on success
+	 * @since     1.5
 	 */
 	public function load($userid)
 	{
 		// Create the user table object
-		$table	= $this->getTable();
+		$table = $this->getTable();
 
 		// Load the KunenaTableUser object based on the user id
 		if ($table->load($userid))
@@ -123,12 +99,103 @@ class KunenaSession extends JObject
 	}
 
 	/**
+	 * Method to get the session table object
+	 *
+	 * This function uses a static variable to store the table name of the session table to
+	 * it instantiates. You can call this function statically to set the table name if
+	 * needed.
+	 *
+	 * @access    public
+	 *
+	 * @param   string $type   The session table name to be used
+	 * @param   string $prefix The session table prefix to be used
+	 *
+	 * @return    object    The session table object
+	 * @since     1.5
+	 */
+	public function getTable($type = 'KunenaSessions', $prefix = 'Table')
+	{
+		static $tabletype = null;
+
+		// Set a custom table type is defined
+		if ($tabletype === null || $type != $tabletype['name'] || $prefix != $tabletype['prefix'])
+		{
+			$tabletype['name']   = $type;
+			$tabletype['prefix'] = $prefix;
+		}
+
+		// Create the user table object
+		return \Joomla\CMS\Table\Table::getInstance($tabletype['name'], $tabletype['prefix']);
+	}
+
+	/**
+	 * @param   bool $update update
+	 * @param   null $userid userid
+	 *
+	 * @return KunenaSession
+	 * @since Kunena
+	 * @throws Exception
+	 */
+	public static function getInstance($update = false, $userid = null)
+	{
+		if (!self::$_instance)
+		{
+			$my              = Factory::getUser();
+			self::$_instance = new KunenaSession($userid !== null ? $userid : $my->id);
+
+			if ($update)
+			{
+				self::$_instance->updateSessionInfo();
+			}
+		}
+
+		return self::$_instance;
+	}
+
+	/**
+	 * @since Kunena
+	 * @throws Exception
+	 * @return void
+	 */
+	public function updateSessionInfo()
+	{
+		// If this is a new session, reset the lasttime colum with the timestamp
+		// of the last saved currvisit - only after that can we reset currvisit to now before the store
+		if ($this->isNewSession())
+		{
+			$this->lasttime   = $this->currvisit;
+			$this->readtopics = 0;
+		}
+
+		$this->currvisit = Factory::getDate()->toUnix();
+	}
+
+	/**
+	 * @return boolean
+	 * @since Kunena
+	 * @throws Exception
+	 */
+	public function isNewSession()
+	{
+		// Perform session timeout check
+		$lifetime              = max(intval(Factory::getConfig()->get('config.lifetime')) * 60,
+			intval(KunenaFactory::getConfig()->sessiontimeout)
+		);
+		$this->_sessiontimeout = ($this->currvisit + $lifetime < Factory::getDate()->toUnix());
+
+		return $this->_sessiontimeout;
+	}
+
+	/**
 	 * Method to save the KunenaSession object to the database
 	 *
-	 * @access	public
+	 * @access    public
+	 *
 	 * @param   boolean $updateOnly Save the object only if not a new session
-	 * @return	boolean True on success
-	 * @since 1.5
+	 *
+	 * @return    boolean True on success
+	 * @since     1.5
+	 * @throws Exception
 	 */
 	public function save($updateOnly = false)
 	{
@@ -139,7 +206,7 @@ class KunenaSession extends JObject
 		}
 
 		// Create the user table object
-		$table	= $this->getTable();
+		$table = $this->getTable();
 		$table->bind($this->getProperties());
 		$table->exists($this->_exists);
 
@@ -166,7 +233,7 @@ class KunenaSession extends JObject
 			$this->setError($table->getError());
 		}
 
-		// Set the id for the JUser object in case we created a new user.
+		// Set the id for the \Joomla\CMS\User\User object in case we created a new user.
 		if (empty($this->userid))
 		{
 			$this->userid = $table->get('userid');
@@ -187,14 +254,14 @@ class KunenaSession extends JObject
 	/**
 	 * Method to delete the KunenaSession object from the database
 	 *
-	 * @access	public
-	 * @return	boolean			True on success
-	 * @since 1.5
+	 * @access    public
+	 * @return    boolean            True on success
+	 * @since     1.5
 	 */
 	public function delete()
 	{
 		// Create the user table object
-		$table	= $this->getTable();
+		$table = $this->getTable();
 
 		$result = $table->delete($this->userid);
 
@@ -208,6 +275,7 @@ class KunenaSession extends JObject
 
 	/**
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public function isNewUser()
 	{
@@ -215,51 +283,25 @@ class KunenaSession extends JObject
 	}
 
 	/**
-	 * @return boolean
-	 */
-	public function isNewSession()
-	{
-		// Perform session timeout check
-		$lifetime = max(intval(JFactory::getConfig()->get('config.lifetime')) * 60, intval(KunenaFactory::getConfig()->sessiontimeout));
-		$this->_sessiontimeout = ($this->currvisit + $lifetime < JFactory::getDate()->toUnix());
-
-		return $this->_sessiontimeout;
-	}
-
-	/**
 	 * @return integer|string
+	 * @since Kunena
 	 */
 	public function getAllReadTime()
 	{
 		// For existing users new indication expires after 3 months
-		$monthsAgo = JFactory::getDate()->toUnix() - 91 * 24 * 60 * 60;
+		$monthsAgo   = Factory::getDate()->toUnix() - 91 * 24 * 60 * 60;
 		$allreadtime = ($this->allreadtime > $monthsAgo ? $this->allreadtime : $monthsAgo);
 
 		return $allreadtime;
 	}
 
 	/**
-	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public function markAllCategoriesRead()
 	{
-		$this->allreadtime = JFactory::getDate()->toUnix();
-		$this->readtopics = 0;
-	}
-
-	/**
-	 *
-	 */
-	public function updateSessionInfo()
-	{
-		// If this is a new session, reset the lasttime colum with the timestamp
-		// of the last saved currvisit - only after that can we reset currvisit to now before the store
-		if ($this->isNewSession())
-		{
-			$this->lasttime = $this->currvisit;
-			$this->readtopics = 0;
-		}
-
-		$this->currvisit = JFactory::getDate()->toUnix();
+		$this->allreadtime = Factory::getDate()->toUnix();
+		$this->readtopics  = 0;
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         18.1.7274
+ * @version         18.5.26647
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -135,7 +135,7 @@ class ContentCategory
 			$this->article->load($this->request->id);
 		}
 
-		if ($this->article && $this->article->catid)
+		if ($this->article && isset($this->article->catid))
 		{
 			return (array) $this->article->catid;
 		}

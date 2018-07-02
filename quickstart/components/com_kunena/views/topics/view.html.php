@@ -2,21 +2,31 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Views
+ * @package         Kunena.Site
+ * @subpackage      Views
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
-defined('_JEXEC') or die ();
+defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Topics View
+ * @since Kunena
  */
 class KunenaViewTopics extends KunenaView
 {
-	function displayDefault($tpl = null)
+	/**
+	 * @param   null $tpl tpl
+	 *
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
+	 */
+	public function displayDefault($tpl = null)
 	{
 		$this->layout           = 'default';
 		$this->params           = $this->state->get('params');
@@ -42,12 +52,19 @@ class KunenaViewTopics extends KunenaView
 
 		$this->rssURL = $this->config->enablerss ? KunenaRoute::_('&format=feed') : '';
 
-		$this->_prepareDocument('default');
+		$this->_prepareDocument();
 
 		$this->render('Topic/List', $tpl);
 	}
 
-	function displayUser($tpl = null)
+	/**
+	 * @param   null $tpl tpl
+	 *
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
+	 */
+	public function displayUser($tpl = null)
 	{
 		$this->layout           = 'user';
 		$this->params           = $this->state->get('params');
@@ -70,12 +87,19 @@ class KunenaViewTopics extends KunenaView
 			}
 		}
 
-		$this->_prepareDocument('user');
+		$this->_prepareDocument();
 
 		$this->render('Topic/List', $tpl);
 	}
 
-	function displayPosts($tpl = null)
+	/**
+	 * @param   null $tpl tpl
+	 *
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
+	 */
+	public function displayPosts($tpl = null)
 	{
 		$this->layout           = 'posts';
 		$this->params           = $this->state->get('params');
@@ -99,12 +123,12 @@ class KunenaViewTopics extends KunenaView
 			}
 		}
 
-		$this->_prepareDocument('posts');
+		$this->_prepareDocument();
 
 		$this->render('Message/List', $tpl);
 	}
 
-	function displayRows()
+	public function displayRows()
 	{
 		if ($this->layout == 'posts')
 		{
@@ -116,21 +140,20 @@ class KunenaViewTopics extends KunenaView
 		}
 	}
 
-	function displayTopicRows()
+	public function displayTopicRows()
 	{
 		$lasttopic      = null;
 		$this->position = 0;
 
 		// Run events
-		$params = new JRegistry();
+		$params = new \Joomla\Registry\Registry;
 		$params->set('ksource', 'kunena');
 		$params->set('kunena_view', 'user');
 		$params->set('kunena_layout', 'topics');
 
-		$dispatcher = JDispatcher::getInstance();
-		JPluginHelper::importPlugin('kunena');
+		\Joomla\CMS\Plugin\PluginHelper::importPlugin('kunena');
 
-		$dispatcher->trigger('onKunenaPrepare', array('kunena.topics', &$this->topics, &$params, 0));
+		Factory::getApplication()->triggerEvent('onKunenaPrepare', array('kunena.topics', &$this->topics, &$params, 0));
 
 		foreach ($this->topics as $this->topic)
 		{
@@ -140,12 +163,12 @@ class KunenaViewTopics extends KunenaView
 
 			// TODO: add context (options, template) to caching
 			$this->cache = true;
-			$cache       = JFactory::getCache('com_kunena', 'output');
+			$cache       = Factory::getCache('com_kunena', 'output');
 			$cachekey    = "{$this->getTemplateMD5()}.{$usertype}.t{$this->topic->id}.p{$this->topic->last_post_id}";
 			$cachegroup  = 'com_kunena.topics';
 
 			// FIXME: enable caching after fixing the issues
-			$contents = false; //$cache->get($cachekey, $cachegroup);
+			$contents = false; // $cache->get($cachekey, $cachegroup);
 
 			if (!$contents)
 			{
@@ -180,8 +203,9 @@ class KunenaViewTopics extends KunenaView
 				{
 					$contents = preg_replace_callback('|\[K=(\w+)(?:\:([\w-_]+))?\]|', array($this, 'fillTopicInfo'), $contents);
 				}
+
 				// FIXME: enable caching after fixing the issues
-				//if ($this->cache) $cache->store($contents, $cachekey, $cachegroup);
+				// if ($this->cache) $cache->store($contents, $cachekey, $cachegroup);
 			}
 
 			if ($usertype != 'guest')
@@ -194,7 +218,15 @@ class KunenaViewTopics extends KunenaView
 		}
 	}
 
-	function fillTopicInfo($matches)
+	/**
+	 * @param $matches
+	 *
+	 * @return mixed|string
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
+	 */
+	public function fillTopicInfo($matches)
 	{
 		switch ($matches[1])
 		{
@@ -211,21 +243,20 @@ class KunenaViewTopics extends KunenaView
 		}
 	}
 
-	function displayPostRows()
+	public function displayPostRows()
 	{
 		$lasttopic      = null;
 		$this->position = 0;
 
 		// Run events
-		$params = new JRegistry();
+		$params = new \Joomla\Registry\Registry;
 		$params->set('ksource', 'kunena');
 		$params->set('kunena_view', 'user');
 		$params->set('kunena_layout', 'posts');
 
-		$dispatcher = JDispatcher::getInstance();
-		JPluginHelper::importPlugin('kunena');
+		\Joomla\CMS\Plugin\PluginHelper::importPlugin('kunena');
 
-		$dispatcher->trigger('onKunenaPrepare', array('kunena.messages', &$this->messages, &$params, 0));
+		Factory::getApplication()->triggerEvent('onKunenaPrepare', array('kunena.messages', &$this->messages, &$params, 0));
 
 		foreach ($this->messages as $this->message)
 		{
@@ -236,12 +267,12 @@ class KunenaViewTopics extends KunenaView
 
 			// TODO: add context (options, template) to caching
 			$this->cache = true;
-			$cache       = JFactory::getCache('com_kunena', 'output');
+			$cache       = Factory::getCache('com_kunena', 'output');
 			$cachekey    = "{$this->getTemplateMD5()}.{$usertype}.t{$this->topic->id}.p{$this->message->id}";
 			$cachegroup  = 'com_kunena.posts';
 
 			// FIXME: enable caching after fixing the issues
-			$contents = false; //$cache->get($cachekey, $cachegroup);
+			$contents = false; // $cache->get($cachekey, $cachegroup);
 
 			if (!$contents)
 			{
@@ -265,8 +296,9 @@ class KunenaViewTopics extends KunenaView
 				{
 					$contents = preg_replace_callback('|\[K=(\w+)(?:\:([\w-_]+))?\]|', array($this, 'fillTopicInfo'), $contents);
 				}
+
 				// FIXME: enable caching after fixing the issues
-				//if ($this->cache) $cache->store($contents, $cachekey, $cachegroup);
+				// if ($this->cache) $cache->store($contents, $cachekey, $cachegroup);
 			}
 
 			if ($usertype != 'guest')

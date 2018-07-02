@@ -2,13 +2,15 @@
 /**
  * Kunena Component
  *
- * @package    Kunena.Installer
+ * @package        Kunena.Installer
  *
- * @copyright  (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license    https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link       https://www.kunena.org
+ * @copyright      Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license        https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link           https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 // Kunena 1.6.0: Migrate polls data from K1.5
 /**
@@ -16,12 +18,13 @@ defined('_JEXEC') or die();
  *
  * @return array|null
  * @throws KunenaInstallerException
+ * @since Kunena
  */
 function kunena_160_2010_05_30_polls($parent)
 {
 	// Import filesystem libraries.
 	jimport('joomla.filesystem.folder');
-	$db = JFactory::getDbo();
+	$db = Factory::getDbo();
 
 	$upgraded = false;
 
@@ -36,13 +39,16 @@ function kunena_160_2010_05_30_polls($parent)
 
 			if (isset($fields ['catid']) && isset($fields ['polltimetolive']))
 			{
-				$query = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls')} DROP COLUMN catid, MODIFY title varchar(50)";
+				$query = "ALTER TABLE `{$db->quoteName($db->getPrefix() . 'kunena_polls')}` DROP COLUMN catid, MODIFY title varchar(50)";
 				$db->setQuery($query);
-				$db->query();
 
-				if ($db->getErrorNum())
+				try
 				{
-					throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+					$db->execute();
+				}
+				catch (Exception $e)
+				{
+					throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 				}
 
 				$upgraded = true;
@@ -50,13 +56,16 @@ function kunena_160_2010_05_30_polls($parent)
 
 			if (isset($fields ['catid']) && !isset($fields ['polltimetolive']))
 			{
-				$query = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls')} DROP COLUMN catid, MODIFY title varchar(50),ADD `polltimetolive` timestamp";
+				$query = "ALTER TABLE `{$db->quoteName($db->getPrefix() . 'kunena_polls')}` DROP COLUMN catid, MODIFY title varchar(50),ADD `polltimetolive` timestamp";
 				$db->setQuery($query);
-				$db->query();
 
-				if ($db->getErrorNum())
+				try
 				{
-					throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+					$db->execute();
+				}
+				catch (Exception $e)
+				{
+					throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 				}
 
 				$upgraded = true;
@@ -64,13 +73,16 @@ function kunena_160_2010_05_30_polls($parent)
 
 			if (isset($fields ['topicid']) && isset($fields ['voters']) && isset($fields ['options']))
 			{
-				$query = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls')} DROP COLUMN voters, DROP COLUMN options,CHANGE topicid threadid int(11), ADD polltimetolive timestamp";
+				$query = "ALTER TABLE `{$db->quoteName($db->getPrefix() . 'kunena_polls')}` DROP COLUMN voters, DROP COLUMN options,CHANGE topicid threadid int(11), ADD polltimetolive timestamp";
 				$db->setQuery($query);
-				$db->query();
 
-				if ($db->getErrorNum())
+				try
 				{
-					throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+					$db->execute();
+				}
+				catch (Exception $e)
+				{
+					throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 				}
 
 				$upgraded = true;
@@ -79,40 +91,52 @@ function kunena_160_2010_05_30_polls($parent)
 
 		if ($table == $db->getPrefix() . 'kunena_polls_datas')
 		{
-			$query = "DROP TABLE {$db->quoteName($db->getPrefix().'kunena_polls_options')}";
+			$query = "DROP TABLE `{$db->quoteName($db->getPrefix() . 'kunena_polls_options')}`";
 			$db->setQuery($query);
-			$db->query();
 
-			if ($db->getErrorNum())
+			try
 			{
-				throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+				$db->execute();
+			}
+			catch (Exception $e)
+			{
+				throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 			}
 
-			$query = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls_datas')} MODIFY `id` int(11) AUTO_INCREMENT, MODIFY `text` varchar(100), CHANGE `hits` `votes` int(11)";
+			$query = "ALTER TABLE `{$db->quoteName($db->getPrefix() . 'kunena_polls_datas')}` MODIFY `id` int(11) AUTO_INCREMENT, MODIFY `text` varchar(100), CHANGE `hits` `votes` int(11)";
 			$db->setQuery($query);
-			$db->query();
 
-			if ($db->getErrorNum())
+			try
 			{
-				throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+				$db->execute();
+			}
+			catch (Exception $e)
+			{
+				throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 			}
 
-			$query = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls_users')} DROP COLUMN `id`, ADD `votes` int(11), ADD `lasttime` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, ADD `lastvote` int(11), ADD UNIQUE KEY `pollid` (pollid,userid)";
+			$query = "ALTER TABLE `{$db->quoteName($db->getPrefix() . 'kunena_polls_users')}` DROP COLUMN `id`, ADD `votes` int(11), ADD `lasttime` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, ADD `lastvote` int(11), ADD UNIQUE KEY `pollid` (pollid,userid)";
 			$db->setQuery($query);
-			$db->query();
 
-			if ($db->getErrorNum())
+			try
 			{
-				throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+				$db->execute();
+			}
+			catch (Exception $e)
+			{
+				throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 			}
 
-			$query = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls_datas')} RENAME TO {$db->quoteName($db->getPrefix().'kunena_polls_options')}";
+			$query = "ALTER TABLE `{$db->quoteName($db->getPrefix() . 'kunena_polls_datas')}` RENAME TO `{$db->quoteName($db->getPrefix() . 'kunena_polls_options')}`";
 			$db->setQuery($query);
-			$db->query();
 
-			if ($db->getErrorNum())
+			try
 			{
-				throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+				$db->execute();
+			}
+			catch (Exception $e)
+			{
+				throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 			}
 
 			$upgraded = true;
@@ -121,13 +145,16 @@ function kunena_160_2010_05_30_polls($parent)
 		if ($table == $db->getPrefix() . 'kunena_polls_options')
 		{
 			$fields = $db->getTableColumns($db->getPrefix() . 'kunena_polls_options');
-			$query  = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls_options')} MODIFY text varchar(50)";
+			$query  = "ALTER TABLE `{$db->quoteName($db->getPrefix() . 'kunena_polls_options')}` MODIFY text varchar(50)";
 			$db->setQuery($query);
-			$db->query();
 
-			if ($db->getErrorNum())
+			try
 			{
-				throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+				$db->execute();
+			}
+			catch (Exception $e)
+			{
+				throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 			}
 		}
 
@@ -137,13 +164,16 @@ function kunena_160_2010_05_30_polls($parent)
 
 			if (!isset($fields ['id']) && !isset($fields ['lastvote']))
 			{
-				$query = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls_users')} MODIFY votes int(11), ADD lastvote int(11)";
+				$query = "ALTER TABLE `{$db->quoteName($db->getPrefix() . 'kunena_polls_users')}` MODIFY votes int(11), ADD lastvote int(11)";
 				$db->setQuery($query);
-				$db->query();
 
-				if ($db->getErrorNum())
+				try
 				{
-					throw new KunenaInstallerException($db->getErrorMsg(), $db->getErrorNum());
+					$db->execute();
+				}
+				catch (Exception $e)
+				{
+					throw new KunenaInstallerException($e->getMessage(), $e->getCode());
 				}
 
 				$upgraded = true;

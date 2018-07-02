@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Models
+ * @package         Kunena.Site
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
-defined('_JEXEC') or die ();
+defined('_JEXEC') or die();
+
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * Rate Model for Kunena
@@ -18,7 +20,6 @@ defined('_JEXEC') or die ();
  */
 class KunenaModelRate extends KunenaModel
 {
-
 	protected function populateState()
 	{
 		$id = $this->getInt('topicid', 0);
@@ -45,38 +46,43 @@ class KunenaModelRate extends KunenaModel
 
 	/**
 	 * @return KunenaForumRate
+	 * @since Kunena
 	 */
-	function getNewRate()
+	public function getNewRate()
 	{
 		return new KunenaForumRate;
 	}
 
 	/**
 	 * @return mixed
+	 * @since Kunena
 	 */
-	function getRate()
+	public function getRate()
 	{
 		return KunenaForumRateHelper::get($this->getState('item.topicid'));
 	}
 
 	/**
 	 * @return mixed
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	function getRates()
+	public function getRates()
 	{
 		return KunenaForumRateHelper::getRates($this->getState('list.start'), $this->getState('list.limit'), !$this->me->isModerator());
 	}
 
 	/**
 	 * @return array
+	 * @since Kunena
 	 */
 	public function getRateActions()
 	{
 		$actions   = array();
-		$actions[] = JHtml::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
-		$actions[] = JHtml::_('select.option', 'unpublish', JText::_('COM_KUNENA_BULK_RATE_UNPUBLISH'));
-		$actions[] = JHtml::_('select.option', 'publish', JText::_('COM_KUNENA_BULK_RATE_PUBLISH'));
-		$actions[] = JHtml::_('select.option', 'delete', JText::_('COM_KUNENA_BULK_RATE_DELETE'));
+		$actions[] = HTMLHelper::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
+		$actions[] = HTMLHelper::_('select.option', 'unpublish', JText::_('COM_KUNENA_BULK_RATE_UNPUBLISH'));
+		$actions[] = HTMLHelper::_('select.option', 'publish', JText::_('COM_KUNENA_BULK_RATE_PUBLISH'));
+		$actions[] = HTMLHelper::_('select.option', 'delete', JText::_('COM_KUNENA_BULK_RATE_DELETE'));
 
 		return $actions;
 	}

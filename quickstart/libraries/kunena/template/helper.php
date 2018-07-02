@@ -1,12 +1,12 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Framework
- * @subpackage  Template
+ * @package         Kunena.Framework
+ * @subpackage      Template
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
@@ -17,29 +17,36 @@ defined('_JEXEC') or die();
  */
 abstract class KunenaTemplateHelper
 {
-	protected static $_instances = array ();
+	/**
+	 * @var array
+	 * @since Kunena
+	 */
+	protected static $_instances = array();
 
 	/**
 	 * isDefault
 	 *
-	 * @param $template
+	 * @param   string $template template
 	 *
 	 * @return integer
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public static function isDefault($template)
 	{
-		$config = KunenaFactory::getConfig();
+		$config         = KunenaFactory::getConfig();
 		$defaultemplate = $config->template;
 
 		return $defaultemplate == $template ? 1 : 0;
 	}
 
 	/**
-	 *  parseXmlFiles
+	 * parseXmlFiles
 	 *
-	 * @param   null $templateBaseDir
+	 * @param   null $templateBaseDir template
 	 *
 	 * @return array
+	 * @since Kunena
 	 */
 	public static function parseXmlFiles($templateBaseDir = null)
 	{
@@ -66,7 +73,7 @@ abstract class KunenaTemplateHelper
 		}
 
 		$templateDirs = KunenaFolder::folders($templateBaseDir);
-		$rows = array();
+		$rows         = array();
 
 		// Check that the directory contains an xml file
 		foreach ($templateDirs as $templateDir)
@@ -85,10 +92,11 @@ abstract class KunenaTemplateHelper
 	}
 
 	/**
-	 * @param      $templateDir
-	 * @param   null $templateBaseDir
+	 * @param   string $templateDir     template dir
+	 * @param   string $templateBaseDir template basedir
 	 *
 	 * @return boolean|stdClass
+	 * @since Kunena
 	 */
 	public static function parseXmlFile($templateDir, $templateBaseDir = null)
 	{
@@ -119,9 +127,10 @@ abstract class KunenaTemplateHelper
 	/**
 	 * parseKunenaInstallFile
 	 *
-	 * @param   $path
+	 * @param   string $path path
 	 *
-	 * @return bool|stdClass
+	 * @return boolean|stdClass
+	 * @since Kunena
 	 */
 	public static function parseKunenaInstallFile($path)
 	{
@@ -132,18 +141,18 @@ abstract class KunenaTemplateHelper
 			return false;
 		}
 
-		$data = new stdClass;
-		$data->name = (string) $xml->name;
-		$data->type = (string) $xml->attributes()->type;
+		$data               = new stdClass;
+		$data->name         = (string) $xml->name;
+		$data->type         = (string) $xml->attributes()->type;
 		$data->creationdate = (string) $xml->creationDate;
-		$data->author = (string) $xml->author;
-		$data->copyright = (string) $xml->copyright;
-		$data->authorEmail = (string) $xml->authorEmail;
-		$data->authorUrl = (string) $xml->authorUrl;
-		$data->version = (string) $xml->version;
-		$data->description = (string) $xml->description;
-		$data->thumbnail = (string) $xml->thumbnail;
-		$data->kversion = (string) $xml->attributes()->version;
+		$data->author       = (string) $xml->author;
+		$data->copyright    = (string) $xml->copyright;
+		$data->authorEmail  = (string) $xml->authorEmail;
+		$data->authorUrl    = (string) $xml->authorUrl;
+		$data->version      = (string) $xml->version;
+		$data->description  = (string) $xml->description;
+		$data->thumbnail    = (string) $xml->thumbnail;
+		$data->kversion     = (string) $xml->attributes()->version;
 
 		if ($data->version == '@kunenaversion@')
 		{
@@ -176,13 +185,14 @@ abstract class KunenaTemplateHelper
 	/**
 	 * Check if crypsis template can be used on Joomla! version used
 	 *
-	 * @param   string  $templatename  The name of template which needs to be checked
+	 * @param   string $templatename The name of template which needs to be checked
 	 *
 	 * @return boolean
+	 * @since Kunena
 	 */
 	public static function templateCanBeUsed($templatename)
 	{
-		if ($templatename == 'Crypsis' || $templatename == 'Crypsisb3' )
+		if ($templatename == 'Crypsis' || $templatename == 'Crypsisb3')
 		{
 			return false;
 		}

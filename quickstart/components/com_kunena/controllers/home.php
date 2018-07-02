@@ -11,6 +11,8 @@
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Kunena Home Controller
  *
@@ -18,14 +20,20 @@ defined('_JEXEC') or die();
  */
 class KunenaControllerHome extends KunenaController
 {
+	/**
+	 * @var integer
+	 * @since Kunena
+	 */
 	public $home = 1;
 
 	/**
-	 * @param   bool $cachable
-	 * @param   bool $urlparams
+	 * @param   bool $cachable  cachable
+	 * @param   bool $urlparams urlparams
 	 *
-	 * @return JControllerLegacy|void
+	 * @return \Joomla\CMS\MVC\Controller\BaseController|void
 	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function display($cachable = false, $urlparams = false)
 	{
@@ -34,8 +42,8 @@ class KunenaControllerHome extends KunenaController
 
 		if (!$home)
 		{
-			JFactory::getApplication()->input->get('view', 'category');
-			JFactory::getApplication()->input->get('layout', 'list');
+			Factory::getApplication()->input->get('view', 'category');
+			Factory::getApplication()->input->get('layout', 'list');
 		}
 		else
 		{
@@ -70,11 +78,11 @@ class KunenaControllerHome extends KunenaController
 			// Add query variables from shown menu item
 			foreach ($default->query as $var => $value)
 			{
-				JFactory::getApplication()->input->get($var, $value);
+				Factory::getApplication()->input->get($var, $value);
 			}
 
 			// Remove query variables coming from the home menu item
-			JFactory::getApplication()->input->get('defaultmenu', null);
+			Factory::getApplication()->input->get('defaultmenu', null);
 
 			// Set active menu item to point the real page
 			$menu->setActive($default->id);
@@ -94,12 +102,16 @@ class KunenaControllerHome extends KunenaController
 	/**
 	 * @param       $menu
 	 * @param       $active
-	 * @param   array $visited
+	 * @param   array $visited visited
 	 *
 	 * @return null
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function _getDefaultMenuItem($menu, $active, $visited = array())
 	{
+		KunenaFactory::loadLanguage('com_kunena.controllers');
+
 		if (empty($active->query ['defaultmenu']) || $active->id == $active->query ['defaultmenu'])
 		{
 			// There is no highlighted menu item

@@ -1,34 +1,43 @@
 <?php
 /**
  * Kunena Component
- * @package Kunena.Framework
- * @subpackage Integration
+ * @package       Kunena.Framework
+ * @subpackage    Integration
  *
- * @copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link https://www.kunena.org
+ * @copyright     Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license       https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link          https://www.kunena.org
  **/
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Factory;
+
 /**
  * Class KunenaProfile
+ * @since Kunena
  */
 class KunenaProfile
 {
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected static $instance = false;
 
 	/**
-	 * @param   null $integration
+	 * @param   null $integration integration
 	 *
 	 * @return boolean|KunenaProfile
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	static public function getInstance($integration = null)
+	public static function getInstance($integration = null)
 	{
 		if (self::$instance === false)
 		{
-			JPluginHelper::importPlugin('kunena');
-			$dispatcher = JEventDispatcher::getInstance();
-			$classes = $dispatcher->trigger('onKunenaGetProfile');
+			\Joomla\CMS\Plugin\PluginHelper::importPlugin('kunena');
+
+			$classes = Factory::getApplication()->triggerEvent('onKunenaGetProfile');
 
 			foreach ($classes as $class)
 			{
@@ -43,7 +52,7 @@ class KunenaProfile
 
 			if (!self::$instance)
 			{
-				self::$instance = new KunenaProfile();
+				self::$instance = new KunenaProfile;
 			}
 		}
 
@@ -51,9 +60,11 @@ class KunenaProfile
 	}
 
 	/**
-	 * @param   int $limit
+	 * @param   int $limit limit
 	 *
 	 * @return array
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getTopHits($limit = 0)
 	{
@@ -66,15 +77,29 @@ class KunenaProfile
 	}
 
 	/**
-	 * @param   string $action
-	 * @param   bool   $xhtml
+	 * @param   int $limit limit
+	 *
+	 * @return array
+	 * @since Kunena
+	 */
+	protected function _getTopHits($limit = 0)
+	{
+		return array();
+	}
+
+	/**
+	 * @param   string $action action
+	 * @param   bool   $xhtml  xhtml
 	 *
 	 * @return boolean
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function getStatisticsURL($action = '', $xhtml = true)
 	{
 		$config = KunenaFactory::getConfig();
-		$my = JFactory::getUser();
+		$my     = Factory::getUser();
 
 		if ($config->statslink_allowed == 0 && $my->id == 0)
 		{
@@ -85,49 +110,47 @@ class KunenaProfile
 	}
 
 	/**
-	 * @param   string $action
-	 * @param   bool   $xhtml
+	 * @param   string $action action
+	 * @param   bool   $xhtml  xhtml
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
-	public function getUserListURL($action='', $xhtml = true)
+	public function getUserListURL($action = '', $xhtml = true)
 	{
-
 	}
 
 	/**
-	 * @param        $user
-	 * @param   string $task
-	 * @param   bool   $xhtml
+	 * @param   string $user  user
+	 * @param   string $task  task
+	 * @param   bool   $xhtml xhtml
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
-	public function getProfileURL($user, $task='', $xhtml = true)
+	public function getProfileURL($user, $task = '', $xhtml = true)
 	{
-
 	}
 
 	/**
-	 * @param $view
-	 * @param $params
+	 * @param   int   $view   view
+	 * @param   mixed $params params
+	 *
+	 * @since Kunena
+	 * @return void
 	 */
 	public function showProfile($view, &$params)
 	{
-
 	}
 
 	/**
-	 * @param   int $limit
+	 * @param   integer $userid userid
+	 * @param   bool    $xhtml  xhtml
 	 *
-	 * @return array
-	 */
-	protected function _getTopHits($limit=0)
-	{
-		return array();
-	}
-
-	/**
-	 * @param      $userid
-	 * @param   bool $xhtml
+	 * @since Kunena
+	 * @return void
 	 */
 	public function getEditProfileURL($userid, $xhtml = true)
 	{
-
 	}
 }

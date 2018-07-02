@@ -2,14 +2,17 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Models
+ * @package         Kunena.Administrator
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Factory;
 
 jimport('joomla.application.component.modellist');
 
@@ -20,64 +23,11 @@ jimport('joomla.application.component.modellist');
  */
 class KunenaAdminModelRank extends KunenaModel
 {
-
-	/**
-	 * Method to auto-populate the model state.
-	 */
-	protected function populateState()
-	{
-		$this->context = 'com_kunena.admin.rank';
-
-		$app = JFactory::getApplication();
-
-		// Adjust the context to support modal layouts.
-		$layout = $app->input->get('layout');
-
-		if ($layout)
-		{
-			$this->context .= '.' . $layout;
-		}
-
-		$value = JFactory::getApplication()->input->getInt('id');
-		$this->setState($this->getName() . '.id', $value);
-		$this->setState('item.id', $value);
-	}
-
-	/**
-	 * @return mixed|null
-	 *
-	 * @throws Exception
-	 */
-	public function getRank()
-	{
-		$db = JFactory::getDBO();
-
-		$id = $this->getState($this->getName() . '.id');
-
-		if ($id)
-		{
-			$db->setQuery("SELECT * FROM #__kunena_ranks WHERE rank_id={$db->quote($id)}");
-
-			try
-			{
-				$selected = $db->loadObject();
-			}
-			catch (RuntimeException $e)
-			{
-				JFactory::getApplication()->enqueueMessage($e->getMessage());
-
-				return;
-			}
-
-			return $selected;
-		}
-
-		return null;
-	}
-
 	/**
 	 * @return mixed
 	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getRankspaths()
 	{
@@ -110,11 +60,68 @@ class KunenaAdminModelRank extends KunenaModel
 
 		foreach ($rank_images as $file => $path)
 		{
-			$rank_list[] = JHtml::_('select.option', $path, $file);
+			$rank_list[] = HTMLHelper::_('select.option', $path, $file);
 		}
 
-		$list = JHtml::_('select.genericlist', $rank_list, 'rank_image', 'class="inputbox" onchange="update_rank(this.options[selectedIndex].value);" onmousemove="update_rank(this.options[selectedIndex].value);"', 'value', 'text', isset($selected->rank_image) ? $rank_images[$selected->rank_image] : '');
+		$list = HTMLHelper::_('select.genericlist', $rank_list, 'rank_image', 'class="inputbox" onchange="update_rank(this.options[selectedIndex].value);" onmousemove="update_rank(this.options[selectedIndex].value);"', 'value', 'text', isset($selected->rank_image) ? $rank_images[$selected->rank_image] : '');
 
 		return $list;
+	}
+
+	/**
+	 * @return mixed|null
+	 *
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function getRank()
+	{
+		$db = Factory::getDBO();
+
+		$id = $this->getState($this->getName() . '.id');
+
+		if ($id)
+		{
+			$db->setQuery("SELECT * FROM #__kunena_ranks WHERE rank_id={$db->quote($id)}");
+
+			try
+			{
+				$selected = $db->loadObject();
+			}
+			catch (RuntimeException $e)
+			{
+				Factory::getApplication()->enqueueMessage($e->getMessage());
+
+				return;
+			}
+
+			return $selected;
+		}
+
+		return;
+	}
+
+	/**
+	 * Method to auto-populate the model state.
+	 * @since Kunena
+	 * @throws Exception
+	 */
+	protected function populateState()
+	{
+		$this->context = 'com_kunena.admin.rank';
+
+		$app = Factory::getApplication();
+
+		// Adjust the context to support modal layouts.
+		$layout = $app->input->get('layout');
+
+		if ($layout)
+		{
+			$this->context .= '.' . $layout;
+		}
+
+		$value = Factory::getApplication()->input->getInt('id');
+		$this->setState($this->getName() . '.id', $value);
+		$this->setState('item.id', $value);
 	}
 }

@@ -2,14 +2,17 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Administrator
- * @subpackage  Models
+ * @package         Kunena.Administrator
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Factory;
 
 jimport('joomla.application.component.modellist');
 
@@ -21,62 +24,9 @@ jimport('joomla.application.component.modellist');
 class KunenaAdminModelSmiley extends KunenaModel
 {
 	/**
-	 * Method to auto-populate the model state.
-	 */
-	protected function populateState()
-	{
-		$this->context = 'com_kunena.admin.smiley';
-
-		$app = JFactory::getApplication();
-
-		// Adjust the context to support modal layouts.
-		$layout = $app->input->get('layout');
-
-		if ($layout)
-		{
-			$this->context .= '.' . $layout;
-		}
-
-		$value = JFactory::getApplication()->input->getInt('id');
-		$this->setState($this->getName() . '.id', $value);
-		$this->setState('item.id', $value);
-	}
-
-	/**
-	 * @return  mixed|null
-	 *
-	 * @throws Exception
-	 */
-	public function getSmiley()
-	{
-		$db = JFactory::getDBO();
-
-		$id = $this->getState($this->getName() . '.id');
-
-		if ($id)
-		{
-			$db->setQuery("SELECT * FROM #__kunena_smileys WHERE id={$db->quote($id)}");
-
-			try
-			{
-				$selected = $db->loadObject();
-			}
-			catch (RuntimeException $e)
-			{
-				JFactory::getApplication()->enqueueMessage($e->getMessage());
-
-				return;
-			}
-
-			return $selected;
-		}
-
-		return null;
-	}
-
-	/**
 	 * @return  mixed
-	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getSmileyspaths()
 	{
@@ -109,11 +59,68 @@ class KunenaAdminModelSmiley extends KunenaModel
 
 		foreach ($smiley_images as $file => $path)
 		{
-			$smiley_list[] = JHtml::_('select.option', $path, $file);
+			$smiley_list[] = HTMLHelper::_('select.option', $path, $file);
 		}
 
-		$list = JHtml::_('select.genericlist', $smiley_list, 'smiley_url', 'class="inputbox" onchange="update_smiley(this.options[selectedIndex].value);" onmousemove="update_smiley(this.options[selectedIndex].value);"', 'value', 'text', !empty($selected->location) ? $smiley_images[$selected->location] : '');
+		$list = HTMLHelper::_('select.genericlist', $smiley_list, 'smiley_url', 'class="inputbox" onchange="update_smiley(this.options[selectedIndex].value);" onmousemove="update_smiley(this.options[selectedIndex].value);"', 'value', 'text', !empty($selected->location) ? $smiley_images[$selected->location] : '');
 
 		return $list;
+	}
+
+	/**
+	 * @return  mixed|null
+	 *
+	 * @throws Exception
+	 * @since Kunena
+	 */
+	public function getSmiley()
+	{
+		$db = Factory::getDBO();
+
+		$id = $this->getState($this->getName() . '.id');
+
+		if ($id)
+		{
+			$db->setQuery("SELECT * FROM #__kunena_smileys WHERE id={$db->quote($id)}");
+
+			try
+			{
+				$selected = $db->loadObject();
+			}
+			catch (RuntimeException $e)
+			{
+				Factory::getApplication()->enqueueMessage($e->getMessage());
+
+				return;
+			}
+
+			return $selected;
+		}
+
+		return;
+	}
+
+	/**
+	 * Method to auto-populate the model state.
+	 * @since Kunena
+	 * @throws Exception
+	 */
+	protected function populateState()
+	{
+		$this->context = 'com_kunena.admin.smiley';
+
+		$app = Factory::getApplication();
+
+		// Adjust the context to support modal layouts.
+		$layout = $app->input->get('layout');
+
+		if ($layout)
+		{
+			$this->context .= '.' . $layout;
+		}
+
+		$value = Factory::getApplication()->input->getInt('id');
+		$this->setState($this->getName() . '.id', $value);
+		$this->setState('item.id', $value);
 	}
 }

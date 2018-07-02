@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Models
+ * @package         Kunena.Site
+ * @subpackage      Models
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * Announcement Model for Kunena
@@ -18,10 +20,14 @@ defined('_JEXEC') or die();
  */
 class KunenaModelAnnouncement extends KunenaModel
 {
+	/**
+	 * @var boolean
+	 * @since Kunena
+	 */
 	protected $total = false;
 
 	/**
-	 *
+	 * @since Kunena
 	 */
 	protected function populateState()
 	{
@@ -49,28 +55,31 @@ class KunenaModelAnnouncement extends KunenaModel
 
 	/**
 	 * @return KunenaForumAnnouncement
+	 * @since Kunena
 	 */
-	function getNewAnnouncement()
+	public function getNewAnnouncement()
 	{
 		return new KunenaForumAnnouncement;
 	}
 
 	/**
 	 * @return KunenaForumAnnouncement
+	 * @since Kunena
 	 */
-	function getAnnouncement()
+	public function getAnnouncement()
 	{
 		return KunenaForumAnnouncementHelper::get($this->getState('item.id'));
 	}
 
 	/**
 	 * @return boolean|null
+	 * @since Kunena
 	 */
 	public function getTotal()
 	{
 		if ($this->total === false)
 		{
-			return null;
+			return;
 		}
 
 		return $this->total;
@@ -78,8 +87,10 @@ class KunenaModelAnnouncement extends KunenaModel
 
 	/**
 	 * @return KunenaForumAnnouncement[]
+	 * @throws Exception
+	 * @since Kunena
 	 */
-	function getAnnouncements()
+	public function getAnnouncements()
 	{
 		$start = $this->getState('list.start');
 		$limit = $this->getState('list.limit');
@@ -104,6 +115,8 @@ class KunenaModelAnnouncement extends KunenaModel
 
 	/**
 	 * @return array
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function getannouncementActions()
 	{
@@ -112,11 +125,11 @@ class KunenaModelAnnouncement extends KunenaModel
 
 		if ($user->isModerator())
 		{
-			$actions[] = JHtml::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
-			$actions[] = JHtml::_('select.option', 'unpublish', JText::_('COM_KUNENA_BULK_ANNOUNCEMENT_UNPUBLISH'));
-			$actions[] = JHtml::_('select.option', 'publish', JText::_('COM_KUNENA_BULK_ANNOUNCEMENT_PUBLISH'));
-			$actions[] = JHtml::_('select.option', 'edit', JText::_('COM_KUNENA_EDIT'));
-			$actions[] = JHtml::_('select.option', 'delete', JText::_('COM_KUNENA__BULK_ANNOUNCEMENT_DELETE'));
+			$actions[] = HTMLHelper::_('select.option', 'none', JText::_('COM_KUNENA_BULK_CHOOSE_ACTION'));
+			$actions[] = HTMLHelper::_('select.option', 'unpublish', JText::_('COM_KUNENA_BULK_ANNOUNCEMENT_UNPUBLISH'));
+			$actions[] = HTMLHelper::_('select.option', 'publish', JText::_('COM_KUNENA_BULK_ANNOUNCEMENT_PUBLISH'));
+			$actions[] = HTMLHelper::_('select.option', 'edit', JText::_('COM_KUNENA_EDIT'));
+			$actions[] = HTMLHelper::_('select.option', 'delete', JText::_('COM_KUNENA__BULK_ANNOUNCEMENT_DELETE'));
 		}
 
 		return $actions;

@@ -2,14 +2,16 @@
 /**
  * Kunena Component
  *
- * @package     Kunena.Site
- * @subpackage  Controllers
+ * @package         Kunena.Site
+ * @subpackage      Controllers
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die();
+
+use Joomla\CMS\Factory;
 
 /**
  * Kunena Misc Controller
@@ -19,7 +21,10 @@ defined('_JEXEC') or die();
 class KunenaControllerMisc extends KunenaController
 {
 	/**
-	 * @param   array $config
+	 * @param   array $config config
+	 *
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	public function __construct($config = array())
 	{
@@ -28,10 +33,14 @@ class KunenaControllerMisc extends KunenaController
 
 	/**
 	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	public function template()
 	{
-		$name = JFactory::getApplication()->input->getString('name', JFactory::getApplication()->input->getString('kunena_template', '', 'COOKIE'));
+		$name = Factory::getApplication()->input->getString('name',
+			Factory::getApplication()->input->cookie->getString('kunena_template', '')
+		);
 
 		if ($name)
 		{
@@ -42,11 +51,11 @@ class KunenaControllerMisc extends KunenaController
 				$name = 'crypsis';
 			}
 
-			setcookie('kunena_template', $name, 0, JUri::root(true) . '/');
+			setcookie('kunena_template', $name, 0, \Joomla\CMS\Uri\Uri::root(true) . '/', '', true);
 		}
 		else
 		{
-			setcookie('kunena_template', null, time() - 3600, JUri::root(true) . '/');
+			setcookie('kunena_template', null, time() - 3600, \Joomla\CMS\Uri\Uri::root(true) . '/', '', true);
 		}
 
 		$this->setRedirect(KunenaRoute::_('index.php?option=com_kunena', false));

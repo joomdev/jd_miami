@@ -1,14 +1,16 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Statistics
+ * @package         Kunena.Site
+ * @subpackage      Controller.Statistics
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 
 /**
  * Class ComponentKunenaControllerStatisticsGeneralDisplay
@@ -17,6 +19,10 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerStatisticsGeneralDisplay extends KunenaControllerDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'Statistics/General';
 
 	/**
@@ -24,7 +30,9 @@ class ComponentKunenaControllerStatisticsGeneralDisplay extends KunenaController
 	 *
 	 * @return void
 	 *
-	 * @throws KunenaExceptionAuthorise
+	 * @throws Exception
+	 * @since Kunena
+	 * @throws null
 	 */
 	protected function before()
 	{
@@ -32,12 +40,22 @@ class ComponentKunenaControllerStatisticsGeneralDisplay extends KunenaController
 
 		$this->config = KunenaConfig::getInstance();
 
+		$Itemid = $this->input->getInt('Itemid');
+
+		if (!$Itemid && KunenaConfig::getInstance()->sef_redirect)
+		{
+			$itemid     = KunenaRoute::fixMissingItemID();
+			$controller = JControllerLegacy::getInstance("kunena");
+			$controller->setRedirect(KunenaRoute::_("index.php?option=com_kunena&view=statistics&Itemid={$itemid}", false));
+			$controller->redirect();
+		}
+
 		if (!$this->config->get('showstats'))
 		{
 			throw new KunenaExceptionAuthorise(JText::_('COM_KUNENA_NO_ACCESS'), '404');
 		}
 
-		if (!$this->config->statslink_allowed && JFactory::getUser()->guest)
+		if (!$this->config->statslink_allowed && Factory::getUser()->guest)
 		{
 			throw new KunenaExceptionAuthorise(JText::_('COM_KUNENA_NO_ACCESS'), '401');
 		}
@@ -47,17 +65,19 @@ class ComponentKunenaControllerStatisticsGeneralDisplay extends KunenaController
 		$this->setProperties($statistics);
 
 		$this->latestMemberLink = KunenaFactory::getUser((int) $this->lastUserId)->getLink(null, null, '');
-		$this->userlistUrl = KunenaFactory::getProfile()->getUserListUrl();
+		$this->userlistUrl      = KunenaFactory::getProfile()->getUserListUrl();
 	}
 
 	/**
 	 * Prepare document.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function prepareDocument()
 	{
-		$app       = JFactory::getApplication();
+		$app       = Factory::getApplication();
 		$menu_item = $app->getMenu()->getActive();
 
 		if ($menu_item)

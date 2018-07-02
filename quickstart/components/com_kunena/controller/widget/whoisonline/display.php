@@ -1,12 +1,12 @@
 <?php
 /**
  * Kunena Component
- * @package     Kunena.Site
- * @subpackage  Controller.Statistics
+ * @package         Kunena.Site
+ * @subpackage      Controller.Statistics
  *
- * @copyright   (C) 2008 - 2018 Kunena Team. All rights reserved.
- * @license     https://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @link        https://www.kunena.org
+ * @copyright       Copyright (C) 2008 - 2018 Kunena Team. All rights reserved.
+ * @license         https://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @link            https://www.kunena.org
  **/
 defined('_JEXEC') or die;
 
@@ -17,8 +17,16 @@ defined('_JEXEC') or die;
  */
 class ComponentKunenaControllerWidgetWhoisonlineDisplay extends KunenaControllerDisplay
 {
+	/**
+	 * @var string
+	 * @since Kunena
+	 */
 	protected $name = 'Widget/WhoIsOnline';
 
+	/**
+	 * @var
+	 * @since Kunena
+	 */
 	public $usersUrl;
 
 	/**
@@ -26,7 +34,8 @@ class ComponentKunenaControllerWidgetWhoisonlineDisplay extends KunenaController
 	 *
 	 * @return void
 	 *
-	 * @throws KunenaExceptionAuthorise
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function before()
 	{
@@ -39,7 +48,7 @@ class ComponentKunenaControllerWidgetWhoisonlineDisplay extends KunenaController
 			throw new KunenaExceptionAuthorise(JText::_('COM_KUNENA_NO_ACCESS'), '404');
 		}
 
-		$me = KunenaUserHelper::getMyself();
+		$me        = KunenaUserHelper::getMyself();
 		$moderator = intval($me->isModerator()) + intval($me->isAdmin());
 
 		$users = KunenaUserHelper::getOnlineUsers();
@@ -69,7 +78,7 @@ class ComponentKunenaControllerWidgetWhoisonlineDisplay extends KunenaController
 			$who .= JText::_('COM_KUNENA_WHO_ONLINE_GUESTS') . '&nbsp;';
 		}
 
-		$who .= JText::_('COM_KUNENA_WHO_ONLINE_NOW');
+		$who                 .= JText::_('COM_KUNENA_WHO_ONLINE_NOW');
 		$this->membersOnline = $who;
 
 		$this->onlineList = array();
@@ -95,7 +104,7 @@ class ComponentKunenaControllerWidgetWhoisonlineDisplay extends KunenaController
 		ksort($this->onlineList);
 		ksort($this->hiddenList);
 
-		$profile = KunenaFactory::getProfile();
+		$profile        = KunenaFactory::getProfile();
 		$this->usersUrl = $profile->getUserListURL();
 	}
 
@@ -103,6 +112,8 @@ class ComponentKunenaControllerWidgetWhoisonlineDisplay extends KunenaController
 	 * Prepare document.
 	 *
 	 * @return void
+	 * @throws Exception
+	 * @since Kunena
 	 */
 	protected function prepareDocument()
 	{
